@@ -517,6 +517,7 @@ for i, row in df.iterrows():
         </div>
         """, unsafe_allow_html=True)
 
+
         csv_df = df.copy()
         csv_df["Apply"] = csv_df["_excel"]
         csv_df = csv_df.drop(columns=["_excel","_date"])
