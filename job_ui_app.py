@@ -71,22 +71,6 @@ div[data-testid="stDataFrame"] {
     color: #374151;
 }
 
-/* ---------- DOWNLOAD BUTTON ---------- */
-.download-btn button {
-    background: linear-gradient(135deg, #00C9A7, #92FE9D) !important;
-    color: #064E3B !important;
-    border-radius: 14px !important;
-    font-weight: 700 !important;
-    padding: 10px 18px !important;
-    box-shadow: 0 10px 25px rgba(0, 201, 167, 0.35) !important;
-    border: none !important;
-}
-.download-btn button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 14px 32px rgba(0, 201, 167, 0.45) !important;
-}
-
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -109,7 +93,7 @@ st.markdown("""
         font-size:22px;
         font-weight:700;
     ">
-        J
+        MJ
     </div>
 
     <div>
