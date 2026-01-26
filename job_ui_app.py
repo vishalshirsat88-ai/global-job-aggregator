@@ -487,35 +487,34 @@ if st.button("Run Job Search"):
         # Code deleted between these two lines ------------------
 
         cols = st.columns(2)
-
-for i, row in df.iterrows():
-    col = cols[i % 2]
-
-    with col:
-        badge_class = "badge-onsite"
-        if row["Work Mode"].lower() == "remote":
-            badge_class = "badge-remote"
-        elif row["Work Mode"].lower() == "hybrid":
-            badge_class = "badge-hybrid"
-
-        st.markdown(f"""
-        <div class="job-card">
-            <div class="job-title">{row['Title']}</div>
-            <div class="job-company">{row['Company']}</div>
-            <div class="job-location">📍 {row['Location']}</div>
-
-            <span class="badge {badge_class}">
-                {row['Work Mode']}
-            </span>
-
-            <div class="job-actions">
-                <span class="badge badge-onsite">{row['Skill']}</span>
-                <a class="apply-btn" href="{row['Apply']}" target="_blank">
-                    Apply →
-                </a>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        for i, row in df.iterrows():
+            col = cols[i % 2]
+        
+            with col:
+                badge_class = "badge-onsite"
+                if row["Work Mode"].lower() == "remote":
+                    badge_class = "badge-remote"
+                elif row["Work Mode"].lower() == "hybrid":
+                    badge_class = "badge-hybrid"
+        
+                st.markdown(f"""
+                <div class="job-card">
+                    <div class="job-title">{row['Title']}</div>
+                    <div class="job-company">{row['Company']}</div>
+                    <div class="job-location">📍 {row['Location']}</div>
+        
+                    <span class="badge {badge_class}">
+                        {row['Work Mode']}
+                    </span>
+        
+                    <div class="job-actions">
+                        <span class="badge badge-onsite">{row['Skill']}</span>
+                        <a class="apply-btn" href="{row['Apply']}" target="_blank">
+                            Apply →
+                        </a>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
 
 
         csv_df = df.copy()
