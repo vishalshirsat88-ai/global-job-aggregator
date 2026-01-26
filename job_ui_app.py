@@ -99,7 +99,25 @@ div[data-testid="stDataFrame"] {
 
 st.markdown("""
 <style>
+<div style="padding: 80px 0 60px 0; display: flex; justify-content: center;">
+    <div style="display: flex; align-items: center; gap: 18px;">
+        <div style="
+            background: linear-gradient(135deg, #6A5AE0, #B983FF);
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: 800;
+            font-family: 'Inter', sans-serif;
+        ">
+            MJ
+        </div>
 .hero-title {
+    display: inline-block;   /* ← THIS FIXES IT */
     font-family: 'Inter', sans-serif;
     font-size: 52px;
     font-weight: 800;
@@ -114,6 +132,7 @@ st.markdown("""
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
+
 
 .hero-subtitle {
     font-family: 'Inter', sans-serif;
