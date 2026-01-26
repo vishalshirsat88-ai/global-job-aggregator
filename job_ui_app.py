@@ -12,6 +12,8 @@ st.set_page_config(page_title="Global Job Aggregator", layout="wide")
 st.markdown("""
 <style>
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap');
+
 /* ---------- GLOBAL BACKGROUND ---------- */
 .stApp {
     background: linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 50%, #fff7ed 100%);
@@ -95,24 +97,46 @@ div[data-testid="stDataFrame"] {
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown(
-"""
-<div style="display:flex; align-items:center; gap:14px; margin: 10px 0 25px 0;">
-    <div style="background: linear-gradient(135deg, #6A5AE0, #B983FF); width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; color:white; font-size:22px; font-weight:700;">
-        MJ
+st.markdown("""
+<style>
+.hero-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    background: linear-gradient(
+        90deg,
+        #4F6CF7 0%,
+        #7A6FF0 50%,
+        #E8A06A 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    color: #475569;
+    margin-top: 14px;
+}
+
+
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<div style="padding: 80px 0 60px 0; text-align:center;">
+    <div class="hero-title">
+        Global Job Aggregator
     </div>
-    <div>
-        <div style="font-size:28px; font-weight:800; color:#1F2937; line-height:1.1;">
-            Global Job Aggregator
-        </div>
-        <div style="font-size:13px; color:#6B7280; font-weight:500;">
-            Search smarter. Apply faster.
-        </div>
+    <div class="hero-subtitle">
+        Search smarter. Apply faster.
     </div>
 </div>
-""",
-    unsafe_allow_html=True
-)
+""", unsafe_allow_html=True)
+
 
 st.markdown("""
 <style>
