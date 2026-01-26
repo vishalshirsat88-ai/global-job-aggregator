@@ -474,6 +474,7 @@ st.markdown("""
     ">
         MJ
     </div>
+</div>    
 
     
         <div style="
@@ -484,6 +485,7 @@ st.markdown("""
         ">
             Global Job Aggregator
         </div>
+        
         <div style="
             font-size:14px;
             color:#6B7280;
@@ -492,7 +494,7 @@ st.markdown("""
         ">
             AI-powered global job intelligence
         </div>
-    </div>
+    
 
 """, unsafe_allow_html=True)
 
