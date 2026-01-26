@@ -126,64 +126,46 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown(
-"""
-<div style="
-    display:flex;
-    align-items:center;
-    gap:14px;
-    margin: 18px 0 10px 0;
-">
-    <div style="
-        background: linear-gradient(135deg, #6A5AE0, #B983FF);
-        width:46px;
-        height:46px;
-        border-radius:14px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        color:white;
-        font-size:22px;
-        font-weight:700;
-        font-family: Inter, sans-serif;
-    ">
-        MJ
-    </div>
-    <div>
-        <div style="
-            font-size:20px;
-            font-weight:700;
-            color:#1F2937;
-            line-height:1.1;
-            font-family: Inter, sans-serif;
-        ">
-            Global Job Aggregator
-        </div>
-        <div style="
-            font-size:13px;
-            color:#6B7280;
-            font-weight:500;
-            font-family: Inter, sans-serif;
-        ">
-            Search smarter. Apply faster.
-        </div>
-    </div>
-</div>
-""",
-unsafe_allow_html=True
-)
-
 
 st.markdown("""
-<div style="padding: 80px 0 60px 0; text-align:center;">
-    <div class="hero-title">
-        Global Job Aggregator
-    </div>
-    <div class="hero-subtitle">
-        Search smarter. Apply faster.
+<div style="
+    padding: 80px 0 60px 0;
+    display:flex;
+    justify-content:center;
+">
+    <div style="display:flex; align-items:center; gap:18px;">
+        
+        <!-- MJ LOGO -->
+        <div style="
+            background: linear-gradient(135deg, #6A5AE0, #B983FF);
+            width:54px;
+            height:54px;
+            border-radius:16px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:white;
+            font-size:24px;
+            font-weight:800;
+            font-family: Inter, sans-serif;
+        ">
+            MJ
+        </div>
+
+        <!-- HERO TEXT -->
+        <div>
+            <div class="hero-title">
+                Global Job Aggregator
+            </div>
+            <div class="hero-subtitle">
+                Search smarter. Apply faster.
+            </div>
+        </div>
+
     </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 st.markdown("""
