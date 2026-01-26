@@ -102,27 +102,26 @@ st.markdown("""
 <style>
 .hero-title {
     font-family: 'Inter', sans-serif;
-    font-size: 52px;
+    font-size: 56px;
     font-weight: 800;
     line-height: 1.1;
     letter-spacing: -1px;
+
     background: linear-gradient(
         90deg,
-        #4F6CF7 0%,
-        #7A6FF0 50%,
-        #E8A06A 100%
+        #5B8CFF 0%,
+        #8B7CF6 40%,
+        #F3A06B 100%
     );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
-
 .hero-subtitle {
     font-family: 'Inter', sans-serif;
     font-size: 18px;
-    color: #475569;
-    margin-top: 14px;
+    color: rgba(255,255,255,0.85);
+    margin-top: 12px;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
