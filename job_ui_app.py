@@ -4,6 +4,77 @@ import pandas as pd
 import re
 from datetime import datetime, timedelta
 
+st.markdown("""
+<style>
+
+/* ---------- GLOBAL BACKGROUND ---------- */
+.stApp {
+    background: linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 50%, #fff7ed 100%);
+}
+
+/* ---------- SIDEBAR ---------- */
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #6A5AE0, #B983FF);
+    color: white;
+}
+section[data-testid="stSidebar"] * {
+    color: white !important;
+}
+
+/* ---------- BUTTONS ---------- */
+.stButton>button {
+    background: linear-gradient(135deg, #FF5EDF, #FF8A00);
+    color: white;
+    border-radius: 14px;
+    padding: 10px 20px;
+    font-weight: 600;
+    border: none;
+    box-shadow: 0 8px 20px rgba(255, 94, 223, 0.35);
+    transition: all 0.2s ease-in-out;
+}
+.stButton>button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(255, 94, 223, 0.45);
+}
+
+/* ---------- INPUTS ---------- */
+input, textarea {
+    border-radius: 12px !important;
+}
+
+/* ---------- DATAFRAME (TEMP) ---------- */
+div[data-testid="stDataFrame"] {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+}
+
+/* ---------- BADGES ---------- */
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 6px;
+}
+.badge-remote {
+    background: linear-gradient(135deg, #6A5AE0, #B983FF);
+    color: white;
+}
+.badge-hybrid {
+    background: linear-gradient(135deg, #00C9A7, #92FE9D);
+    color: #064E3B;
+}
+.badge-onsite {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
 # =========================================================
 # API KEYS
 # =========================================================
