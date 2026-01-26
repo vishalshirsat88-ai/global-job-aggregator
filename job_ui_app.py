@@ -101,7 +101,7 @@ st.markdown("""
 <style>
 .hero-title {
     font-family: 'Inter', sans-serif;
-    font-size: 52px;
+    font-size: 48px;
     font-weight: 800;
     line-height: 1.1;
     letter-spacing: -1px;
