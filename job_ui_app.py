@@ -480,10 +480,10 @@ if st.button("Run Job Search"):
         st.success(f"✅ Found {len(df)} jobs")
         # Code deleted between these two lines ------------------
         #st.dataframe(
-            #df.drop(columns=["_excel","_date"]),
-            #use_container_width=True,
-            #column_config={"Apply": st.column_config.LinkColumn("Apply Now")}
-        )
+        #    df.drop(columns=["_excel","_date"]),
+        #    use_container_width=True,
+        #    column_config={"Apply": st.column_config.LinkColumn("Apply Now")}
+        #)
         # Code deleted between these two lines ------------------
 
         cols = st.columns(2)
