@@ -484,39 +484,63 @@ if st.button("Run Job Search"):
         df = df.sort_values(by=["_date"], ascending=False, na_position="last")
 
         st.success(f"✅ Found {len(df)} jobs")
-        # Code deleted between these two lines ------------------
-        #st.dataframe(
-        #    df.drop(columns=["_excel","_date"]),
-        #    use_container_width=True,
-        #    column_config={"Apply": st.column_config.LinkColumn("Apply Now")}
-        #)
-        # Code deleted between these two lines ------------------
-
-        
-        if df.empty:
-    st.warning("No jobs found.")
-else:
-    df = df.sort_values(by=["_date"], ascending=False, na_position="last")
-    st.success(f"✅ Found {len(df)} jobs")
-
-    # 🔁 THIS BLOCK REPLACES THE OLD CARD-ONLY CODE
-    if view_mode == "Modern (Cards)":
-        # cards rendering
-        ...
+            if df.empty:
+        st.warning("No jobs found.")
     else:
-        # classic table rendering
-        ...
+        df = df.sort_values(by=["_date"], ascending=False, na_position="last")
+        st.success(f"✅ Found {len(df)} jobs")
 
-    # ✅ KEEP THIS AS-IS
-    csv_df = df.copy()
-    csv_df["Apply"] = csv_df["_excel"]
-    csv_df = csv_df.drop(columns=["_excel","_date"])
+        # =========================
+        # VIEW MODE TOGGLE
+        # =========================
+        if view_mode == "Modern (Cards)":
+            cols = st.columns(2)
 
-    st.download_button(...)
+            for i, row in df.iterrows():
+                col = cols[i % 2]
 
+                badge_class = "badge-onsite"
+                if str(row["Work Mode"]).lower() == "remote":
+                    badge_class = "badge-remote"
+                elif str(row["Work Mode"]).lower() == "hybrid":
+                    badge_class = "badge-hybrid"
 
+                card_html = f"""
+<div class="job-card">
+  <div class="job-title">{row['Title']}</div>
+  <div class="job-company">{row['Company']}</div>
+  <div class="job-location">📍 {row['Location']}</div>
 
+  <span class="badge {badge_class}">
+    {row['Work Mode']}
+  </span>
 
+  <div class="job-actions">
+    <span class="badge badge-onsite">{row['Skill']}</span>
+    <a class="apply-btn" href="{row['Apply']}" target="_blank">
+      Apply →
+    </a>
+  </div>
+</div>
+"""
+                with col:
+                    st.markdown(card_html, unsafe_allow_html=True)
+
+        else:
+            # =========================
+            # CLASSIC TABLE VIEW
+            # =========================
+            st.dataframe(
+                df.drop(columns=["_excel","_date"]),
+                use_container_width=True,
+                column_config={
+                    "Apply": st.column_config.LinkColumn("Apply Now")
+                }
+            )
+
+        # =========================
+        # CSV EXPORT (COMMON)
+        # =========================
         csv_df = df.copy()
         csv_df["Apply"] = csv_df["_excel"]
         csv_df = csv_df.drop(columns=["_excel","_date"])
