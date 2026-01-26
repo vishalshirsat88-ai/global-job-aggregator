@@ -127,37 +127,50 @@ def excel_link(url):
     return f'=HYPERLINK("{url}","Apply")' if url else ""
 
 # =========================================================
-# FETCHERS WITH GLOBAL LOGIC & STATS
+# FETCHERS: OPTIMIZED FOR METROPOLITAN HUBS
 # =========================================================
 
 def fetch_jsearch(skills, levels, countries, posted_days, location):
     rows, stats = [], {"found": 0, "dropped": 0, "error": None}
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
-    allowed_codes = {COUNTRIES[c].upper() for c in countries}
+    # Map country codes for strict country filtering
+    country_codes = [COUNTRIES[c].upper() for c in countries]
     
     for skill in skills:
-        query = f"{skill} {' '.join(levels)} in {location}".strip()
+        # We add the location to the search query itself
+        search_query = f"{skill} {' '.join(levels)} in {location}".strip()
         try:
             r = requests.get(
                 "https://jsearch.p.rapidapi.com/search",
                 headers={"x-rapidapi-key": RAPIDAPI_KEY, "x-rapidapi-host": "jsearch.p.rapidapi.com"},
-                params={"query": query, "num_pages": 1}, timeout=20
+                params={"query": search_query, "num_pages": 1}, timeout=20
             )
             if r.status_code != 200: 
-                stats["error"] = f"Code {r.status_code}"; continue
+                stats["error"] = f"JSearch Error {r.status_code}"; continue
+            
             data = r.json().get("data", [])
             stats["found"] += len(data)
+            
             for j in data:
-                code = (j.get("job_country") or "").upper()
+                j_country = (j.get("job_country") or "").upper()
                 dt = normalize_date(j.get("job_posted_at_datetime_utc",""))
-                if code not in allowed_codes or (dt and dt < cutoff):
+                
+                # We filter by COUNTRY and DATE, but NOT by CITY string 
+                # to ensure suburbs like Navi Mumbai stay in the list.
+                if j_country not in country_codes or (dt and dt < cutoff):
                     stats["dropped"] += 1; continue
+
                 rows.append({
-                    "Source": j.get("job_publisher","JSearch"), "Title": j.get("job_title"),
-                    "Company": j.get("employer_name"), "Location": j.get("job_city") or j.get("job_state") or code,
-                    "Country": code, "Work Mode": work_mode(j.get("job_title","") + " " + j.get("job_description","")),
-                    "Posted": j.get("job_posted_at_datetime_utc",""), "Apply": j.get("job_apply_link"),
-                    "_excel": excel_link(j.get("job_apply_link")), "_date": dt
+                    "Source": j.get("job_publisher","JSearch"),
+                    "Title": j.get("job_title"),
+                    "Company": j.get("employer_name"),
+                    "Location": j.get("job_city") or j.get("job_state") or j.get("job_country"),
+                    "Country": j_country,
+                    "Work Mode": work_mode(j.get("job_title","") + " " + j.get("job_description","")),
+                    "Posted": j.get("job_posted_at_datetime_utc",""),
+                    "Apply": j.get("job_apply_link"),
+                    "_excel": excel_link(j.get("job_apply_link")),
+                    "_date": dt
                 })
         except Exception as e: stats["error"] = str(e)
     return rows, stats
@@ -169,20 +182,33 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
         try:
             r = requests.get(
                 f"https://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/1",
-                params={"app_id": ADZUNA_APP_ID, "app_key": ADZUNA_API_KEY, "what": " ".join(skills + levels), "where": location, "results_per_page": 15},
-                timeout=15
+                params={
+                    "app_id": ADZUNA_APP_ID, 
+                    "app_key": ADZUNA_API_KEY, 
+                    "what": " ".join(skills + levels), 
+                    "where": location, # Adzuna's engine understands Navi Mumbai is in Mumbai hub
+                    "results_per_page": 15
+                }, timeout=15
             )
-            if r.status_code != 200: stats["error"] = f"Code {r.status_code}"; continue
+            if r.status_code != 200: stats["error"] = f"Adzuna Error {r.status_code}"; continue
+            
             data = r.json().get("results", [])
             stats["found"] += len(data)
             for j in data:
                 dt = normalize_date(j.get("created",""))
                 if dt and dt < cutoff: stats["dropped"] += 1; continue
+                
                 rows.append({
-                    "Source": "Adzuna", "Title": j.get("title"), "Company": j.get("company",{}).get("display_name"),
-                    "Location": j.get("location",{}).get("display_name"), "Country": c,
-                    "Work Mode": work_mode(j.get("title","")), "Posted": j.get("created",""),
-                    "Apply": j.get("redirect_url"), "_excel": excel_link(j.get("redirect_url")), "_date": dt
+                    "Source": "Adzuna",
+                    "Title": j.get("title"),
+                    "Company": j.get("company",{}).get("display_name"),
+                    "Location": j.get("location",{}).get("display_name"),
+                    "Country": c,
+                    "Work Mode": work_mode(j.get("title","")),
+                    "Posted": j.get("created",""),
+                    "Apply": j.get("redirect_url"),
+                    "_excel": excel_link(j.get("redirect_url")),
+                    "_date": dt
                 })
         except Exception as e: stats["error"] = str(e)
     return rows, stats
@@ -191,32 +217,39 @@ def fetch_jooble(skills, levels, countries, location):
     rows, stats = [], {"found": 0, "error": None}
     for c in countries:
         try:
-            r = requests.post(f"https://jooble.org/api/{JOOBLE_KEY}", json={"keywords": " ".join(skills + levels), "location": location}, timeout=15)
-            if r.status_code != 200: stats["error"] = f"Code {r.status_code}"; continue
+            r = requests.post(
+                f"https://jooble.org/api/{JOOBLE_KEY}", 
+                json={"keywords": " ".join(skills + levels), "location": location}, 
+                timeout=15
+            )
+            if r.status_code != 200: stats["error"] = f"Jooble Error {r.status_code}"; continue
             data = r.json().get("jobs", [])
             stats["found"] += len(data)
             for j in data:
                 rows.append({
-                    "Source": "Jooble", "Title": j.get("title"), "Company": j.get("company"),
-                    "Location": j.get("location"), "Country": c, "Work Mode": work_mode(j.get("title","")),
-                    "Posted": "", "Apply": j.get("link"), "_excel": excel_link(j.get("link")), "_date": None
+                    "Source": "Jooble",
+                    "Title": j.get("title"),
+                    "Company": j.get("company"),
+                    "Location": j.get("location"),
+                    "Country": c,
+                    "Work Mode": work_mode(j.get("title","")),
+                    "Posted": "",
+                    "Apply": j.get("link"),
+                    "_excel": excel_link(j.get("link")),
+                    "_date": None
                 })
         except Exception as e: stats["error"] = str(e)
     return rows, stats
 
 # =========================================================
-# MAIN UI INPUTS (RESTORED TO MAIN PAGE)
+# MAIN UI INPUTS
 # =========================================================
 skills = [s.strip() for s in st.text_input("Skills", "Software Engineer").split(",") if s.strip()]
 levels = [l.strip() for l in st.text_input("Levels", "Manager").split(",") if l.strip()]
-location = st.text_input("Location (e.g. Mumbai, New York)", "Mumbai")
+location = st.text_input("Location", "Mumbai")
 
 is_remote = location.strip().lower() == "remote"
-countries = st.multiselect("Country", options=list(COUNTRIES.keys()), default=["India"], disabled=is_remote)
-
-if not is_remote and not countries:
-    st.error("Please select at least one country.")
-    st.stop()
+countries = st.multiselect("Country", options=list(COUNTRIES.keys()), default=["India"])
 
 posted_days = st.slider("Posted within last X days", 1, 60, 14)
 
@@ -229,28 +262,29 @@ with col_download: download_placeholder = st.empty()
 # EXECUTION & DIAGNOSTIC HUB
 # =========================================================
 if run_search:
-    with st.spinner(f"Searching global hubs for {location}..."):
+    with st.spinner(f"🔍 Searching {location} Metropolitan area..."):
         js_r, js_s = fetch_jsearch(skills, levels, countries, posted_days, location)
         ad_r, ad_s = fetch_adzuna(skills, levels, countries, posted_days, location)
         jo_r, jo_s = fetch_jooble(skills, levels, countries, location)
 
-        # THE DIAGNOSTIC HUB (RESTORED)
+        # DIAGNOSTIC HUB
         with st.expander("🕵️ Diagnostic Hub", expanded=True):
             c1, c2, c3 = st.columns(3)
             with c1:
                 st.write("**JSearch**")
-                st.caption(f"Found: {js_s['found']} | Filtered: {js_s['dropped']}")
+                st.caption(f"Raw API Hits: {js_s['found']} | Filtered (Date/Country): {js_s['dropped']}")
                 if js_s['error']: st.error(js_s['error'])
             with c2:
                 st.write("**Adzuna**")
-                st.caption(f"Found: {ad_s['found']} | Filtered: {ad_s['dropped']}")
+                st.caption(f"Raw API Hits: {ad_s['found']} | Filtered (Date): {ad_s['dropped']}")
                 if ad_s['error']: st.error(ad_s['error'])
             with c3:
                 st.write("**Jooble**")
-                st.caption(f"Found: {jo_s['found']}")
+                st.caption(f"Raw API Hits: {jo_s['found']}")
                 if jo_s['error']: st.error(jo_s['error'])
 
         df = pd.DataFrame(js_r + ad_r + jo_r)
+        
         if df.empty:
             st.warning("No jobs found. Try broadening your keywords.")
         else:
@@ -259,9 +293,9 @@ if run_search:
             st.success(f"✅ Found {len(df)} jobs.")
 
             if not classic_view:
-                cols = st.columns(2)
+                grid_cols = st.columns(2)
                 for i, row in df.iterrows():
-                    col = cols[i % 2]
+                    col = grid_cols[i % 2]
                     badge_class = "badge-onsite"
                     if str(row["Work Mode"]).lower() == "remote": badge_class = "badge-remote"
                     elif str(row["Work Mode"]).lower() == "hybrid": badge_class = "badge-hybrid"
