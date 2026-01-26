@@ -475,7 +475,7 @@ st.markdown("""
         MJ
     </div>
 
-    <div>
+    
         <div style="
             font-size:30px;
             font-weight:800;
@@ -493,7 +493,7 @@ st.markdown("""
             AI-powered global job intelligence
         </div>
     </div>
-</div>
+
 """, unsafe_allow_html=True)
 
 
