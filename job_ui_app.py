@@ -614,16 +614,17 @@ if run_search:
                         st.markdown(card_html, unsafe_allow_html=True)
     
             else:
-            # =========================
-            # CLASSIC TABLE VIEW
-            # =========================
-            st.dataframe(
-                df.drop(columns=["_excel","_date"]),
-                use_container_width=True,
-                column_config={
-                    "Apply": st.column_config.LinkColumn("Apply Now")
-                }
-            )
+                # =========================
+                # CLASSIC TABLE VIEW
+                # =========================
+                st.dataframe(
+                    df.drop(columns=["_excel","_date"]),
+                    use_container_width=True,
+                    column_config={
+                        "Apply": st.column_config.LinkColumn("Apply Now")
+                    }
+                )
+
 
     
             # =========================
