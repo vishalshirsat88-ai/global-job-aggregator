@@ -1,0 +1,368 @@
+import streamlit as st
+import requests
+import pandas as pd
+import re
+from datetime import datetime, timedelta
+
+# =========================================================
+# API KEYS
+# =========================================================
+RAPIDAPI_KEY = st.secrets["RAPIDAPI_KEY"]
+JOOBLE_KEY   = st.secrets["JOOBLE_KEY"]
+ADZUNA_APP_ID = st.secrets["ADZUNA_APP_ID"]
+ADZUNA_API_KEY = st.secrets["ADZUNA_API_KEY"]
+REMOTIVE_API = "https://remotive.com/api/remote-jobs"
+
+# =========================================================
+# COUNTRY MAP
+# =========================================================
+COUNTRIES = {
+    "India": "in",
+    "United States": "us",
+    "United Kingdom": "gb",
+    "United Arab Emirates": "ae",
+    "Canada": "ca",
+    "Australia": "au"
+}
+
+# =========================================================
+# HELPERS
+# =========================================================
+def normalize_date(val):
+    try:
+        return datetime.fromisoformat(val.replace("Z","").replace(".000",""))
+    except:
+        return None
+
+def parse_date(val):
+    try:
+        return datetime.fromisoformat(val.replace("Z","").replace(".000",""))
+    except:
+        return None
+
+def skill_match(text, skill):
+    return re.search(rf"\b{re.escape(skill.lower())}\b", (text or "").lower())
+
+def work_mode(text):
+    t = (text or "").lower()
+    if "remote" in t:
+        return "Remote"
+    if "hybrid" in t:
+        return "Hybrid"
+    return "On-site"
+
+def city_match(city, text):
+    if not city:
+        return False
+    return re.search(rf"\b{re.escape(city.lower())}\b", (text or "").lower()) is not None
+
+def text_contains(text, items):
+    t = (text or "").lower()
+    return any(i.lower() in t for i in items)
+
+def excel_link(url):
+    return f'=HYPERLINK("{url}","Apply")' if url else ""
+
+# =========================================================
+# REMOTE SEARCH
+# =========================================================
+def fetch_remote_jobs(skills, level, posted_days):
+    rows = []
+    cutoff = datetime.utcnow() - timedelta(days=posted_days)
+
+    for skill in skills:
+        r = requests.get(
+            "https://jsearch.p.rapidapi.com/search",
+            headers={
+                "x-rapidapi-key": RAPIDAPI_KEY,
+                "x-rapidapi-host": "jsearch.p.rapidapi.com"
+            },
+            params={
+                "query": f"{skill} {level} remote job",
+                "num_pages": 1
+            },
+            timeout=20
+        )
+
+        if r.status_code == 200:
+            for j in r.json().get("data", []):
+                blob = f"{j.get('job_title','')} {j.get('job_description','')}"
+                if not skill_match(blob, skill):
+                    continue
+
+                dt = parse_date(j.get("job_posted_at_datetime_utc",""))
+                if dt and dt < cutoff:
+                    continue
+
+                rows.append({
+                    "Source": j.get("job_publisher",""),
+                    "Skill": skill,
+                    "Title": j.get("job_title"),
+                    "Company": j.get("employer_name"),
+                    "Location": "Remote",
+                    "Country": "Remote",
+                    "Work Mode": "Remote",
+                    "Posted": j.get("job_posted_at_datetime_utc",""),
+                    "Apply": j.get("job_apply_link"),
+                    "_excel": excel_link(j.get("job_apply_link")),
+                    "_date": dt
+                })
+
+    r = requests.get(REMOTIVE_API, timeout=15).json()
+    for skill in skills:
+        for j in r.get("jobs", []):
+            if not skill_match(j.get("title",""), skill):
+                continue
+
+            rows.append({
+                "Source": "Remotive",
+                "Skill": skill,
+                "Title": j.get("title"),
+                "Company": j.get("company_name"),
+                "Location": "Remote",
+                "Country": "Remote",
+                "Work Mode": "Remote",
+                "Posted": "",
+                "Apply": j.get("url"),
+                "_excel": excel_link(j.get("url")),
+                "_date": None
+            })
+
+    return rows
+
+# =========================================================
+# NON-REMOTE FETCHERS
+# =========================================================
+def fetch_jsearch(skills, levels, countries, posted_days):
+    rows = []
+    cutoff = datetime.utcnow() - timedelta(days=posted_days)
+
+    r = requests.get(
+        "https://jsearch.p.rapidapi.com/search",
+        headers={
+            "x-rapidapi-key": RAPIDAPI_KEY,
+            "x-rapidapi-host": "jsearch.p.rapidapi.com"
+        },
+        params={
+            "query": " OR ".join(skills) + " job",
+            "num_pages": 1,
+            "country": "all"
+        },
+        timeout=20
+    )
+
+    if r.status_code != 200:
+        return rows
+
+    for j in r.json().get("data", []):
+        if j.get("job_country","").lower() not in [c.lower() for c in countries]:
+            continue
+
+        text_blob = j.get("job_title","") + " " + j.get("job_description","")
+        if levels and not text_contains(text_blob, levels):
+            continue
+
+        dt = normalize_date(j.get("job_posted_at_datetime_utc",""))
+        if dt and dt < cutoff:
+            continue
+
+        rows.append({
+            "Source": j.get("job_publisher",""),
+            "Skill": ", ".join(skills),
+            "Title": j.get("job_title"),
+            "Company": j.get("employer_name"),
+            "Location": j.get("job_city") or j.get("job_country"),
+            "Country": j.get("job_country"),
+            "Work Mode": work_mode(text_blob),
+            "Posted": j.get("job_posted_at_datetime_utc",""),
+            "Apply": j.get("job_apply_link"),
+            "_excel": excel_link(j.get("job_apply_link")),
+            "_date": dt
+        })
+    return rows
+
+def fetch_adzuna(skills, levels, countries, posted_days):
+    rows = []
+    cutoff = datetime.utcnow() - timedelta(days=posted_days)
+
+    for c in countries:
+        r = requests.get(
+            f"https://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/1",
+            params={
+                "app_id": ADZUNA_APP_ID,
+                "app_key": ADZUNA_API_KEY,
+                "what": " ".join(skills + levels),
+                "results_per_page": 20
+            },
+            timeout=15
+        ).json()
+
+        for j in r.get("results", []):
+            dt = normalize_date(j.get("created",""))
+            if dt and dt < cutoff:
+                continue
+
+            rows.append({
+                "Source": "Adzuna",
+                "Skill": ", ".join(skills),
+                "Title": j.get("title"),
+                "Company": j.get("company",{}).get("display_name"),
+                "Location": j.get("location",{}).get("display_name"),
+                "Country": c,
+                "Work Mode": work_mode(j.get("title","")),
+                "Posted": j.get("created",""),
+                "Apply": j.get("redirect_url"),
+                "_excel": excel_link(j.get("redirect_url")),
+                "_date": dt
+            })
+    return rows
+
+def fetch_jooble(skills, levels, countries):
+    rows = []
+    for c in countries:
+        r = requests.post(
+            f"https://jooble.org/api/{JOOBLE_KEY}",
+            json={"keywords": " ".join(skills + levels), "location": c},
+            timeout=15
+        ).json()
+
+        for j in r.get("jobs", []):
+            rows.append({
+                "Source": "Jooble",
+                "Skill": ", ".join(skills),
+                "Title": j.get("title"),
+                "Company": j.get("company"),
+                "Location": j.get("location"),
+                "Country": c,
+                "Work Mode": work_mode(j.get("title","")),
+                "Posted": "",
+                "Apply": j.get("link"),
+                "_excel": excel_link(j.get("link")),
+                "_date": None
+            })
+    return rows
+
+# =========================================================
+# ENGINE (MULTI-SKILL + MULTI-CITY LOGIC)
+# =========================================================
+def run_engine(skills, levels, location, countries, posted_days):
+    cities = [c.strip() for c in location.split(",") if c.strip()] if location else []
+
+    collected_frames = []
+    any_city_match = False
+    all_skill_frames = []
+
+    # -----------------------------
+    # Step 1: Fetch everything first
+    # -----------------------------
+    for skill in skills:
+        rows = []
+        rows += fetch_jsearch([skill], levels, countries, posted_days)
+        rows += fetch_adzuna([skill], levels, countries, posted_days)
+        rows += fetch_jooble([skill], levels, countries)
+
+        if not rows:
+            continue
+
+        df = pd.DataFrame(rows).drop_duplicates(
+            subset=["Title","Company","Location","Source"]
+        )
+
+        all_skill_frames.append(df)
+
+        if cities:
+            for city in cities:
+                mask = df["Location"].apply(lambda x: city_match(city, x))
+                if mask.any():
+                    any_city_match = True
+                    collected_frames.append(df[mask])
+        else:
+            collected_frames.append(df)
+
+    # -----------------------------
+    # Step 2: Decide fallback
+    # -----------------------------
+    if cities:
+        if any_city_match:
+            # At least one city matched → show only matched rows
+            final_df = pd.concat(collected_frames, ignore_index=True)
+            fallback_used = False
+        else:
+            # No city matched at all → fallback to country
+            final_df = pd.concat(all_skill_frames, ignore_index=True)
+            fallback_used = True
+    else:
+        final_df = pd.concat(collected_frames, ignore_index=True)
+        fallback_used = False
+
+    if final_df.empty:
+        return pd.DataFrame(), False
+
+    final_df = final_df.drop_duplicates(
+        subset=["Title","Company","Location","Source"]
+    )
+
+    return final_df, fallback_used
+
+
+# =========================================================
+# STREAMLIT UI
+# =========================================================
+st.set_page_config(page_title="Global Job Aggregator", layout="wide")
+st.title("🌍 Global Job Aggregator")
+
+skills = [s.strip() for s in st.text_input("Skills", "WFM").split(",") if s.strip()]
+levels = [l.strip() for l in st.text_input("Levels", "Manager").split(",") if l.strip()]
+location = st.text_input("Location (city or Remote, comma separated)", "")
+
+is_remote = location.strip().lower() == "remote"
+
+countries = st.multiselect(
+    "Country",
+    options=list(COUNTRIES.keys()),
+    default=["India"],
+    disabled=is_remote
+)
+
+if not is_remote and not countries:
+    st.error("Country is mandatory unless location is Remote.")
+    st.stop()
+
+posted_days = st.slider("Posted within last X days", 1, 60, 7)
+
+if st.button("Run Job Search"):
+    with st.spinner("Fetching jobs..."):
+        if is_remote:
+            df = pd.DataFrame(fetch_remote_jobs(skills, levels[0] if levels else "", posted_days))
+            fallback = False
+        else:
+            df, fallback = run_engine(skills, levels, location, countries, posted_days)
+
+    if fallback:
+         st.info(
+            f"ℹ️ No jobs found for **{location}**. "
+            f"Showing country-level jobs instead."
+        )
+
+
+    if df.empty:
+        st.warning("No jobs found.")
+    else:
+        df = df.sort_values(by=["_date"], ascending=False, na_position="last")
+
+        st.success(f"✅ Found {len(df)} jobs")
+        st.dataframe(
+            df.drop(columns=["_excel","_date"]),
+            use_container_width=True,
+            column_config={"Apply": st.column_config.LinkColumn("Apply Now")}
+        )
+
+        csv_df = df.copy()
+        csv_df["Apply"] = csv_df["_excel"]
+        csv_df = csv_df.drop(columns=["_excel","_date"])
+
+        st.download_button(
+            "⬇️ Download CSV",
+            csv_df.to_csv(index=False),
+            "job_results.csv"
+        )
