@@ -437,12 +437,7 @@ def run_engine(skills, levels, location, countries, posted_days):
 # =========================================================
 st.set_page_config(page_title="Global Job Aggregator", layout="wide")
 st.title("🌍 Global Job Aggregator")
-with st.sidebar:
-    view_mode = st.radio(
-        "🔍 View Mode",
-        options=["Modern (Cards)", "Classic (Table)"],
-        index=0
-    )
+
 
 skills = [s.strip() for s in st.text_input("Skills", "WFM").split(",") if s.strip()]
 levels = [l.strip() for l in st.text_input("Levels", "Manager").split(",") if l.strip()]
@@ -463,7 +458,23 @@ if not is_remote and not countries:
 
 posted_days = st.slider("Posted within last X days", 1, 60, 7)
 
-if st.button("Run Job Search"):
+# =========================
+# TOP ACTION BAR
+# =========================
+col_run, col_toggle, col_download = st.columns([2, 3, 2])
+
+with col_run:
+    run_search = st.button("🚀 Run Job Search")
+
+with col_toggle:
+    st.markdown("<div style='text-align:center; font-weight:600;'>View</div>", unsafe_allow_html=True)
+    classic_view = st.toggle("Classic View", value=False)
+
+with col_download:
+    download_placeholder = st.empty()
+
+
+if run_search:
     with st.spinner("Fetching jobs..."):
         if is_remote:
             df = pd.DataFrame(fetch_remote_jobs(skills, levels[0] if levels else "", posted_days))
@@ -486,7 +497,7 @@ if st.button("Run Job Search"):
             # =========================
             # VIEW MODE TOGGLE
             # =========================
-            if view_mode == "Modern (Cards)":
+            if not classic_view:
                 cols = st.columns(2)
     
                 for i, row in df.iterrows():
@@ -520,6 +531,8 @@ if st.button("Run Job Search"):
                         st.markdown(card_html, unsafe_allow_html=True)
     
             else:
+    # Classic table view
+
                 # =========================
                 # CLASSIC TABLE VIEW
                 # =========================
@@ -538,11 +551,13 @@ if st.button("Run Job Search"):
             csv_df["Apply"] = csv_df["_excel"]
             csv_df = csv_df.drop(columns=["_excel","_date"])
     
-            st.download_button(
-                "⬇️ Download CSV",
-                csv_df.to_csv(index=False),
-                "job_results.csv"
-            )
+            with col_download:
+                download_placeholder.download_button(
+                    "⬇️ Download CSV",
+                    csv_df.to_csv(index=False),
+                    "job_results.csv"
+                )
+
     
     
         
