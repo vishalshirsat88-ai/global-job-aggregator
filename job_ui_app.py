@@ -455,46 +455,46 @@ st.markdown("""
 <div style="
     display:flex;
     align-items:center;
-    gap:14px;
-    margin-bottom:20px;
+    gap:18px;
+    margin-bottom:26px;
 ">
     <div style="
-        background: linear-gradient(135deg, #6A5AE0, #B983FF);
-        width:46px;
-        height:46px;
-        border-radius:14px;
+        background: linear-gradient(135deg, #6A5AE0, #FF5EDF, #FF8A00);
+        width:56px;
+        height:56px;
+        border-radius:16px;
         display:flex;
         align-items:center;
         justify-content:center;
         color:white;
         font-size:22px;
-        font-weight:700;
+        font-weight:900;
+        letter-spacing:-1px;
+        box-shadow: 0 12px 30px rgba(139,92,246,0.45);
     ">
         MJ
     </div>
 
     <div>
         <div style="
-            font-size:28px;
+            font-size:30px;
             font-weight:800;
-            color:#1F2937;
+            color:#111827;
             line-height:1.1;
         ">
             Global Job Aggregator
         </div>
         <div style="
-            font-size:13px;
+            font-size:14px;
             color:#6B7280;
             font-weight:500;
+            margin-top:4px;
         ">
-            Search smarter. Apply faster.
+            AI-powered global job intelligence
         </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
-
-
-
 
 
 skills = [s.strip() for s in st.text_input("Skills", "WFM").split(",") if s.strip()]
