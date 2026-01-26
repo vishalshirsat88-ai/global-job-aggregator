@@ -127,33 +127,33 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-st.markdown("""
+st.markdown(
+"""
 <div style="
-    padding: 80px 0 60px 0;
     display:flex;
-    justify-content:center;
+    align-items:center;
+    gap:14px;
+    margin: 18px 0 10px 0;
 ">
-    <div style="display:flex; align-items:center; gap:18px;">
+    <div style="
+        background: linear-gradient(135deg, #6A5AE0, #B983FF);
+        width:46px;
+        height:46px;
+        border-radius:14px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:white;
+        font-size:22px;
+        font-weight:700;
+        font-family: Inter, sans-serif;
+    ">
+        MJ
+    </div>
+    <div>
         
-        <!-- MJ LOGO -->
-        <div style="
-            background: linear-gradient(135deg, #6A5AE0, #B983FF);
-            width:54px;
-            height:54px;
-            border-radius:16px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            color:white;
-            font-size:24px;
-            font-weight:800;
-            font-family: Inter, sans-serif;
-        ">
-            MJ
-        </div>
-
-        <!-- HERO TEXT -->
-        <div>
+        
+        <div style="padding: 80px 0 60px 0; text-align:center;">
             <div class="hero-title">
                 Global Job Aggregator
             </div>
@@ -161,10 +161,11 @@ st.markdown("""
                 Search smarter. Apply faster.
             </div>
         </div>
-
-    </div>
 </div>
-""", unsafe_allow_html=True)
+""",
+unsafe_allow_html=True
+)
+
 
 
 
