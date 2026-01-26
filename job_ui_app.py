@@ -74,6 +74,62 @@ div[data-testid="stDataFrame"] {
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+
+/* ---------- JOB CARD ---------- */
+.job-card {
+    background: rgba(255,255,255,0.9);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.job-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 4px;
+}
+
+.job-company {
+    font-size: 14px;
+    color: #6B7280;
+    margin-bottom: 8px;
+}
+
+.job-location {
+    font-size: 13px;
+    color: #374151;
+    margin-bottom: 10px;
+}
+
+.job-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.apply-btn {
+    background: linear-gradient(135deg, #FF5EDF, #FF8A00);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(255, 94, 223, 0.35);
+}
+
+.apply-btn:hover {
+    opacity: 0.9;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 
 # =========================================================
 # API KEYS
@@ -422,11 +478,44 @@ if st.button("Run Job Search"):
         df = df.sort_values(by=["_date"], ascending=False, na_position="last")
 
         st.success(f"✅ Found {len(df)} jobs")
-        st.dataframe(
-            df.drop(columns=["_excel","_date"]),
-            use_container_width=True,
-            column_config={"Apply": st.column_config.LinkColumn("Apply Now")}
+        # Code deleted between these two lines ------------------
+        #st.dataframe(
+            #df.drop(columns=["_excel","_date"]),
+            #use_container_width=True,
+            #column_config={"Apply": st.column_config.LinkColumn("Apply Now")}
         )
+        # Code deleted between these two lines ------------------
+
+        cols = st.columns(2)
+
+for i, row in df.iterrows():
+    col = cols[i % 2]
+
+    with col:
+        badge_class = "badge-onsite"
+        if row["Work Mode"].lower() == "remote":
+            badge_class = "badge-remote"
+        elif row["Work Mode"].lower() == "hybrid":
+            badge_class = "badge-hybrid"
+
+        st.markdown(f"""
+        <div class="job-card">
+            <div class="job-title">{row['Title']}</div>
+            <div class="job-company">{row['Company']}</div>
+            <div class="job-location">📍 {row['Location']}</div>
+
+            <span class="badge {badge_class}">
+                {row['Work Mode']}
+            </span>
+
+            <div class="job-actions">
+                <span class="badge badge-onsite">{row['Skill']}</span>
+                <a class="apply-btn" href="{row['Apply']}" target="_blank">
+                    Apply →
+                </a>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         csv_df = df.copy()
         csv_df["Apply"] = csv_df["_excel"]
