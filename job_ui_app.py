@@ -99,9 +99,7 @@ div[data-testid="stDataFrame"] {
 
 st.markdown("""
 <style>
-
 .hero-title {
-    display: inline-block;   /* important */
     font-family: 'Inter', sans-serif;
     font-size: 52px;
     font-weight: 800;
@@ -124,39 +122,19 @@ st.markdown("""
     margin-top: 14px;
 }
 
-
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<div style="padding:80px 0 60px 0; display:flex; justify-content:center;">
-  <div style="display:flex; align-items:center; gap:18px;">
-
-    <div style="
-        background: linear-gradient(135deg, #6A5AE0, #B983FF);
-        width:56px;
-        height:56px;
-        border-radius:16px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        color:white;
-        font-size:24px;
-        font-weight:800;
-        font-family:'Inter', sans-serif;
-    ">
-      MJ
+<div style="padding: 80px 0 60px 0; text-align:center;">
+    <div class="hero-title">
+        Global Job Aggregator
     </div>
-
-    <div style="text-align:left;">
-      <div class="hero-title">Global Job Aggregator</div>
-      <div class="hero-subtitle">Search smarter. Apply faster.</div>
+    <div class="hero-subtitle">
+        Search smarter. Apply faster.
     </div>
-
-  </div>
 </div>
 """, unsafe_allow_html=True)
-
 
 
 st.markdown("""
@@ -636,3 +614,8 @@ if run_search:
                     "job_results.csv"
                 )
                 st.markdown('</div>', unsafe_allow_html=True)
+AND BELOW IS THE ERROR COMING:
+File "/mount/src/global-job-aggregator/job_ui_app.py", line 1
+  see now if the code is right?
+      ^
+SyntaxError: expected 'else' after 'if' expression
