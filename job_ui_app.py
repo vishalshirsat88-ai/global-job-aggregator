@@ -501,7 +501,6 @@ if run_search:
             df = pd.DataFrame(fetch_remote_jobs(skills, levels[0] if levels else "", posted_days))
             fallback = False
         else:
-        else:
             df, fallback = run_engine(skills, levels, locations, countries, posted_days)
         
             # 🔁 COUNTRY-LEVEL FALLBACK
