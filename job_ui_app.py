@@ -614,8 +614,3 @@ if run_search:
                     "job_results.csv"
                 )
                 st.markdown('</div>', unsafe_allow_html=True)
-AND BELOW IS THE ERROR COMING:
-File "/mount/src/global-job-aggregator/job_ui_app.py", line 1
-  see now if the code is right?
-      ^
-SyntaxError: expected 'else' after 'if' expression
