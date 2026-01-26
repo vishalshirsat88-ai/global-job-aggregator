@@ -432,64 +432,40 @@ def fetch_jooble(skills, levels, countries, cities=None):
 # ENGINE (MULTI-SKILL + MULTI-CITY LOGIC)
 # =========================================================
 def run_engine(skills, levels, location, countries, posted_days):
-    cities = [c.strip() for c in location.split(",") if c.strip()] if location else []
+    all_rows = []
 
-    collected_frames = []
-    any_city_match = False
-    all_skill_frames = []
-
-    # -----------------------------
-    # Step 1: Fetch everything first
-    # -----------------------------
+    # Fetch per skill (keeps relevance strong)
     for skill in skills:
-        rows = []
-        rows += fetch_jsearch([skill], levels, countries, posted_days, cities)
-        rows += fetch_adzuna([skill], levels, countries, posted_days, cities)
-        rows += fetch_jooble([skill], levels, countries, cities)
+        all_rows += fetch_jsearch([skill], levels, countries, posted_days, location)
+        all_rows += fetch_adzuna([skill], levels, countries, posted_days, location)
+        all_rows += fetch_jooble([skill], levels, countries, location)
 
+    if not all_rows:
+        return pd.DataFrame(), True  # fallback indicator
 
-        if not rows:
-            continue
-
-        df = pd.DataFrame(rows).drop_duplicates(
-            subset=["Title","Company","Location","Source"]
-        )
-
-        all_skill_frames.append(df)
-
-        if cities:
-            for city in cities:
-                mask = df["Location"].apply(lambda x: city_match(city, x))
-                if mask.any():
-                    any_city_match = True
-                    collected_frames.append(df[mask])
-        else:
-            collected_frames.append(df)
+    df = pd.DataFrame(all_rows)
 
     # -----------------------------
-    # Step 2: Decide fallback
+    # SMART PASS COUNTRY FILTER
     # -----------------------------
-    if cities:
-        if any_city_match:
-            # At least one city matched → show only matched rows
-            final_df = pd.concat(collected_frames, ignore_index=True)
-            fallback_used = False
-        else:
-            # No city matched at all → fallback to country
-            final_df = pd.concat(all_skill_frames, ignore_index=True)
-            fallback_used = True
-    else:
-        final_df = pd.concat(collected_frames, ignore_index=True)
-        fallback_used = False
+    allowed_country_codes = {COUNTRIES[c].upper() for c in countries}
 
-    if final_df.empty:
-        return pd.DataFrame(), False
+    if "Country" in df.columns:
+        df = df[
+            df["Country"].isna() |
+            df["Country"].str.upper().isin(allowed_country_codes)
+        ]
 
-    final_df = final_df.drop_duplicates(
-        subset=["Title","Company","Location","Source"]
+    if df.empty:
+        return pd.DataFrame(), True
+
+    # Deduplicate globally
+    df = df.drop_duplicates(
+        subset=["Title", "Company", "Location", "Source"]
     )
 
-    return final_df, fallback_used
+    return df, False
+
 
 
 # =========================================================
