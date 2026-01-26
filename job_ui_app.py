@@ -479,7 +479,6 @@ st.markdown("""
     margin-bottom:26px;
 ">
 
-#    <!-- MJ LOGO -->
     <div style="
         background: linear-gradient(135deg, #6A5AE0, #FF5EDF, #FF8A00);
         width:56px;
@@ -497,7 +496,6 @@ st.markdown("""
         MJ
     </div>
 
-#    <!-- TITLE TEXT -->
     <div>
         <div style="
             font-size:30px;
@@ -520,6 +518,7 @@ st.markdown("""
 
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
