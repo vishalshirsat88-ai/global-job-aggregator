@@ -415,16 +415,17 @@ def fetch_jooble(skills, levels, countries, location):
 # =========================================================
 # ENGINE (MULTI-SKILL + MULTI-CITY LOGIC)
 # =========================================================
-def run_engine(skills, levels, location, countries, posted_days):
+def run_engine(skills, levels, locations, countries, posted_days):
     all_rows = []
 
-    for skill in skills:
-        all_rows += fetch_jsearch([skill], levels, countries, posted_days, location)
-        all_rows += fetch_adzuna([skill], levels, countries, posted_days, location)
-        all_rows += fetch_jooble([skill], levels, countries, location)
+    for loc in locations:
+        for skill in skills:
+            all_rows += fetch_jsearch([skill], levels, countries, posted_days, loc)
+            all_rows += fetch_adzuna([skill], levels, countries, posted_days, loc)
+            all_rows += fetch_jooble([skill], levels, countries, loc)
 
     if not all_rows:
-        return pd.DataFrame(), True  # fallback indicator
+        return pd.DataFrame(), True
 
     df = pd.DataFrame(all_rows)
 
@@ -443,12 +444,13 @@ def run_engine(skills, levels, location, countries, posted_days):
     if df.empty:
         return pd.DataFrame(), True
 
-    # Deduplicate globally (do NOT remove Location from subset)
+    # Deduplicate across locations
     df = df.drop_duplicates(
         subset=["Title", "Company", "Location", "Source"]
     )
 
     return df, False
+
 
 
 
@@ -460,7 +462,8 @@ def run_engine(skills, levels, location, countries, posted_days):
 
 skills = [s.strip() for s in st.text_input("Skills", "WFM").split(",") if s.strip()]
 levels = [l.strip() for l in st.text_input("Levels", "Manager").split(",") if l.strip()]
-location = st.text_input("Location (city or Remote, comma separated)", "")
+locations = [l.strip() for l in location.split(",") if l.strip()]
+
 
 is_remote = location.strip().lower() == "remote"
 
@@ -499,7 +502,7 @@ if run_search:
             df = pd.DataFrame(fetch_remote_jobs(skills, levels[0] if levels else "", posted_days))
             fallback = False
         else:
-            df, fallback = run_engine(skills, levels, location, countries, posted_days)
+            df, fallback = run_engine(skills, levels, locations, countries, posted_days)
 
         if fallback:
              st.info(
