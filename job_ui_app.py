@@ -476,15 +476,8 @@ if st.button("Run Job Search"):
                 f"ℹ️ No jobs found for **{location}**. "
                 f"Showing country-level jobs instead."
             )
-    
-    
+            
         if df.empty:
-            st.warning("No jobs found.")
-        else:
-            df = df.sort_values(by=["_date"], ascending=False, na_position="last")
-    
-            st.success(f"✅ Found {len(df)} jobs")
-                if df.empty:
             st.warning("No jobs found.")
         else:
             df = df.sort_values(by=["_date"], ascending=False, na_position="last")
@@ -550,3 +543,6 @@ if st.button("Run Job Search"):
                 csv_df.to_csv(index=False),
                 "job_results.csv"
             )
+    
+    
+        
