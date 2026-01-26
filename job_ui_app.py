@@ -4,6 +4,8 @@ import pandas as pd
 import re
 from datetime import datetime, timedelta
 
+st.set_page_config(page_title="Global Job Aggregator", layout="wide")
+
 st.markdown("""
 <style>
 
@@ -470,7 +472,7 @@ def run_engine(skills, levels, location, countries, posted_days):
 # =========================================================
 # STREAMLIT UI
 # =========================================================
-st.set_page_config(page_title="Global Job Aggregator", layout="wide")
+
 st.markdown("""
 <div style="
     display:flex;
