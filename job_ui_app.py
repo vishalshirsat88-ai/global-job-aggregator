@@ -462,9 +462,8 @@ def run_engine(skills, levels, locations, countries, posted_days):
 
 skills = [s.strip() for s in st.text_input("Skills", "WFM").split(",") if s.strip()]
 levels = [l.strip() for l in st.text_input("Levels", "Manager").split(",") if l.strip()]
+location = st.text_input("Location (city or Remote, comma separated)", "")
 locations = [l.strip() for l in location.split(",") if l.strip()]
-
-
 is_remote = location.strip().lower() == "remote"
 
 countries = st.multiselect(
