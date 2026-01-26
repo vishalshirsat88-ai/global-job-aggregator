@@ -443,7 +443,7 @@ st.markdown("""
     gap:16px;
     margin-bottom:24px;
 ">
-    <img src="https://raw.githubusercontent.com/vishalshirsat88-ai/global-job-aggregator/main/assets/globe.png"
+    <img src="https://raw.githubusercontent.com/vishalshirsat88-ai/global-job-aggregator/67683af29302bca55fe02aafe9f33bbd399eebfb/assets/Globe.png"
          style="
             height:58px;
             width:58px;
