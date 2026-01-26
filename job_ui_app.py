@@ -501,7 +501,19 @@ if run_search:
             df = pd.DataFrame(fetch_remote_jobs(skills, levels[0] if levels else "", posted_days))
             fallback = False
         else:
+        else:
             df, fallback = run_engine(skills, levels, locations, countries, posted_days)
+        
+            # 🔁 COUNTRY-LEVEL FALLBACK
+            if fallback:
+                df, _ = run_engine(
+                    skills,
+                    levels,
+                    locations=[""],   # ⬅️ country-only search
+                    countries=countries,
+                    posted_days=posted_days
+                )
+
 
         if fallback:
              st.info(
