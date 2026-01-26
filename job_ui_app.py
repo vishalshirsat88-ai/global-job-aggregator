@@ -96,47 +96,21 @@ div[data-testid="stDataFrame"] {
 """, unsafe_allow_html=True)
 
 st.markdown(
-    """
-    <div style="
-        display:flex;
-        align-items:center;
-        gap:14px;
-        margin: 10px 0 25px 0;
-    ">
-        <div style="
-            background: linear-gradient(135deg, #6A5AE0, #B983FF);
-            width:46px;
-            height:46px;
-            border-radius:14px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            color:white;
-            font-size:22px;
-            font-weight:700;
-        ">
-            MJ
+"""
+<div style="display:flex; align-items:center; gap:14px; margin: 10px 0 25px 0;">
+    <div style="background: linear-gradient(135deg, #6A5AE0, #B983FF); width:46px; height:46px; border-radius:14px; display:flex; align-items:center; justify-content:center; color:white; font-size:22px; font-weight:700;">
+        MJ
+    </div>
+    <div>
+        <div style="font-size:28px; font-weight:800; color:#1F2937; line-height:1.1;">
+            Global Job Aggregator
         </div>
-
-        <div>
-            <div style="
-                font-size:28px;
-                font-weight:800;
-                color:#1F2937;
-                line-height:1.1;
-            ">
-                Global Job Aggregator
-            </div>
-            <div style="
-                font-size:13px;
-                color:#6B7280;
-                font-weight:500;
-            ">
-                Search smarter. Apply faster.
-            </div>
+        <div style="font-size:13px; color:#6B7280; font-weight:500;">
+            Search smarter. Apply faster.
         </div>
     </div>
-    """,
+</div>
+""",
     unsafe_allow_html=True
 )
 
