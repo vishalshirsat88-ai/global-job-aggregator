@@ -436,7 +436,40 @@ def run_engine(skills, levels, location, countries, posted_days):
 # STREAMLIT UI
 # =========================================================
 st.set_page_config(page_title="Global Job Aggregator", layout="wide")
-st.title("🌍 Global Job Aggregator")
+st.markdown("""
+<div style="
+    display:flex;
+    align-items:center;
+    gap:16px;
+    margin-bottom:24px;
+">
+    <img src="https://raw.githubusercontent.com/vishalshirsat88-ai/global-job-aggregator/main/assets/globe.png"
+         style="
+            height:58px;
+            width:58px;
+            border-radius:50%;
+            filter: drop-shadow(0 0 14px rgba(139,92,246,0.45));
+         ">
+    <div>
+        <div style="
+            font-size:30px;
+            font-weight:800;
+            letter-spacing:-0.6px;
+            color:#1F2937;
+        ">
+            Global Job Aggregator
+        </div>
+        <div style="
+            font-size:14px;
+            color:#6B7280;
+            margin-top:-2px;
+        ">
+            AI-powered global job intelligence
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
 
 
 skills = [s.strip() for s in st.text_input("Skills", "WFM").split(",") if s.strip()]
