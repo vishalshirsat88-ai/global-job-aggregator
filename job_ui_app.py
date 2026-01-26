@@ -208,7 +208,10 @@ def parse_date(val):
         return None
 
 def skill_match(text, skill):
-    return re.search(rf"\b{re.escape(skill.lower())}\b", (text or "").lower())
+    if not text or not skill:
+        return False
+    return skill.lower() in text.lower()
+
 
 def work_mode(text):
     t = (text or "").lower()
@@ -348,7 +351,7 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
             params={
                 "app_id": ADZUNA_APP_ID,
                 "app_key": ADZUNA_API_KEY,
-                "what": " ".join(skills + levels),
+                "what": " OR ".join(skills + levels),
                 "where": location or "",  # ✅ CITY USED
                 "results_per_page": 20
             },
@@ -429,13 +432,13 @@ def run_engine(skills, levels, location, countries, posted_days):
     # -----------------------------
     # SMART PASS COUNTRY FILTER
     # -----------------------------
-    allowed_country_codes = {COUNTRIES[c].upper() for c in countries}
+    allowed_country_names = {c.upper() for c in countries}
 
     if "Country" in df.columns:
         df = df[
             df["Country"].isna() |
-            (df["Country"] == "Remote") |
-            df["Country"].str.upper().isin(allowed_country_codes)
+            (df["Country"].str.upper() == "REMOTE") |
+            df["Country"].str.upper().isin(allowed_country_names)
         ]
 
 
