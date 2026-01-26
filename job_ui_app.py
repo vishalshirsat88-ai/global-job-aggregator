@@ -440,35 +440,35 @@ st.markdown("""
 <div style="
     display:flex;
     align-items:center;
-    gap:16px;
-    margin-bottom:24px;
+    gap:18px;
+    margin-bottom:26px;
 ">
     <img src="https://raw.githubusercontent.com/vishalshirsat88-ai/global-job-aggregator/67683af29302bca55fe02aafe9f33bbd399eebfb/assets/Globe.png"
          style="
-            height:58px;
-            width:58px;
-            border-radius:50%;
-            filter: drop-shadow(0 0 14px rgba(139,92,246,0.45));
+            height:84px;
+            width:auto;
+            filter: drop-shadow(0 0 18px rgba(139,92,246,0.45));
          ">
     <div>
         <div style="
-            font-size:30px;
+            font-size:32px;
             font-weight:800;
             letter-spacing:-0.6px;
-            color:#1F2937;
+            color:#111827;
         ">
             Global Job Aggregator
         </div>
         <div style="
-            font-size:14px;
+            font-size:15px;
             color:#6B7280;
-            margin-top:-2px;
+            margin-top:-4px;
         ">
             AI-powered global job intelligence
         </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
