@@ -7,6 +7,21 @@ from datetime import datetime, timedelta
 st.markdown("""
 <style>
 
+/* ---------- DOWNLOAD BUTTON ---------- */
+.download-btn button {
+    background: linear-gradient(135deg, #00C9A7, #92FE9D) !important;
+    color: #064E3B !important;
+    border-radius: 14px !important;
+    font-weight: 700 !important;
+    padding: 10px 18px !important;
+    box-shadow: 0 10px 25px rgba(0, 201, 167, 0.35) !important;
+    border: none !important;
+}
+.download-btn button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 32px rgba(0, 201, 167, 0.45) !important;
+}
+
 /* ---------- GLOBAL BACKGROUND ---------- */
 .stApp {
     background: linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 50%, #fff7ed 100%);
@@ -440,35 +455,44 @@ st.markdown("""
 <div style="
     display:flex;
     align-items:center;
-    gap:18px;
-    margin-bottom:26px;
+    gap:14px;
+    margin-bottom:20px;
 ">
-    <img src="https://raw.githubusercontent.com/vishalshirsat88-ai/global-job-aggregator/0514274ce546269f5ee9a659317527842cbd6e55/assets/Globe.png
-"
-         style="
-            height:84px;
-            width:auto;
-            filter: drop-shadow(0 0 18px rgba(139,92,246,0.45));
-         ">
+    <div style="
+        background: linear-gradient(135deg, #6A5AE0, #B983FF);
+        width:46px;
+        height:46px;
+        border-radius:14px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:white;
+        font-size:22px;
+        font-weight:700;
+    ">
+        MJ
+    </div>
+
     <div>
         <div style="
-            font-size:32px;
+            font-size:28px;
             font-weight:800;
-            letter-spacing:-0.6px;
-            color:#111827;
+            color:#1F2937;
+            line-height:1.1;
         ">
             Global Job Aggregator
         </div>
         <div style="
-            font-size:15px;
+            font-size:13px;
             color:#6B7280;
-            margin-top:-4px;
+            font-weight:500;
         ">
-            AI-powered global job intelligence
+            Search smarter. Apply faster.
         </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 
@@ -586,11 +610,14 @@ if run_search:
             csv_df = csv_df.drop(columns=["_excel","_date"])
     
             with col_download:
+                st.markdown('<div class="download-btn">', unsafe_allow_html=True)
                 download_placeholder.download_button(
                     "⬇️ Download CSV",
                     csv_df.to_csv(index=False),
                     "job_results.csv"
                 )
+                st.markdown('</div>', unsafe_allow_html=True)
+
 
     
     
