@@ -1,3 +1,4 @@
+see now if the code is right?
 import streamlit as st
 import requests
 import pandas as pd
@@ -101,7 +102,7 @@ st.markdown("""
 <style>
 .hero-title {
     font-family: 'Inter', sans-serif;
-    font-size: 48px;
+    font-size: 52px;
     font-weight: 800;
     line-height: 1.1;
     letter-spacing: -1px;
@@ -122,51 +123,19 @@ st.markdown("""
     margin-top: 14px;
 }
 
-
 </style>
 """, unsafe_allow_html=True)
 
-
-st.markdown(
-"""
-<div style="
-    display:flex;
-    align-items:center;
-    gap:14px;
-    margin: 18px 0 10px 0;
-">
-    <div style="
-        background: linear-gradient(135deg, #6A5AE0, #B983FF);
-        width:46px;
-        height:46px;
-        border-radius:14px;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        color:white;
-        font-size:22px;
-        font-weight:700;
-        font-family: Inter, sans-serif;
-    ">
-        MJ
+st.markdown("""
+<div style="padding: 80px 0 60px 0; text-align:center;">
+    <div class="hero-title">
+        Global Job Aggregator
     </div>
-    <div>
-        
-        
-        <div style="padding: 80px 0 60px 0; text-align:center;">
-            <div class="hero-title">
-                Global Job Aggregator
-            </div>
-            <div class="hero-subtitle">
-                Search smarter. Apply faster.
-            </div>
-        </div>
+    <div class="hero-subtitle">
+        Search smarter. Apply faster.
+    </div>
 </div>
-""",
-unsafe_allow_html=True
-)
-
-
+""", unsafe_allow_html=True)
 
 
 st.markdown("""
