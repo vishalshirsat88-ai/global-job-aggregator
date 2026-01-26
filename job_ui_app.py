@@ -178,7 +178,7 @@ RAPIDAPI_KEY = st.secrets["RAPIDAPI_KEY"]
 JOOBLE_KEY   = st.secrets["JOOBLE_KEY"]
 ADZUNA_APP_ID = st.secrets["ADZUNA_APP_ID"]
 ADZUNA_API_KEY = st.secrets["ADZUNA_API_KEY"]
-REMOTIVE_API = https://remotive.com/api/remote-jobs
+REMOTIVE_API = "https://remotive.com/api/remote-jobs"
 
 # =========================================================
 # COUNTRY MAP
@@ -240,7 +240,7 @@ def fetch_remote_jobs(skills, level, posted_days):
 
     for skill in skills:
         r = requests.get(
-            https://jsearch.p.rapidapi.com/search,
+            "https://jsearch.p.rapidapi.com/search",
             headers={
                 "x-rapidapi-key": RAPIDAPI_KEY,
                 "x-rapidapi-host": "jsearch.p.rapidapi.com"
@@ -313,7 +313,7 @@ def fetch_jsearch(skills, levels, countries, posted_days, cities=None):
             query += f" {cities[0]}"  # ✅ CITY USED IN API SEARCH
 
         r = requests.get(
-            https://jsearch.p.rapidapi.com/search,
+            "https://jsearch.p.rapidapi.com/search",
             headers={
                 "x-rapidapi-key": RAPIDAPI_KEY,
                 "x-rapidapi-host": "jsearch.p.rapidapi.com"
@@ -364,7 +364,7 @@ def fetch_adzuna(skills, levels, countries, posted_days, cities=None):
 
     for c in countries:
         r = requests.get(
-            fhttps://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/1,
+            f"https://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/1",
             params={
                 "app_id": ADZUNA_APP_ID,
                 "app_key": ADZUNA_API_KEY,
@@ -402,7 +402,7 @@ def fetch_jooble(skills, levels, countries, cities=None):
 
     for c in countries:
         r = requests.post(
-            fhttps://jooble.org/api/{JOOBLE_KEY},
+            f"https://jooble.org/api/{JOOBLE_KEY}",
             json={
                 "keywords": " ".join(skills + levels),
                 "location": cities[0] if cities else c  # ✅ CITY USED
