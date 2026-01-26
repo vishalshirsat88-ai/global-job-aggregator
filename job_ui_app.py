@@ -101,12 +101,12 @@ st.markdown(
 """, unsafe_allow_html=True)
 
 # =========================================================
-# API KEYS & HELPERS
+# CONFIG & HELPERS
 # =========================================================
-RAPIDAPI_KEY = st.secrets["RAPIDAPI_KEY"]
-JOOBLE_KEY   = st.secrets["JOOBLE_KEY"]
-ADZUNA_APP_ID = st.secrets["ADZUNA_APP_ID"]
-ADZUNA_API_KEY = st.secrets["ADZUNA_API_KEY"]
+RAPIDAPI_KEY = st.secrets.get("RAPIDAPI_KEY", "")
+JOOBLE_KEY   = st.secrets.get("JOOBLE_KEY", "")
+ADZUNA_APP_ID = st.secrets.get("ADZUNA_APP_ID", "")
+ADZUNA_API_KEY = st.secrets.get("ADZUNA_API_KEY", "")
 
 COUNTRIES = {
     "India": "in", "United States": "us", "United Kingdom": "gb",
@@ -127,12 +127,11 @@ def excel_link(url):
     return f'=HYPERLINK("{url}","Apply")' if url else ""
 
 # =========================================================
-# FETCHERS WITH BUILT-IN ERROR LOGGING
+# FETCHERS WITH GLOBAL LOGIC & STATS
 # =========================================================
 
 def fetch_jsearch(skills, levels, countries, posted_days, location):
-    rows = []
-    stats = {"found": 0, "dropped": 0, "error": None}
+    rows, stats = [], {"found": 0, "dropped": 0, "error": None}
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
     allowed_codes = {COUNTRIES[c].upper() for c in countries}
     
@@ -142,165 +141,122 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
             r = requests.get(
                 "https://jsearch.p.rapidapi.com/search",
                 headers={"x-rapidapi-key": RAPIDAPI_KEY, "x-rapidapi-host": "jsearch.p.rapidapi.com"},
-                params={"query": query, "num_pages": 1},
-                timeout=20
+                params={"query": query, "num_pages": 1}, timeout=20
             )
-            if r.status_code != 200:
-                stats["error"] = f"API Error: {r.status_code}"
-                continue
-                
+            if r.status_code != 200: 
+                stats["error"] = f"Code {r.status_code}"; continue
             data = r.json().get("data", [])
             stats["found"] += len(data)
-
             for j in data:
                 code = (j.get("job_country") or "").upper()
                 dt = normalize_date(j.get("job_posted_at_datetime_utc",""))
-                
-                # Global relevance: we trust the API's query result, but keep country filter
                 if code not in allowed_codes or (dt and dt < cutoff):
-                    stats["dropped"] += 1
-                    continue
-
+                    stats["dropped"] += 1; continue
                 rows.append({
-                    "Source": j.get("job_publisher","JSearch"),
-                    "Title": j.get("job_title"),
-                    "Company": j.get("employer_name"),
-                    "Location": j.get("job_city") or j.get("job_state") or code,
-                    "Country": code,
-                    "Work Mode": work_mode(j.get("job_title","") + " " + j.get("job_description","")),
-                    "Posted": j.get("job_posted_at_datetime_utc",""),
-                    "Apply": j.get("job_apply_link"),
-                    "_excel": excel_link(j.get("job_apply_link")),
-                    "_date": dt
+                    "Source": j.get("job_publisher","JSearch"), "Title": j.get("job_title"),
+                    "Company": j.get("employer_name"), "Location": j.get("job_city") or j.get("job_state") or code,
+                    "Country": code, "Work Mode": work_mode(j.get("job_title","") + " " + j.get("job_description","")),
+                    "Posted": j.get("job_posted_at_datetime_utc",""), "Apply": j.get("job_apply_link"),
+                    "_excel": excel_link(j.get("job_apply_link")), "_date": dt
                 })
-        except Exception as e:
-            stats["error"] = str(e)
+        except Exception as e: stats["error"] = str(e)
     return rows, stats
 
 def fetch_adzuna(skills, levels, countries, posted_days, location):
-    rows = []
-    stats = {"found": 0, "dropped": 0, "error": None}
+    rows, stats = [], {"found": 0, "dropped": 0, "error": None}
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
     for c in countries:
         try:
             r = requests.get(
                 f"https://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/1",
-                params={
-                    "app_id": ADZUNA_APP_ID, "app_key": ADZUNA_API_KEY,
-                    "what": " ".join(skills + levels),
-                    "where": location,
-                    "results_per_page": 15
-                }, timeout=15
+                params={"app_id": ADZUNA_APP_ID, "app_key": ADZUNA_API_KEY, "what": " ".join(skills + levels), "where": location, "results_per_page": 15},
+                timeout=15
             )
-            if r.status_code != 200:
-                stats["error"] = f"Error {r.status_code}"
-                continue
-            
+            if r.status_code != 200: stats["error"] = f"Code {r.status_code}"; continue
             data = r.json().get("results", [])
             stats["found"] += len(data)
             for j in data:
                 dt = normalize_date(j.get("created",""))
-                if dt and dt < cutoff:
-                    stats["dropped"] += 1
-                    continue
+                if dt and dt < cutoff: stats["dropped"] += 1; continue
                 rows.append({
-                    "Source": "Adzuna",
-                    "Title": j.get("title"),
-                    "Company": j.get("company",{}).get("display_name"),
-                    "Location": j.get("location",{}).get("display_name"),
-                    "Country": c,
-                    "Work Mode": work_mode(j.get("title","")),
-                    "Posted": j.get("created",""),
-                    "Apply": j.get("redirect_url"),
-                    "_excel": excel_link(j.get("redirect_url")),
-                    "_date": dt
+                    "Source": "Adzuna", "Title": j.get("title"), "Company": j.get("company",{}).get("display_name"),
+                    "Location": j.get("location",{}).get("display_name"), "Country": c,
+                    "Work Mode": work_mode(j.get("title","")), "Posted": j.get("created",""),
+                    "Apply": j.get("redirect_url"), "_excel": excel_link(j.get("redirect_url")), "_date": dt
                 })
-        except Exception as e:
-            stats["error"] = str(e)
+        except Exception as e: stats["error"] = str(e)
     return rows, stats
 
 def fetch_jooble(skills, levels, countries, location):
-    rows = []
-    stats = {"found": 0, "error": None}
+    rows, stats = [], {"found": 0, "error": None}
     for c in countries:
         try:
-            r = requests.post(
-                f"https://jooble.org/api/{JOOBLE_KEY}",
-                json={"keywords": " ".join(skills + levels), "location": location},
-                timeout=15
-            )
-            if r.status_code != 200:
-                stats["error"] = f"Error {r.status_code}"
-                continue
+            r = requests.post(f"https://jooble.org/api/{JOOBLE_KEY}", json={"keywords": " ".join(skills + levels), "location": location}, timeout=15)
+            if r.status_code != 200: stats["error"] = f"Code {r.status_code}"; continue
             data = r.json().get("jobs", [])
             stats["found"] += len(data)
             for j in data:
                 rows.append({
-                    "Source": "Jooble",
-                    "Title": j.get("title"),
-                    "Company": j.get("company"),
-                    "Location": j.get("location"),
-                    "Country": c,
-                    "Work Mode": work_mode(j.get("title","")),
-                    "Posted": "",
-                    "Apply": j.get("link"),
-                    "_excel": excel_link(j.get("link")),
-                    "_date": None
+                    "Source": "Jooble", "Title": j.get("title"), "Company": j.get("company"),
+                    "Location": j.get("location"), "Country": c, "Work Mode": work_mode(j.get("title","")),
+                    "Posted": "", "Apply": j.get("link"), "_excel": excel_link(j.get("link")), "_date": None
                 })
-        except Exception as e:
-            stats["error"] = str(e)
+        except Exception as e: stats["error"] = str(e)
     return rows, stats
 
 # =========================================================
-# STREAMLIT UI INPUTS
+# MAIN UI INPUTS (RESTORED TO MAIN PAGE)
 # =========================================================
-with st.sidebar:
-    st.header("Search Filters")
-    skills = [s.strip() for s in st.text_input("Skills", "Software Engineer").split(",") if s.strip()]
-    levels = [l.strip() for l in st.text_input("Levels (e.g., Manager, Lead)", "").split(",") if l.strip()]
-    location = st.text_input("City/Region (e.g., Mumbai, London)", "Mumbai")
-    countries = st.multiselect("Target Countries", options=list(COUNTRIES.keys()), default=["India"])
-    posted_days = st.slider("Days Since Posted", 1, 60, 14)
-    run_search = st.button("🚀 Run Job Search", use_container_width=True)
+skills = [s.strip() for s in st.text_input("Skills", "Software Engineer").split(",") if s.strip()]
+levels = [l.strip() for l in st.text_input("Levels", "Manager").split(",") if l.strip()]
+location = st.text_input("Location (e.g. Mumbai, New York)", "Mumbai")
 
-col_toggle, col_download = st.columns([5, 2])
-with col_toggle: classic_view = st.toggle("Classic View (Table)", value=False)
+is_remote = location.strip().lower() == "remote"
+countries = st.multiselect("Country", options=list(COUNTRIES.keys()), default=["India"], disabled=is_remote)
+
+if not is_remote and not countries:
+    st.error("Please select at least one country.")
+    st.stop()
+
+posted_days = st.slider("Posted within last X days", 1, 60, 14)
+
+col_run, col_toggle, col_download = st.columns([2, 3, 2])
+with col_run: run_search = st.button("🚀 Run Job Search")
+with col_toggle: classic_view = st.toggle("Classic View", value=False)
 with col_download: download_placeholder = st.empty()
 
+# =========================================================
+# EXECUTION & DIAGNOSTIC HUB
+# =========================================================
 if run_search:
-    with st.spinner(f"🔍 Searching globally for {location}..."):
-        # Fetch data and stats
-        js_rows, js_stats = fetch_jsearch(skills, levels, countries, posted_days, location)
-        ad_rows, ad_stats = fetch_adzuna(skills, levels, countries, posted_days, location)
-        jo_rows, jo_stats = fetch_jooble(skills, levels, countries, location)
+    with st.spinner(f"Searching global hubs for {location}..."):
+        js_r, js_s = fetch_jsearch(skills, levels, countries, posted_days, location)
+        ad_r, ad_s = fetch_adzuna(skills, levels, countries, posted_days, location)
+        jo_r, jo_s = fetch_jooble(skills, levels, countries, location)
 
-        # ERROR LOGGER / DIAGNOSTIC HUB
-        with st.expander("🕵️ Diagnostic Hub - Why am I seeing these results?", expanded=True):
+        # THE DIAGNOSTIC HUB (RESTORED)
+        with st.expander("🕵️ Diagnostic Hub", expanded=True):
             c1, c2, c3 = st.columns(3)
             with c1:
-                st.markdown("**JSearch Status**")
-                st.write(f"Raw Found: {js_stats['found']}")
-                st.write(f"Filtered Out: {js_stats['dropped']}")
-                if js_stats['error']: st.error(js_stats['error'])
+                st.write("**JSearch**")
+                st.caption(f"Found: {js_s['found']} | Filtered: {js_s['dropped']}")
+                if js_s['error']: st.error(js_s['error'])
             with c2:
-                st.markdown("**Adzuna Status**")
-                st.write(f"Raw Found: {ad_stats['found']}")
-                st.write(f"Filtered Out: {ad_stats['dropped']}")
-                if ad_stats['error']: st.error(ad_stats['error'])
+                st.write("**Adzuna**")
+                st.caption(f"Found: {ad_s['found']} | Filtered: {ad_s['dropped']}")
+                if ad_s['error']: st.error(ad_s['error'])
             with c3:
-                st.markdown("**Jooble Status**")
-                st.write(f"Raw Found: {jo_stats['found']}")
-                if jo_stats['error']: st.error(jo_stats['error'])
+                st.write("**Jooble**")
+                st.caption(f"Found: {jo_s['found']}")
+                if jo_s['error']: st.error(jo_s['error'])
 
-        df = pd.DataFrame(js_rows + ad_rows + jo_rows)
-        
+        df = pd.DataFrame(js_r + ad_r + jo_r)
         if df.empty:
-            st.warning("No jobs found. Try removing 'Levels' or widening your 'Location'.")
+            st.warning("No jobs found. Try broadening your keywords.")
         else:
             df = df.drop_duplicates(subset=["Title","Company","Location","Source"])
             df = df.sort_values(by=["_date"], ascending=False, na_position="last")
-            
-            st.success(f"✅ Displaying {len(df)} unique jobs found.")
+            st.success(f"✅ Found {len(df)} jobs.")
 
             if not classic_view:
                 cols = st.columns(2)
@@ -327,7 +283,6 @@ if run_search:
                 st.dataframe(df.drop(columns=["_excel","_date"]), use_container_width=True, 
                              column_config={"Apply": st.column_config.LinkColumn("Apply Now")})
 
-            # CSV Export logic
             csv_df = df.copy()
             csv_df["Apply"] = csv_df["_excel"]
             csv_df = csv_df.drop(columns=["_excel","_date"])
