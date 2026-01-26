@@ -300,7 +300,7 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
     for skill in skills:
-        query = f"{skill} job {location}".strip()
+        query = f"{skill} job".strip()
 
         r = requests.get(
             "https://jsearch.p.rapidapi.com/search",
@@ -352,7 +352,7 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
                 "app_id": ADZUNA_APP_ID,
                 "app_key": ADZUNA_API_KEY,
                 "what": " OR ".join(skills + levels),
-                "where": location or "",  # ✅ CITY USED
+               "where": "",   # let Adzuna search country-wide  # ✅ CITY USED
                 "results_per_page": 20
             },
             timeout=15
@@ -388,7 +388,7 @@ def fetch_jooble(skills, levels, countries, location):
             f"https://jooble.org/api/{JOOBLE_KEY}",
             json={
                 "keywords": " ".join(skills + levels),
-                "location": location or c
+                "location": c   # country-level search only
             },
             timeout=15
         ).json()
