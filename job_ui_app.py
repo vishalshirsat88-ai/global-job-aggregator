@@ -218,15 +218,6 @@ def work_mode(text):
         return "Hybrid"
     return "On-site"
 
-def city_match(city, text):
-    if not city or not text:
-        return False
-    return city.lower() in text.lower()
-
-
-def text_contains(text, items):
-    t = (text or "").lower()
-    return any(i.lower() in t for i in items)
 
 def excel_link(url):
     return f'=HYPERLINK("{url}","Apply")' if url else ""
@@ -301,15 +292,12 @@ def fetch_remote_jobs(skills, level, posted_days):
 # =========================================================
 # NON-REMOTE FETCHERS
 # =========================================================
-def fetch_jsearch(skills, levels, countries, posted_days, cities=None):
+def fetch_jsearch(skills, levels, countries, posted_days, location):
     rows = []
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
-    allowed_codes = {COUNTRIES[c].upper() for c in countries}
-
     for skill in skills:
-        query = f"{skill} job {location}"
-          # ✅ CITY USED IN API SEARCH
+        query = f"{skill} job {location}".strip()
 
         r = requests.get(
             "https://jsearch.p.rapidapi.com/search",
@@ -328,14 +316,6 @@ def fetch_jsearch(skills, levels, countries, posted_days, cities=None):
             continue
 
         for j in r.json().get("data", []):
-            code = (j.get("job_country") or "").upper()
-            if code not in allowed_codes:
-                continue
-
-            text_blob = j.get("job_title","") + " " + j.get("job_description","")
-            if levels and not text_contains(text_blob, levels):
-                continue
-
             dt = normalize_date(j.get("job_posted_at_datetime_utc",""))
             if dt and dt < cutoff:
                 continue
@@ -345,9 +325,9 @@ def fetch_jsearch(skills, levels, countries, posted_days, cities=None):
                 "Skill": skill,
                 "Title": j.get("job_title"),
                 "Company": j.get("employer_name"),
-                "Location": j.get("job_city") or j.get("job_state") or code,
-                "Country": code,
-                "Work Mode": work_mode(text_blob),
+                "Location": j.get("job_city") or j.get("job_state") or "",
+                "Country": (j.get("job_country") or "").upper(),
+                "Work Mode": work_mode(j.get("job_description","")),
                 "Posted": j.get("job_posted_at_datetime_utc",""),
                 "Apply": j.get("job_apply_link"),
                 "_excel": excel_link(j.get("job_apply_link")),
@@ -357,7 +337,8 @@ def fetch_jsearch(skills, levels, countries, posted_days, cities=None):
     return rows
 
 
-def fetch_adzuna(skills, levels, countries, posted_days, cities=None):
+
+def fetch_adzuna(skills, levels, countries, posted_days, location):
     rows = []
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
@@ -396,7 +377,7 @@ def fetch_adzuna(skills, levels, countries, posted_days, cities=None):
     return rows
 
 
-def fetch_jooble(skills, levels, countries, cities=None):
+def fetch_jooble(skills, levels, countries, location):
     rows = []
 
     for c in countries:
@@ -404,7 +385,7 @@ def fetch_jooble(skills, levels, countries, cities=None):
             f"https://jooble.org/api/{JOOBLE_KEY}",
             json={
                 "keywords": " ".join(skills + levels),
-                "location": location or c  # ✅ CITY USED
+                "location": location or c
             },
             timeout=15
         ).json()
@@ -416,7 +397,7 @@ def fetch_jooble(skills, levels, countries, cities=None):
                 "Title": j.get("title"),
                 "Company": j.get("company"),
                 "Location": j.get("location"),
-                "Country": c,
+                "Country": None,  # ✅ important change
                 "Work Mode": work_mode(j.get("title","")),
                 "Posted": "",
                 "Apply": j.get("link"),
@@ -425,6 +406,7 @@ def fetch_jooble(skills, levels, countries, cities=None):
             })
 
     return rows
+
 
 
 # =========================================================
@@ -452,8 +434,10 @@ def run_engine(skills, levels, location, countries, posted_days):
     if "Country" in df.columns:
         df = df[
             df["Country"].isna() |
+            (df["Country"] == "Remote") |
             df["Country"].str.upper().isin(allowed_country_codes)
         ]
+
 
     if df.empty:
         return pd.DataFrame(), True
