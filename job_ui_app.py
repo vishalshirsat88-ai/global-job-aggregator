@@ -643,8 +643,3 @@ if run_search:
                     "job_results.csv"
                 )
                 st.markdown('</div>', unsafe_allow_html=True)
-
-
-    
-    
-        
