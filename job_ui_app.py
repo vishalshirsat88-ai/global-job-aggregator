@@ -194,9 +194,10 @@ def work_mode(text):
     return "On-site"
 
 def city_match(city, text):
-    if not city:
+    if not city or not text:
         return False
-    return re.search(rf"\b{re.escape(city.lower())}\b", (text or "").lower()) is not None
+    return city.lower() in text.lower()
+
 
 def text_contains(text, items):
     t = (text or "").lower()
@@ -275,55 +276,64 @@ def fetch_remote_jobs(skills, level, posted_days):
 # =========================================================
 # NON-REMOTE FETCHERS
 # =========================================================
-def fetch_jsearch(skills, levels, countries, posted_days):
+def fetch_jsearch(skills, levels, countries, posted_days, cities=None):
     rows = []
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
-    r = requests.get(
-        "https://jsearch.p.rapidapi.com/search",
-        headers={
-            "x-rapidapi-key": RAPIDAPI_KEY,
-            "x-rapidapi-host": "jsearch.p.rapidapi.com"
-        },
-        params={
-            "query": " OR ".join(skills) + " job",
-            "num_pages": 1,
-            "country": "all"
-        },
-        timeout=20
-    )
+    allowed_codes = {COUNTRIES[c].upper() for c in countries}
 
-    if r.status_code != 200:
-        return rows
+    for skill in skills:
+        query = f"{skill} job"
+        if cities:
+            query += f" {cities[0]}"  # ✅ CITY USED IN API SEARCH
 
-    for j in r.json().get("data", []):
-        if j.get("job_country","").lower() not in [c.lower() for c in countries]:
+        r = requests.get(
+            "https://jsearch.p.rapidapi.com/search",
+            headers={
+                "x-rapidapi-key": RAPIDAPI_KEY,
+                "x-rapidapi-host": "jsearch.p.rapidapi.com"
+            },
+            params={
+                "query": query,
+                "num_pages": 2
+            },
+            timeout=20
+        )
+
+        if r.status_code != 200:
             continue
 
-        text_blob = j.get("job_title","") + " " + j.get("job_description","")
-        if levels and not text_contains(text_blob, levels):
-            continue
+        for j in r.json().get("data", []):
+            code = (j.get("job_country") or "").upper()
+            if code not in allowed_codes:
+                continue
 
-        dt = normalize_date(j.get("job_posted_at_datetime_utc",""))
-        if dt and dt < cutoff:
-            continue
+            text_blob = j.get("job_title","") + " " + j.get("job_description","")
+            if levels and not text_contains(text_blob, levels):
+                continue
 
-        rows.append({
-            "Source": j.get("job_publisher",""),
-            "Skill": ", ".join(skills),
-            "Title": j.get("job_title"),
-            "Company": j.get("employer_name"),
-            "Location": j.get("job_city") or j.get("job_country"),
-            "Country": j.get("job_country"),
-            "Work Mode": work_mode(text_blob),
-            "Posted": j.get("job_posted_at_datetime_utc",""),
-            "Apply": j.get("job_apply_link"),
-            "_excel": excel_link(j.get("job_apply_link")),
-            "_date": dt
-        })
+            dt = normalize_date(j.get("job_posted_at_datetime_utc",""))
+            if dt and dt < cutoff:
+                continue
+
+            rows.append({
+                "Source": j.get("job_publisher",""),
+                "Skill": skill,
+                "Title": j.get("job_title"),
+                "Company": j.get("employer_name"),
+                "Location": j.get("job_city") or j.get("job_state") or code,
+                "Country": code,
+                "Work Mode": work_mode(text_blob),
+                "Posted": j.get("job_posted_at_datetime_utc",""),
+                "Apply": j.get("job_apply_link"),
+                "_excel": excel_link(j.get("job_apply_link")),
+                "_date": dt
+            })
+
     return rows
 
-def fetch_adzuna(skills, levels, countries, posted_days):
+
+def fetch_adzuna(skills, levels, countries, posted_days, cities=None):
     rows = []
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
@@ -334,6 +344,7 @@ def fetch_adzuna(skills, levels, countries, posted_days):
                 "app_id": ADZUNA_APP_ID,
                 "app_key": ADZUNA_API_KEY,
                 "what": " ".join(skills + levels),
+                "where": cities[0] if cities else "",  # ✅ CITY USED
                 "results_per_page": 20
             },
             timeout=15
@@ -357,14 +368,20 @@ def fetch_adzuna(skills, levels, countries, posted_days):
                 "_excel": excel_link(j.get("redirect_url")),
                 "_date": dt
             })
+
     return rows
 
-def fetch_jooble(skills, levels, countries):
+
+def fetch_jooble(skills, levels, countries, cities=None):
     rows = []
+
     for c in countries:
         r = requests.post(
             f"https://jooble.org/api/{JOOBLE_KEY}",
-            json={"keywords": " ".join(skills + levels), "location": c},
+            json={
+                "keywords": " ".join(skills + levels),
+                "location": cities[0] if cities else c  # ✅ CITY USED
+            },
             timeout=15
         ).json()
 
@@ -382,7 +399,9 @@ def fetch_jooble(skills, levels, countries):
                 "_excel": excel_link(j.get("link")),
                 "_date": None
             })
+
     return rows
+
 
 # =========================================================
 # ENGINE (MULTI-SKILL + MULTI-CITY LOGIC)
@@ -399,9 +418,10 @@ def run_engine(skills, levels, location, countries, posted_days):
     # -----------------------------
     for skill in skills:
         rows = []
-        rows += fetch_jsearch([skill], levels, countries, posted_days)
-        rows += fetch_adzuna([skill], levels, countries, posted_days)
-        rows += fetch_jooble([skill], levels, countries)
+        rows += fetch_jsearch([skill], levels, countries, posted_days, cities)
+        rows += fetch_adzuna([skill], levels, countries, posted_days, cities)
+        rows += fetch_jooble([skill], levels, countries, cities)
+
 
         if not rows:
             continue
@@ -459,7 +479,7 @@ st.markdown("""
     margin-bottom:26px;
 ">
 
-    <!-- MJ LOGO -->
+#    <!-- MJ LOGO -->
     <div style="
         background: linear-gradient(135deg, #6A5AE0, #FF5EDF, #FF8A00);
         width:56px;
@@ -477,7 +497,7 @@ st.markdown("""
         MJ
     </div>
 
-    <!-- TITLE TEXT -->
+#    <!-- TITLE TEXT -->
     <div>
         <div style="
             font-size:30px;
