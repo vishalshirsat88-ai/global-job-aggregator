@@ -467,8 +467,8 @@ with col_run:
     run_search = st.button("🚀 Run Job Search")
 
 with col_toggle:
-    st.markdown("<div style='text-align:center; font-weight:600;'>View</div>", unsafe_allow_html=True)
     classic_view = st.toggle("Classic View", value=False)
+
 
 with col_download:
     download_placeholder = st.empty()
