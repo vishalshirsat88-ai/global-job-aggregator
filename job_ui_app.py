@@ -4,6 +4,8 @@ import pandas as pd
 import re
 from datetime import datetime, timedelta
 
+st.set_page_config(page_title="Global Job Aggregator", layout="wide")
+
 # force redeploy
 
 
@@ -520,7 +522,6 @@ def run_engine(skills, levels, location, countries, posted_days):
 # STREAMLIT UI
 # =========================================================
 
-st.set_page_config(page_title="Global Job Aggregator", layout="wide")
 
 skills = [s.strip() for s in st.text_input("Skills", "WFM").split(",") if s.strip()]
 levels = [l.strip() for l in st.text_input("Levels", "Manager").split(",") if l.strip()]
