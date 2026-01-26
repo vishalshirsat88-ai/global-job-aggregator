@@ -71,51 +71,69 @@ div[data-testid="stDataFrame"] {
     color: #374151;
 }
 
+/* ---------- DOWNLOAD BUTTON ---------- */
+.download-btn button {
+    background: linear-gradient(135deg, #00C9A7, #92FE9D) !important;
+    color: #064E3B !important;
+    border-radius: 14px !important;
+    font-weight: 700 !important;
+    padding: 10px 18px !important;
+    box-shadow: 0 10px 25px rgba(0, 201, 167, 0.35) !important;
+    border: none !important;
+}
+.download-btn button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 14px 32px rgba(0, 201, 167, 0.45) !important;
+}
+
+
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-<div style="
-    display:flex;
-    align-items:center;
-    gap:14px;
-    margin: 10px 0 25px 0;
-">
+st.markdown(
+    """
     <div style="
-        background: linear-gradient(135deg, #6A5AE0, #B983FF);
-        width:46px;
-        height:46px;
-        border-radius:14px;
         display:flex;
         align-items:center;
-        justify-content:center;
-        color:white;
-        font-size:22px;
-        font-weight:700;
+        gap:14px;
+        margin: 10px 0 25px 0;
     ">
-        MJ
-    </div>
-
-    <div>
         <div style="
-            font-size:28px;
-            font-weight:800;
-            color:#1F2937;
-            line-height:1.1;
+            background: linear-gradient(135deg, #6A5AE0, #B983FF);
+            width:46px;
+            height:46px;
+            border-radius:14px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:white;
+            font-size:22px;
+            font-weight:700;
         ">
-            Global Job Aggregator
+            J
         </div>
-        <div style="
-            font-size:13px;
-            color:#6B7280;
-            font-weight:500;
-        ">
-            Search smarter. Apply faster.
+
+        <div>
+            <div style="
+                font-size:28px;
+                font-weight:800;
+                color:#1F2937;
+                line-height:1.1;
+            ">
+                Global Job Aggregator
+            </div>
+            <div style="
+                font-size:13px;
+                color:#6B7280;
+                font-weight:500;
+            ">
+                Search smarter. Apply faster.
+            </div>
         </div>
     </div>
-</div>
-""", unsafe_allow_html=True)
-
+    """,
+    unsafe_allow_html=True
+)
 
 st.markdown("""
 <style>
