@@ -458,6 +458,8 @@ st.markdown("""
     gap:18px;
     margin-bottom:26px;
 ">
+
+    <!-- MJ LOGO -->
     <div style="
         background: linear-gradient(135deg, #6A5AE0, #FF5EDF, #FF8A00);
         width:56px;
@@ -474,9 +476,9 @@ st.markdown("""
     ">
         MJ
     </div>
-</div>    
 
-    
+    <!-- TITLE TEXT -->
+    <div>
         <div style="
             font-size:30px;
             font-weight:800;
@@ -485,7 +487,7 @@ st.markdown("""
         ">
             Global Job Aggregator
         </div>
-        
+
         <div style="
             font-size:14px;
             color:#6B7280;
@@ -494,9 +496,11 @@ st.markdown("""
         ">
             AI-powered global job intelligence
         </div>
-    
+    </div>
 
+</div>
 """, unsafe_allow_html=True)
+
 
 
 skills = [s.strip() for s in st.text_input("Skills", "WFM").split(",") if s.strip()]
