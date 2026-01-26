@@ -473,53 +473,55 @@ def run_engine(skills, levels, location, countries, posted_days):
 # STREAMLIT UI
 # =========================================================
 
-st.markdown("""
-<div style="
-    display:flex;
-    align-items:center;
-    gap:18px;
-    margin-bottom:26px;
-">
-
+with st.container():
+    st.markdown("""
     <div style="
-        background: linear-gradient(135deg, #6A5AE0, #FF5EDF, #FF8A00);
-        width:56px;
-        height:56px;
-        border-radius:16px;
         display:flex;
         align-items:center;
-        justify-content:center;
-        color:white;
-        font-size:22px;
-        font-weight:900;
-        letter-spacing:-1px;
-        box-shadow: 0 12px 30px rgba(139,92,246,0.45);
+        gap:18px;
+        margin-bottom:26px;
     ">
-        MJ
-    </div>
-
-    <div>
-        <div style="
-            font-size:30px;
-            font-weight:800;
-            color:#111827;
-            line-height:1.1;
-        ">
-            Global Job Aggregator
-        </div>
 
         <div style="
-            font-size:14px;
-            color:#6B7280;
-            font-weight:500;
-            margin-top:4px;
+            background: linear-gradient(135deg, #6A5AE0, #FF5EDF, #FF8A00);
+            width:56px;
+            height:56px;
+            border-radius:16px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:white;
+            font-size:22px;
+            font-weight:900;
+            letter-spacing:-1px;
+            box-shadow: 0 12px 30px rgba(139,92,246,0.45);
         ">
-            AI-powered global job intelligence
+            MJ
         </div>
-    </div>
 
-</div>
-""", unsafe_allow_html=True)
+        <div>
+            <div style="
+                font-size:30px;
+                font-weight:800;
+                color:#111827;
+                line-height:1.1;
+            ">
+                Global Job Aggregator
+            </div>
+
+            <div style="
+                font-size:14px;
+                color:#6B7280;
+                font-weight:500;
+                margin-top:4px;
+            ">
+                AI-powered global job intelligence
+            </div>
+        </div>
+
+    </div>
+    """, unsafe_allow_html=True)
+
 
 
 
