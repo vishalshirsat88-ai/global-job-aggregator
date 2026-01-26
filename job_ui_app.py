@@ -418,7 +418,6 @@ def fetch_jooble(skills, levels, countries, location):
 def run_engine(skills, levels, location, countries, posted_days):
     all_rows = []
 
-    # Fetch per skill (keeps relevance strong)
     for skill in skills:
         all_rows += fetch_jsearch([skill], levels, countries, posted_days, location)
         all_rows += fetch_adzuna([skill], levels, countries, posted_days, location)
@@ -430,7 +429,7 @@ def run_engine(skills, levels, location, countries, posted_days):
     df = pd.DataFrame(all_rows)
 
     # -----------------------------
-    # SMART PASS COUNTRY FILTER
+    # COUNTRY FILTER ONLY
     # -----------------------------
     allowed_country_names = {c.upper() for c in countries}
 
@@ -441,16 +440,16 @@ def run_engine(skills, levels, location, countries, posted_days):
             df["Country"].str.upper().isin(allowed_country_names)
         ]
 
-
     if df.empty:
         return pd.DataFrame(), True
 
-    # Deduplicate globally
+    # Deduplicate globally (do NOT remove Location from subset)
     df = df.drop_duplicates(
         subset=["Title", "Company", "Location", "Source"]
     )
 
     return df, False
+
 
 
 
