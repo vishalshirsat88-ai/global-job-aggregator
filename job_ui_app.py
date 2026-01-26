@@ -99,25 +99,9 @@ div[data-testid="stDataFrame"] {
 
 st.markdown("""
 <style>
-<div style="padding: 80px 0 60px 0; display: flex; justify-content: center;">
-    <div style="display: flex; align-items: center; gap: 18px;">
-        <div style="
-            background: linear-gradient(135deg, #6A5AE0, #B983FF);
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            font-weight: 800;
-            font-family: 'Inter', sans-serif;
-        ">
-            MJ
-        </div>
+
 .hero-title {
-    display: inline-block;   /* ← THIS FIXES IT */
+    display: inline-block;   /* important */
     font-family: 'Inter', sans-serif;
     font-size: 52px;
     font-weight: 800;
@@ -133,7 +117,6 @@ st.markdown("""
     -webkit-text-fill-color: transparent;
 }
 
-
 .hero-subtitle {
     font-family: 'Inter', sans-serif;
     font-size: 18px;
@@ -141,38 +124,39 @@ st.markdown("""
     margin-top: 14px;
 }
 
+
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<div style="padding: 80px 0 60px 0; display: flex; justify-content: center;">
-    <div style="display: flex; align-items: center; gap: 18px;">
-        <div style="
-            background: linear-gradient(135deg, #6A5AE0, #B983FF);
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 24px;
-            font-weight: 800;
-            font-family: 'Inter', sans-serif;
-        ">
-            MJ
-        </div>
-        <div style="text-align: left;">
-            <div style="font-size: 32px; font-weight: 800; color: #1F2937; line-height: 1;">
-                Global Job Aggregator
-            </div>
-            <div style="font-size: 14px; color: #6B7280; font-weight: 500; margin-top: 4px;">
-                Search smarter. Apply faster.
-            </div>
-        </div>
+<div style="padding:80px 0 60px 0; display:flex; justify-content:center;">
+  <div style="display:flex; align-items:center; gap:18px;">
+
+    <div style="
+        background: linear-gradient(135deg, #6A5AE0, #B983FF);
+        width:56px;
+        height:56px;
+        border-radius:16px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:white;
+        font-size:24px;
+        font-weight:800;
+        font-family:'Inter', sans-serif;
+    ">
+      MJ
     </div>
+
+    <div style="text-align:left;">
+      <div class="hero-title">Global Job Aggregator</div>
+      <div class="hero-subtitle">Search smarter. Apply faster.</div>
+    </div>
+
+  </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 st.markdown("""
