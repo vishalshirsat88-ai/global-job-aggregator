@@ -4,6 +4,9 @@ import pandas as pd
 import re
 from datetime import datetime, timedelta
 
+# force redeploy
+
+
 st.markdown("""
 <style>
 
@@ -110,7 +113,7 @@ st.markdown(
             font-size:22px;
             font-weight:700;
         ">
-            J
+            MJ
         </div>
 
         <div>
@@ -611,18 +614,17 @@ if run_search:
                         st.markdown(card_html, unsafe_allow_html=True)
     
             else:
-    # Classic table view
+            # =========================
+            # CLASSIC TABLE VIEW
+            # =========================
+            st.dataframe(
+                df.drop(columns=["_excel","_date"]),
+                use_container_width=True,
+                column_config={
+                    "Apply": st.column_config.LinkColumn("Apply Now")
+                }
+            )
 
-                # =========================
-                # CLASSIC TABLE VIEW
-                # =========================
-                st.dataframe(
-                    df.drop(columns=["_excel","_date"]),
-                    use_container_width=True,
-                    column_config={
-                        "Apply": st.column_config.LinkColumn("Apply Now")
-                    }
-                )
     
             # =========================
             # CSV EXPORT (COMMON)
