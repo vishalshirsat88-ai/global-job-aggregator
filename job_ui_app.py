@@ -308,9 +308,8 @@ def fetch_jsearch(skills, levels, countries, posted_days, cities=None):
     allowed_codes = {COUNTRIES[c].upper() for c in countries}
 
     for skill in skills:
-        query = f"{skill} job"
-        if cities:
-            query += f" {cities[0]}"  # ✅ CITY USED IN API SEARCH
+        query = f"{skill} job {location}"
+          # ✅ CITY USED IN API SEARCH
 
         r = requests.get(
             "https://jsearch.p.rapidapi.com/search",
@@ -369,7 +368,7 @@ def fetch_adzuna(skills, levels, countries, posted_days, cities=None):
                 "app_id": ADZUNA_APP_ID,
                 "app_key": ADZUNA_API_KEY,
                 "what": " ".join(skills + levels),
-                "where": cities[0] if cities else "",  # ✅ CITY USED
+                "where": location or "",  # ✅ CITY USED
                 "results_per_page": 20
             },
             timeout=15
@@ -405,7 +404,7 @@ def fetch_jooble(skills, levels, countries, cities=None):
             f"https://jooble.org/api/{JOOBLE_KEY}",
             json={
                 "keywords": " ".join(skills + levels),
-                "location": cities[0] if cities else c  # ✅ CITY USED
+                "location": location or c  # ✅ CITY USED
             },
             timeout=15
         ).json()
