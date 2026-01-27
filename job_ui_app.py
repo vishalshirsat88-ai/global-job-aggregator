@@ -212,7 +212,7 @@ COUNTRIES = {
     "United Kingdom": "gb",
     "United Arab Emirates": "ae",
     "Canada": "ca",
-    "Australia": "au"
+    "Australia": "au",
     "Germany": "de",
     "France": "fr",
     "Netherlands": "nl",
