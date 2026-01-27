@@ -15,11 +15,9 @@ st.set_page_config(page_title="Global Job Aggregator", layout="wide")
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap');
-
 .stApp {
     background: linear-gradient(135deg,#f5f3ff 0%,#fdf2f8 50%,#fff7ed 100%);
 }
-
 /* SIDEBAR */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg,#6A5AE0,#B983FF);
@@ -27,7 +25,6 @@ section[data-testid="stSidebar"] {
 section[data-testid="stSidebar"] * {
     color: white !important;
 }
-
 /* BUTTONS */
 .stButton>button {
     background: linear-gradient(135deg,#FF5EDF,#FF8A00);
@@ -38,7 +35,6 @@ section[data-testid="stSidebar"] * {
     border:none;
     box-shadow:0 8px 20px rgba(255,94,223,0.35);
 }
-
 /* HERO */
 .hero-title {
     display:inline-block;
@@ -50,33 +46,11 @@ section[data-testid="stSidebar"] * {
     -webkit-background-clip:text;
     -webkit-text-fill-color:transparent;
 }
-
 .hero-subtitle {
     font-family:'Inter',sans-serif;
     font-size:18px;
     color:#475569;
     margin-top:14px;
-}
-
-/* JOB CARD */
-.job-card {
-    background:rgba(255,255,255,0.9);
-    border-radius:18px;
-    padding:18px;
-    box-shadow:0 15px 35px rgba(0,0,0,0.08);
-    margin-bottom:20px;
-}
-.job-title {font-size:18px;font-weight:700;color:#1F2937;}
-.job-company {font-size:14px;color:#6B7280;}
-.job-location {font-size:13px;color:#374151;}
-
-.apply-btn {
-    background:linear-gradient(135deg,#FF5EDF,#FF8A00);
-    color:white;
-    padding:8px 16px;
-    border-radius:12px;
-    text-decoration:none;
-    font-weight:600;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -112,7 +86,6 @@ ADZUNA_APP_ID = st.secrets["ADZUNA_APP_ID"]
 ADZUNA_API_KEY = st.secrets["ADZUNA_API_KEY"]
 USAJOBS_EMAIL = st.secrets["USAJOBS_EMAIL"]
 USAJOBS_KEY = st.secrets["USAJOBS_API_KEY"]
-
 REMOTIVE_API = "https://remotive.com/api/remote-jobs"
 
 COUNTRIES = {
@@ -314,37 +287,50 @@ if st.button("🚀 Run Job Search"):
         rows+=fetch_usajobs(skills)
         rows+=fetch_arbeitnow(skills)
         rows+=fetch_wwr(skills)
-
+        
         df=pd.DataFrame(rows).drop_duplicates(
             subset=["Title","Company","Location","Source"]
         )
-
+        
         if df.empty:
             st.warning("No jobs found.")
         else:
             st.success(f"✅ Found {len(df)} jobs")
             st.markdown("### 🧾 Job Results")
-
             cols = st.columns(2, gap="large")
-            
+           
             for i, row in df.iterrows():
                 card_html = f"""
-                <div class="job-card">
-                    <div class="job-title">{row['Title']}</div>
-                    <div class="job-company">{row['Company']}</div>
-                    <div class="job-location">📍 {row['Location']}</div>
-            
+                <div style="
+                    background:rgba(255,255,255,0.9);
+                    border-radius:18px;
+                    padding:18px;
+                    box-shadow:0 15px 35px rgba(0,0,0,0.08);
+                    margin-bottom:20px;
+                ">
+                    <div style="font-size:18px;font-weight:700;color:#1F2937;">
+                        {row['Title']}
+                    </div>
+                    <div style="font-size:14px;color:#6B7280;">
+                        {row['Company']}
+                    </div>
+                    <div style="font-size:13px;color:#374151;">
+                        📍 {row['Location']}
+                    </div>
+                   
                     <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-size:12px; color:#6B7280;">{row['Skill']}</span>
-                        <a class="apply-btn" href="{row['Apply']}" target="_blank">Apply →</a>
+                        <a href="{row['Apply']}" target="_blank" style="
+                            background:linear-gradient(135deg,#FF5EDF,#FF8A00);
+                            color:white;
+                            padding:8px 16px;
+                            border-radius:12px;
+                            text-decoration:none;
+                            font-weight:600;
+                        ">Apply →</a>
                     </div>
                 </div>
                 """
-            
-                import streamlit.components.v1 as components
-
-with cols[i % 2]:
-    components.html(card_html, height=180)
-
-
-
+               
+                with cols[i % 2]:
+                    st.markdown(card_html, unsafe_allow_html=True)
