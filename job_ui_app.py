@@ -323,12 +323,26 @@ if st.button("🚀 Run Job Search"):
             st.warning("No jobs found.")
         else:
             st.success(f"✅ Found {len(df)} jobs")
-            for _,r in df.iterrows():
-                st.markdown(f"""
-<div class="job-card">
-  <div class="job-title">{r['Title']}</div>
-  <div class="job-company">{r['Company']}</div>
-  <div class="job-location">📍 {r['Location']}</div>
-  <a class="apply-btn" href="{r['Apply']}" target="_blank">Apply →</a>
-</div>
-""",unsafe_allow_html=True)
+            st.markdown("### 🧾 Job Results")
+
+            cols = st.columns(2, gap="large")
+            
+            for i, row in df.iterrows():
+                card_html = f"""
+                <div class="job-card">
+                    <div class="job-title">{row['Title']}</div>
+                    <div class="job-company">{row['Company']}</div>
+                    <div class="job-location">📍 {row['Location']}</div>
+            
+                    <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:12px; color:#6B7280;">{row['Skill']}</span>
+                        <a class="apply-btn" href="{row['Apply']}" target="_blank">Apply →</a>
+                    </div>
+                </div>
+                """
+            
+                with cols[i % 2]:
+                    st.markdown(card_html, unsafe_allow_html=True)
+
+
+
