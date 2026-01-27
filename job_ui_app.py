@@ -299,6 +299,7 @@ def fetch_wwr(skills):
 # UI INPUTS
 # =========================================================
 skills=[s.strip() for s in st.text_input("Skills","Python").split(",") if s.strip()]
+levels = [l.strip() for l in st.text_input("Level", "Manager").split(",") if l.strip()]
 location=st.text_input("Location","")
 countries=st.multiselect("Country",list(COUNTRIES.keys()),default=["India"])
 
