@@ -254,6 +254,13 @@ def work_mode(text):
 def excel_link(url):
     return f'=HYPERLINK("{url}","Apply")' if url else ""
 
+def city_match(row_location, search_locations):
+    if not row_location:
+        return False
+    row_loc = row_location.lower()
+    return any(loc.lower() in row_loc for loc in search_locations)
+
+
 # =========================================================
 # REMOTE SEARCH
 # =========================================================
@@ -656,7 +663,9 @@ if run_search:
                 extra_rows += fetch_usajobs(skills, posted_days)
             
             # EU-only source – safe to always append
-            extra_rows += fetch_arbeitnow(skills)
+            if any(c in ["Germany","France","Netherlands","Ireland","Spain","Italy"] for c in countries):
+                extra_rows += fetch_arbeitnow(skills)
+
             
             if not df.empty and extra_rows:
                 df = pd.concat([df, pd.DataFrame(extra_rows)], ignore_index=True)
@@ -683,8 +692,25 @@ if run_search:
         if df.empty:
             st.warning("No jobs found.")
         else:
+            # ---------------------------------------
+            # 🔒 FINAL CITY-LEVEL GUARD (NON-REMOTE)
+            # ---------------------------------------
+            if not is_remote and locations:
+                df = df[
+                    df["Location"].apply(
+                        lambda x: city_match(str(x), locations)
+                    )
+                ]
+        
+            if df.empty:
+                st.warning("No jobs found after location filter.")
+                st.stop()
+        
+            # ✅ ALWAYS sort AFTER filtering
             df = df.sort_values(by=["_date"], ascending=False, na_position="last")
+        
             st.success(f"✅ Found {len(df)} jobs")
+
     
             # =========================
             # VIEW MODE TOGGLE
