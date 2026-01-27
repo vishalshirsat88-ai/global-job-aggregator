@@ -341,8 +341,10 @@ if st.button("🚀 Run Job Search"):
                 </div>
                 """
             
-                with cols[i % 2]:
-                    st.markdown(card_html, unsafe_allow_html=True)
+                import streamlit.components.v1 as components
+
+with cols[i % 2]:
+    components.html(card_html, height=180)
 
 
 
