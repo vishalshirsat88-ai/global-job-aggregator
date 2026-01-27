@@ -433,6 +433,109 @@ def fetch_jooble(skills, levels, countries, location):
 
     return rows
 
+def fetch_usajobs(skills, posted_days):
+    rows = []
+    cutoff = datetime.utcnow() - timedelta(days=posted_days)
+
+    for skill in skills:
+        r = requests.get(
+            "https://data.usajobs.gov/api/search",
+            headers={
+                "User-Agent": st.secrets["USAJOBS_EMAIL"],
+                "Authorization-Key": st.secrets["USAJOBS_API_KEY"]
+            },
+            params={
+                "Keyword": skill,
+                "ResultsPerPage": 25
+            },
+            timeout=20
+        )
+
+        if r.status_code != 200:
+            continue
+
+        for j in r.json()["SearchResult"]["SearchResultItems"]:
+            d = j["MatchedObjectDescriptor"]
+
+            rows.append({
+                "Source": "USAJobs",
+                "Skill": skill,
+                "Title": d["PositionTitle"],
+                "Company": d["OrganizationName"],
+                "Location": ", ".join(
+                    l["LocationName"] for l in d.get("PositionLocation", [])
+                ),
+                "Country": "US",
+                "Work Mode": "On-site",
+                "Posted": d.get("PublicationStartDate", ""),
+                "Apply": d["PositionURI"],
+                "_excel": excel_link(d["PositionURI"]),
+                "_date": normalize_date(d.get("PublicationStartDate", ""))
+            })
+
+    return rows
+
+
+def fetch_arbeitnow(skills):
+    rows = []
+    r = requests.get("https://www.arbeitnow.com/api/job-board-api", timeout=15)
+
+    if r.status_code != 200:
+        return rows
+
+    for j in r.json().get("data", []):
+        for skill in skills:
+            if not skill_match(j.get("title", ""), skill):
+                continue
+
+            rows.append({
+                "Source": "Arbeitnow",
+                "Skill": skill,
+                "Title": j.get("title"),
+                "Company": j.get("company_name"),
+                "Location": j.get("location"),
+                "Country": "EU",
+                "Work Mode": "Remote" if j.get("remote") else "On-site",
+                "Posted": "",
+                "Apply": j.get("url"),
+                "_excel": excel_link(j.get("url")),
+                "_date": None
+            })
+
+    return rows
+
+import feedparser
+
+def fetch_weworkremotely(skills):
+    rows = []
+    feeds = [
+        "https://weworkremotely.com/categories/remote-programming-jobs.rss",
+        "https://weworkremotely.com/categories/remote-management-jobs.rss"
+    ]
+
+    for feed_url in feeds:
+        feed = feedparser.parse(feed_url)
+
+        for e in feed.entries:
+            for skill in skills:
+                if not skill_match(e.title, skill):
+                    continue
+
+                rows.append({
+                    "Source": "WeWorkRemotely",
+                    "Skill": skill,
+                    "Title": e.title,
+                    "Company": "",
+                    "Location": "Remote",
+                    "Country": "Remote",
+                    "Work Mode": "Remote",
+                    "Posted": "",
+                    "Apply": e.link,
+                    "_excel": excel_link(e.link),
+                    "_date": None
+                })
+
+    return rows
 
 
 # =========================================================
@@ -522,10 +625,26 @@ with col_download:
 if run_search:
     with st.spinner("Fetching jobs..."):
         if is_remote:
-            df = pd.DataFrame(fetch_remote_jobs(skills, levels[0] if levels else "", posted_days))
+            rows = fetch_remote_jobs(skills, levels[0] if levels else "", posted_days)
+        
+            # ➕ append new remote-safe sources
+            rows += fetch_arbeitnow(skills)
+            rows += fetch_weworkremotely(skills)
+        
+            df = pd.DataFrame(rows)
             fallback = False
+        
         else:
             df, fallback = run_engine(skills, levels, locations, countries, posted_days)
+        
+            # ➕ append country-safe sources
+            extra_rows = []
+            extra_rows += fetch_usajobs(skills, posted_days)
+            extra_rows += fetch_arbeitnow(skills)
+        
+            if not df.empty:
+                df = pd.concat([df, pd.DataFrame(extra_rows)], ignore_index=True)
+
         
             # 🔁 COUNTRY-LEVEL FALLBACK
             if fallback:
