@@ -213,6 +213,12 @@ COUNTRIES = {
     "United Arab Emirates": "ae",
     "Canada": "ca",
     "Australia": "au"
+    "Germany": "de",
+    "France": "fr",
+    "Netherlands": "nl",
+    "Ireland": "ie",
+    "Spain": "es",
+    "Italy": "it"
 }
 
 # =========================================================
@@ -591,6 +597,11 @@ levels = [l.strip() for l in st.text_input("Levels", "Manager").split(",") if l.
 location = st.text_input("Location (city or Remote, comma separated)", "")
 locations = [l.strip() for l in location.split(",") if l.strip()]
 is_remote = location.strip().lower() == "remote"
+is_us_search = (
+    "United States" in countries or
+    location.strip().lower() in ["usa", "united states","america"]
+)
+
 
 countries = st.multiselect(
     "Country",
@@ -639,8 +650,9 @@ if run_search:
         
             # ➕ append country-safe sources
             extra_rows = []
-            extra_rows += fetch_usajobs(skills, posted_days)
-            extra_rows += fetch_arbeitnow(skills)
+            if is_us_search or is_remote:
+                rows += fetch_usajobs(skills,posted_days)
+                extra_rows += fetch_arbeitnow(skills)
         
             if not df.empty:
                 df = pd.concat([df, pd.DataFrame(extra_rows)], ignore_index=True)
