@@ -577,13 +577,16 @@ def run_engine(skills, levels, locations, countries, posted_days):
         "IRELAND","SPAIN","ITALY"
     }
     
-    if "Country" in df.columns:
-        df = df[
-            df["Country"].isna() |
-            (df["Country"].str.upper() == "REMOTE") |
-            (df["Source"] == "Arbeitnow") |
-            df["Country"].str.upper().isin(allowed_country_names)
-        ]
+    df = df[
+        df["Country"].isna() |
+        (df["Country"].str.upper() == "REMOTE") |
+        (
+            (df["Source"] == "Arbeitnow") &
+            any(c.upper() in eu_countries for c in allowed_country_names)
+        ) |
+        df["Country"].str.upper().isin(allowed_country_names)
+    ]
+
 
 
 
@@ -696,16 +699,19 @@ if run_search:
         if df.empty:
             st.warning("No jobs found.")
         else:
-            # ---------------------------------------
+            # =========================================================
             # 🔒 FINAL CITY-LEVEL GUARD (NON-REMOTE)
-            # ---------------------------------------
-            # 🔒 FINAL CITY-LEVEL GUARD (NON-REMOTE)
-            if not is_remote and locations and any(loc.strip() for loc in locations):
-                df = df[
-                    df["Location"].apply(
-                        lambda x: city_match(str(x), locations)
-                    )
-                ]
+            # =========================================================
+            # Only filter if 'locations' actually contains text. 
+            # If location is blank, we want to see ALL jobs from the selected Country.
+            if not is_remote and locations:
+                # Check if the first element is actually a non-empty string
+                if any(loc.strip() for loc in locations):
+                    df = df[
+                        df["Location"].apply(
+                            lambda x: city_match(str(x), locations)
+                        )
+                    ]
 
         
             if df.empty:
