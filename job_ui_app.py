@@ -779,49 +779,48 @@ if run_search:
                 st.markdown('</div>', unsafe_allow_html=True)
 
             # =========================================================
-# 🔍 API RESPONSE SUMMARY (DEBUG PANEL)
-# =========================================================
-st.markdown("---")
-st.markdown("### 🔎 API Response Summary")
-
-if not df.empty and "Source" in df.columns:
-    summary = (
-        df.groupby("Source")
-        .size()
-        .reset_index(name="Jobs Returned")
-        .sort_values("Jobs Returned", ascending=False)
-    )
-
-    st.dataframe(
-        summary,
-        use_container_width=True
-    )
-else:
-    st.info("No jobs available to summarize.")
-
-# ---------------------------------------------------------
-# 🔍 Arbeitnow Deep Debug (Germany / EU visibility)
-# ---------------------------------------------------------
-if run_search and not is_remote:
-    arbeitnow_raw = fetch_arbeitnow(skills)
-
-    if arbeitnow_raw:
-        arbeit_df = pd.DataFrame(arbeitnow_raw)
-
-        st.markdown("#### 🇪🇺 Arbeitnow Debug Details")
-
-        st.write({
-            "Total Arbeitnow jobs fetched (raw)": len(arbeit_df),
-            "Countries selected": countries,
-            "Unique locations from Arbeitnow": arbeit_df["Location"].dropna().unique()[:10].tolist(),
-            "Work modes": arbeit_df["Work Mode"].value_counts().to_dict()
-        })
-
-        # Show a small preview
-        st.dataframe(
-            arbeit_df[["Title", "Company", "Location", "Work Mode"]].head(5),
-            use_container_width=True
-        )
-    else:
-        st.warning("Arbeitnow API returned 0 jobs (raw).")
-
+            # 🔍 API RESPONSE SUMMARY (DEBUG PANEL)
+            # =========================================================
+            st.markdown("---")
+            st.markdown("### 🔎 API Response Summary")
+            
+            if not df.empty and "Source" in df.columns:
+                summary = (
+                    df.groupby("Source")
+                    .size()
+                    .reset_index(name="Jobs Returned")
+                    .sort_values("Jobs Returned", ascending=False)
+                )
+            
+                st.dataframe(
+                    summary,
+                    use_container_width=True
+                )
+            else:
+                st.info("No jobs available to summarize.")
+            
+            # ---------------------------------------------------------
+            # 🔍 Arbeitnow Deep Debug (Germany / EU visibility)
+            # ---------------------------------------------------------
+            if run_search and not is_remote:
+                arbeitnow_raw = fetch_arbeitnow(skills)
+            
+                if arbeitnow_raw:
+                    arbeit_df = pd.DataFrame(arbeitnow_raw)
+            
+                    st.markdown("#### 🇪🇺 Arbeitnow Debug Details")
+            
+                    st.write({
+                        "Total Arbeitnow jobs fetched (raw)": len(arbeit_df),
+                        "Countries selected": countries,
+                        "Unique locations from Arbeitnow": arbeit_df["Location"].dropna().unique()[:10].tolist(),
+                        "Work modes": arbeit_df["Work Mode"].value_counts().to_dict()
+                    })
+            
+                    # Show a small preview
+                    st.dataframe(
+                        arbeit_df[["Title", "Company", "Location", "Work Mode"]].head(5),
+                        use_container_width=True
+                    )
+                else:
+                    st.warning("Arbeitnow API returned 0 jobs (raw).")
