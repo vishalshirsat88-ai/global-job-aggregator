@@ -581,13 +581,9 @@ def run_engine(skills, levels, locations, countries, posted_days):
         df = df[
             df["Country"].isna() |
             (df["Country"].str.upper() == "REMOTE") |
-            (
-                (df["Country"].str.upper() == "EU") &
-                any(c.upper() in eu_countries for c in allowed_country_names)
-            ) |
+            (df["Source"] == "Arbeitnow") |
             df["Country"].str.upper().isin(allowed_country_names)
         ]
-
 
 
 
@@ -600,10 +596,6 @@ def run_engine(skills, levels, locations, countries, posted_days):
     )
 
     return df, False
-
-
-
-
 
 # =========================================================
 # STREAMLIT UI
@@ -707,12 +699,14 @@ if run_search:
             # ---------------------------------------
             # 🔒 FINAL CITY-LEVEL GUARD (NON-REMOTE)
             # ---------------------------------------
-            if not is_remote and locations:
+            # 🔒 FINAL CITY-LEVEL GUARD (NON-REMOTE)
+            if not is_remote and locations and any(loc.strip() for loc in locations):
                 df = df[
                     df["Location"].apply(
                         lambda x: city_match(str(x), locations)
                     )
                 ]
+
         
             if df.empty:
                 st.warning("No jobs found after location filter.")
