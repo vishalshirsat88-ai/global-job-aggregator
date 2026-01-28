@@ -568,9 +568,7 @@ def run_engine(skills, levels, locations, countries, posted_days):
 
     df = pd.DataFrame(all_rows)
 
-    # -----------------------------
-    # COUNTRY FILTER ONLY
-    # -----------------------------
+    
     # -----------------------------
     # FIXED COUNTRY FILTER
     # -----------------------------
@@ -651,7 +649,7 @@ with col_download:
 if run_search:
     with st.spinner("Fetching jobs..."):
         if is_remote:
-            rows = fetch_remote_jobs(skills, Level = levels[0] if levels else "", posted_days)
+            rows = fetch_remote_jobs(skills, levels[0] if levels else "", posted_days)
         
             # ➕ append new remote-safe sources
             rows += fetch_arbeitnow(skills)
