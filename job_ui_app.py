@@ -572,17 +572,22 @@ def run_engine(skills, levels, locations, countries, posted_days):
     # COUNTRY FILTER ONLY
     # -----------------------------
     allowed_country_names = {c.upper() for c in countries}
-
+    eu_countries = {
+        "GERMANY","FRANCE","NETHERLANDS",
+        "IRELAND","SPAIN","ITALY"
+    }
+    
     if "Country" in df.columns:
         df = df[
             df["Country"].isna() |
             (df["Country"].str.upper() == "REMOTE") |
             (
                 (df["Country"].str.upper() == "EU") &
-                (df["Source"] == "Arbeitnow")
+                any(c.upper() in eu_countries for c in allowed_country_names)
             ) |
             df["Country"].str.upper().isin(allowed_country_names)
         ]
+
 
 
 
@@ -673,8 +678,9 @@ if run_search:
                 extra_rows += fetch_arbeitnow(skills)
 
             
-            if not df.empty and extra_rows:
+            if extra_rows:
                 df = pd.concat([df, pd.DataFrame(extra_rows)], ignore_index=True)
+
 
 
         
