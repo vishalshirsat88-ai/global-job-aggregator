@@ -201,7 +201,7 @@ RAPIDAPI_KEY = st.secrets["RAPIDAPI_KEY"]
 JOOBLE_KEY   = st.secrets["JOOBLE_KEY"]
 ADZUNA_APP_ID = st.secrets["ADZUNA_APP_ID"]
 ADZUNA_API_KEY = st.secrets["ADZUNA_API_KEY"]
-REMOTIVE_API = "https://remotive.com/api/remote-jobs"
+REMOTIVE_API = https://remotive.com/api/remote-jobs
 
 # =========================================================
 # COUNTRY MAP
@@ -212,13 +212,7 @@ COUNTRIES = {
     "United Kingdom": "gb",
     "United Arab Emirates": "ae",
     "Canada": "ca",
-    "Australia": "au",
-    "Germany": "de",
-    "France": "fr",
-    "Netherlands": "nl",
-    "Ireland": "ie",
-    "Spain": "es",
-    "Italy": "it"
+    "Australia": "au"
 }
 
 # =========================================================
@@ -254,13 +248,6 @@ def work_mode(text):
 def excel_link(url):
     return f'=HYPERLINK("{url}","Apply")' if url else ""
 
-def city_match(row_location, search_locations):
-    if not row_location:
-        return False
-    row_loc = row_location.lower()
-    return any(loc.lower() in row_loc for loc in search_locations)
-
-
 # =========================================================
 # REMOTE SEARCH
 # =========================================================
@@ -270,7 +257,7 @@ def fetch_remote_jobs(skills, level, posted_days):
 
     for skill in skills:
         r = requests.get(
-            "https://jsearch.p.rapidapi.com/search",
+            https://jsearch.p.rapidapi.com/search,
             headers={
                 "x-rapidapi-key": RAPIDAPI_KEY,
                 "x-rapidapi-host": "jsearch.p.rapidapi.com"
@@ -339,7 +326,7 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
         query = f"{skill} job {location}".strip()
 
         r = requests.get(
-            "https://jsearch.p.rapidapi.com/search",
+            https://jsearch.p.rapidapi.com/search,
             headers={
                 "x-rapidapi-key": RAPIDAPI_KEY,
                 "x-rapidapi-host": "jsearch.p.rapidapi.com"
@@ -383,7 +370,7 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
 
     for c in countries:
         r = requests.get(
-            f"https://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/1",
+            fhttps://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/1,
             params={
                 "app_id": ADZUNA_APP_ID,
                 "app_key": ADZUNA_API_KEY,
@@ -421,7 +408,7 @@ def fetch_jooble(skills, levels, countries, location):
 
     for c in countries:
         r = requests.post(
-            f"https://jooble.org/api/{JOOBLE_KEY}",
+            fhttps://jooble.org/api/{JOOBLE_KEY},
             json={
                 "keywords": " ".join(skills + levels),
                 "location": location or c   # country-level search only
@@ -446,109 +433,6 @@ def fetch_jooble(skills, levels, countries, location):
 
     return rows
 
-def fetch_usajobs(skills, posted_days):
-    rows = []
-    cutoff = datetime.utcnow() - timedelta(days=posted_days)
-
-    for skill in skills:
-        r = requests.get(
-            "https://data.usajobs.gov/api/search",
-            headers={
-                "User-Agent": st.secrets["USAJOBS_EMAIL"],
-                "Authorization-Key": st.secrets["USAJOBS_API_KEY"]
-            },
-            params={
-                "Keyword": skill,
-                "ResultsPerPage": 25
-            },
-            timeout=20
-        )
-
-        if r.status_code != 200:
-            continue
-
-        for j in r.json()["SearchResult"]["SearchResultItems"]:
-            d = j["MatchedObjectDescriptor"]
-
-            rows.append({
-                "Source": "USAJobs",
-                "Skill": skill,
-                "Title": d["PositionTitle"],
-                "Company": d["OrganizationName"],
-                "Location": ", ".join(
-                    l["LocationName"] for l in d.get("PositionLocation", [])
-                ),
-                "Country": "US",
-                "Work Mode": "On-site",
-                "Posted": d.get("PublicationStartDate", ""),
-                "Apply": d["PositionURI"],
-                "_excel": excel_link(d["PositionURI"]),
-                "_date": normalize_date(d.get("PublicationStartDate", ""))
-            })
-
-    return rows
-
-
-def fetch_arbeitnow(skills):
-    rows = []
-    r = requests.get("https://www.arbeitnow.com/api/job-board-api", timeout=15)
-
-    if r.status_code != 200:
-        return rows
-
-    for j in r.json().get("data", []):
-        for skill in skills:
-            if not skill_match(j.get("title", ""), skill):
-                continue
-
-            rows.append({
-                "Source": "Arbeitnow",
-                "Skill": skill,
-                "Title": j.get("title"),
-                "Company": j.get("company_name"),
-                "Location": j.get("location"),
-                "Country": "EU",
-                "Work Mode": "Remote" if j.get("remote") else "On-site",
-                "Posted": "",
-                "Apply": j.get("url"),
-                "_excel": excel_link(j.get("url")),
-                "_date": None
-            })
-
-    return rows
-
-import feedparser
-
-def fetch_weworkremotely(skills):
-    rows = []
-    feeds = [
-        "https://weworkremotely.com/categories/remote-programming-jobs.rss",
-        "https://weworkremotely.com/categories/remote-management-jobs.rss"
-    ]
-
-    for feed_url in feeds:
-        feed = feedparser.parse(feed_url)
-
-        for e in feed.entries:
-            for skill in skills:
-                if not skill_match(e.title, skill):
-                    continue
-
-                rows.append({
-                    "Source": "WeWorkRemotely",
-                    "Skill": skill,
-                    "Title": e.title,
-                    "Company": "",
-                    "Location": "Remote",
-                    "Country": "Remote",
-                    "Work Mode": "Remote",
-                    "Posted": "",
-                    "Apply": e.link,
-                    "_excel": excel_link(e.link),
-                    "_date": None
-                })
-
-    return rows
 
 
 # =========================================================
@@ -605,8 +489,6 @@ location = st.text_input("Location (city or Remote, comma separated)", "")
 locations = [l.strip() for l in location.split(",") if l.strip()]
 is_remote = location.strip().lower() == "remote"
 
-
-
 countries = st.multiselect(
     "Country",
     options=list(COUNTRIES.keys()),
@@ -614,17 +496,11 @@ countries = st.multiselect(
     disabled=is_remote
 )
 
-is_us_search = (
-    "United States" in countries or
-    location.strip().lower() in ["usa", "united states","america"]
-)
-
 if not is_remote and not countries:
     st.error("Country is mandatory unless location is Remote.")
     st.stop()
 
 posted_days = st.slider("Posted within last X days", 1, 60, 7)
-
 
 # =========================
 # TOP ACTION BAR
@@ -645,39 +521,17 @@ with col_download:
 if run_search:
     with st.spinner("Fetching jobs..."):
         if is_remote:
-            rows = fetch_remote_jobs(skills, levels[0] if levels else "", posted_days)
-        
-            # ➕ append new remote-safe sources
-            rows += fetch_arbeitnow(skills)
-            rows += fetch_weworkremotely(skills)
-        
-            df = pd.DataFrame(rows)
+            df = pd.DataFrame(fetch_remote_jobs(skills, levels[0] if levels else "", posted_days))
             fallback = False
-        
         else:
             df, fallback = run_engine(skills, levels, locations, countries, posted_days)
-        
-            # ➕ append country-safe sources
-            extra_rows = []
-            if is_us_search:
-                extra_rows += fetch_usajobs(skills, posted_days)
-            
-            # EU-only source – safe to always append
-            if any(c in ["Germany","France","Netherlands","Ireland","Spain","Italy"] for c in countries):
-                extra_rows += fetch_arbeitnow(skills)
-
-            
-            if not df.empty and extra_rows:
-                df = pd.concat([df, pd.DataFrame(extra_rows)], ignore_index=True)
-
-
         
             # 🔁 COUNTRY-LEVEL FALLBACK
             if fallback:
                 df, _ = run_engine(
                     skills,
                     levels,
-                    locations=[""],   #⬅️ country-only search
+                    locations=[""],   # ⬅️ country-only search
                     countries=countries,
                     posted_days=posted_days
                 )
@@ -692,25 +546,8 @@ if run_search:
         if df.empty:
             st.warning("No jobs found.")
         else:
-            # ---------------------------------------
-            # 🔒 FINAL CITY-LEVEL GUARD (NON-REMOTE)
-            # ---------------------------------------
-            if not is_remote and locations:
-                df = df[
-                    df["Location"].apply(
-                        lambda x: city_match(str(x), locations)
-                    )
-                ]
-        
-            if df.empty:
-                st.warning("No jobs found after location filter.")
-                st.stop()
-        
-            # ✅ ALWAYS sort AFTER filtering
             df = df.sort_values(by=["_date"], ascending=False, na_position="last")
-        
             st.success(f"✅ Found {len(df)} jobs")
-
     
             # =========================
             # VIEW MODE TOGGLE
