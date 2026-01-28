@@ -571,19 +571,19 @@ def run_engine(skills, levels, locations, countries, posted_days):
     # -----------------------------
     # COUNTRY FILTER ONLY
     # -----------------------------
+    # -----------------------------
+    # FIXED COUNTRY FILTER
+    # -----------------------------
     allowed_country_names = {c.upper() for c in countries}
-    eu_countries = {
-        "GERMANY","FRANCE","NETHERLANDS",
-        "IRELAND","SPAIN","ITALY"
-    }
+    eu_countries = {"GERMANY", "FRANCE", "NETHERLANDS", "IRELAND", "SPAIN", "ITALY"}
+    
+    # Check if the user has selected ANY EU country
+    user_selected_eu = any(c.upper() in eu_countries for c in allowed_country_names)
     
     df = df[
-        df["Country"].isna() |
+        df["Country"].isna() | 
         (df["Country"].str.upper() == "REMOTE") |
-        (
-            (df["Source"] == "Arbeitnow") &
-            any(c.upper() in eu_countries for c in allowed_country_names)
-        ) |
+        (df["Country"].str.upper() == "EU" if user_selected_eu else False) | # Allow 'EU' if Germany/etc is picked
         df["Country"].str.upper().isin(allowed_country_names)
     ]
 
@@ -651,7 +651,7 @@ with col_download:
 if run_search:
     with st.spinner("Fetching jobs..."):
         if is_remote:
-            rows = fetch_remote_jobs(skills, levels[0] if levels else "", posted_days)
+            rows = fetch_remote_jobs(skills, Level = levels[0] if levels else "", posted_days)
         
             # ➕ append new remote-safe sources
             rows += fetch_arbeitnow(skills)
