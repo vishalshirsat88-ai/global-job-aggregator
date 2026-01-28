@@ -260,6 +260,14 @@ def city_match(row_location, search_locations):
     row_loc = row_location.lower()
     return any(loc.lower() in row_loc for loc in search_locations)
 
+def strict_skill_match_row(row, skills):
+    text = " ".join([
+        str(row.get("Title", "")),
+        str(row.get("Company", "")),
+        str(row.get("Location", "")),
+    ]).lower()
+
+    return any(skill.lower() in text for skill in skills)
 
 # =========================================================
 # REMOTE SEARCH
@@ -710,6 +718,17 @@ if run_search:
             df = df.sort_values(by=["_date"], ascending=False, na_position="last")
         
             st.success(f"✅ Found {len(df)} jobs")
+
+            # ---------------------------------------
+            # 🔒 FINAL SKILL-LEVEL GUARD (RESTORED)
+            # ---------------------------------------
+            df = df[
+                df.apply(lambda r: strict_skill_match_row(r, skills), axis=1)
+            ]
+            
+            if df.empty:
+                st.warning("No jobs found after skill filter.")
+                st.stop()
 
     
             # =========================
