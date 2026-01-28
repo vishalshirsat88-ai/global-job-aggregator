@@ -702,14 +702,15 @@ if run_search:
             # =========================================================
             # 🔒 FINAL CITY-LEVEL GUARD (NON-REMOTE)
             # =========================================================
-            # Only filter if 'locations' actually contains text. 
-            # If location is blank, we want to see ALL jobs from the selected Country.
-            if not is_remote and locations:
-                # Check if the first element is actually a non-empty string
-                if any(loc.strip() for loc in locations):
+            if not is_remote:
+                # Check if the user actually typed a city/location
+                # If 'locations' is empty or just contains an empty string, we SKIP filtering
+                actual_cities = [loc for loc in locations if loc.strip()]
+                
+                if actual_cities:
                     df = df[
                         df["Location"].apply(
-                            lambda x: city_match(str(x), locations)
+                            lambda x: city_match(str(x), actual_cities)
                         )
                     ]
 
