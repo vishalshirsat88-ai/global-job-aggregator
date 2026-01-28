@@ -722,10 +722,23 @@ if run_search:
             # ---------------------------------------
             # 🔒 FINAL SKILL-LEVEL GUARD (RESTORED)
             # ---------------------------------------
-            df = df[
-                df.apply(lambda r: strict_skill_match_row(r, skills), axis=1)
-            ]
+            # ---------------------------------------
+            # 🔒 FAST FINAL SKILL FILTER (VECTORIZED)
+            # ---------------------------------------
+            pattern = "|".join(re.escape(skill.lower()) for skill in skills)
             
+            search_text = (
+                df["Title"].fillna("") + " " +
+                df["Company"].fillna("") + " " +
+                df["Location"].fillna("")
+            ).str.lower()
+            
+            df = df[search_text.str.contains(pattern, regex=True)]
+            
+            if df.empty:
+                st.warning("No jobs found after skill filter.")
+                st.stop()
+
             if df.empty:
                 st.warning("No jobs found after skill filter.")
                 st.stop()
