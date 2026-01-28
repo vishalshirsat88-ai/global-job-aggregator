@@ -577,8 +577,10 @@ def run_engine(skills, levels, locations, countries, posted_days):
         df = df[
             df["Country"].isna() |
             (df["Country"].str.upper() == "REMOTE") |
+            (df["Country"].str.upper() == "EU") |   # ✅ allow Arbeitnow
             df["Country"].str.upper().isin(allowed_country_names)
         ]
+
 
     if df.empty:
         return pd.DataFrame(), True
