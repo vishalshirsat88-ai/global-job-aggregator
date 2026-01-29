@@ -685,7 +685,7 @@ if run_search:
                 df, _ = run_engine(
                     skills,
                     levels,
-                    locations=[""],   ⬅️ country-only search
+                    locations=[""],   #⬅️ country-only search
                     countries=countries,
                     posted_days=posted_days
                 )
