@@ -654,7 +654,7 @@ with col_toggle:
 with col_download:
     download_placeholder = st.empty()
 
-
+fallback_shown = False
 if run_search:
     with st.spinner("Fetching jobs..."):
         if is_remote:
@@ -690,11 +690,13 @@ if run_search:
 
 
 
-        if fallback:
-             st.info(
+        if fallback and not fallback_shown:
+            st.info(
                 f"ℹ️ No jobs found for **{location}**. "
                 f"Showing country-level jobs instead."
             )
+            fallback_shown = True
+
             
         if df.empty:
             st.warning("No jobs found.")
@@ -726,10 +728,13 @@ if run_search:
                     include_country_safe=True
                 )
             
-                st.info(
-                    f"ℹ️ No jobs found for **{location}**. "
-                    f"Showing country-level jobs instead."
-                )
+                if fallback and not fallback_shown:
+                    st.info(
+                        f"ℹ️ No jobs found for **{location}**. "
+                        f"Showing country-level jobs instead."
+                    )
+                    fallback_shown = True
+
 
         
             # ✅ ALWAYS sort AFTER filtering
