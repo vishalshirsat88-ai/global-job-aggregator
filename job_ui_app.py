@@ -478,7 +478,7 @@ def fetch_usajobs(skills, posted_days):
                 "Location": ", ".join(
                     l["LocationName"] for l in d.get("PositionLocation", [])
                 ),
-                "Country": "US",
+                "Country": "UNITED STATES",
                 "Work Mode": "On-site",
                 "Posted": d.get("PublicationStartDate", ""),
                 "Apply": d["PositionURI"],
@@ -507,7 +507,7 @@ def fetch_arbeitnow(skills):
                 "Title": j.get("title"),
                 "Company": j.get("company_name"),
                 "Location": j.get("location"),
-                "Country": "EU",
+                "Country": None,
                 "Work Mode": "Remote" if j.get("remote") else "On-site",
                 "Posted": "",
                 "Apply": j.get("url"),
@@ -581,7 +581,6 @@ def run_engine(skills, levels, locations, countries, posted_days):
     df = df[
         df["Country"].isna() | 
         (df["Country"].str.upper() == "REMOTE") |
-        (df["Country"].str.upper() == "EU" if user_selected_eu else False) | # Allow 'EU' if Germany/etc is picked
         df["Country"].str.upper().isin(allowed_country_names)
     ]
 
@@ -660,7 +659,17 @@ if run_search:
         
         else:
             df, fallback = run_engine(skills, levels, locations, countries, posted_days)
-        
+
+            # 🔁 COUNTRY-LEVEL FALLBACK
+            if fallback:
+                df, _ = run_engine(
+                    skills,
+                    levels,
+                    locations=[""],   #⬅️ country-only search
+                    countries=countries,
+                    posted_days=posted_days
+                )
+            
             # ➕ append country-safe sources
             extra_rows = []
             if is_us_search:
@@ -673,19 +682,6 @@ if run_search:
             
             if extra_rows:
                 df = pd.concat([df, pd.DataFrame(extra_rows)], ignore_index=True)
-
-
-
-        
-            # 🔁 COUNTRY-LEVEL FALLBACK
-            if fallback:
-                df, _ = run_engine(
-                    skills,
-                    levels,
-                    locations=[""],   #⬅️ country-only search
-                    countries=countries,
-                    posted_days=posted_days
-                )
 
 
         if fallback:
