@@ -338,18 +338,25 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
     for skill in skills:
         query = f"{skill} job {location}".strip()
 
-        r = requests.get(
-            "https://jsearch.p.rapidapi.com/search",
-            headers={
-                "x-rapidapi-key": RAPIDAPI_KEY,
-                "x-rapidapi-host": "jsearch.p.rapidapi.com"
-            },
-            params={
-                "query": query,
-                "num_pages": 2
-            },
-            timeout=20
-        )
+        try:
+            r = requests.get(
+                "https://jsearch.p.rapidapi.com/search",
+                headers={
+                    "x-rapidapi-key": RAPIDAPI_KEY,
+                    "x-rapidapi-host": "jsearch.p.rapidapi.com"
+                },
+                params={
+                    "query": query,
+                    "num_pages": 2
+                },
+                timeout=15   # ⬅ slightly lower is better
+            )
+        except requests.exceptions.ReadTimeout:
+            continue   # skip this call, keep looping
+        except requests.exceptions.RequestException:
+            continue
+
+
 
         if r.status_code != 200:
             continue
