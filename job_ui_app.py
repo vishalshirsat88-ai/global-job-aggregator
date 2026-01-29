@@ -715,9 +715,22 @@ if run_search:
                     ]
 
         
-            if df.empty:
-                st.warning("No jobs found after location filter.")
-                st.stop()
+            # If city filter removes everything, fallback to country-level search
+            if df.empty and not is_remote and locations:
+                df, _ = run_engine(
+                    skills,
+                    levels,
+                    locations=[""],   # country-level
+                    countries=countries,
+                    posted_days=posted_days,
+                    include_country_safe=True
+                )
+            
+                st.info(
+                    f"ℹ️ No jobs found for **{location}**. "
+                    f"Showing country-level jobs instead."
+                )
+
         
             # ✅ ALWAYS sort AFTER filtering
             df = df.sort_values(by=["_date"], ascending=False, na_position="last")
