@@ -654,7 +654,7 @@ with col_toggle:
 with col_download:
     download_placeholder = st.empty()
 
-fallback_shown = False
+
 if run_search:
     with st.spinner("Fetching jobs..."):
         if is_remote:
@@ -690,14 +690,11 @@ if run_search:
 
 
 
-            if fallback and not fallback_shown:
-                st.info(
-                    f"ℹ️ No jobs found for **{location}**. "
-                    f"Showing country-level jobs instead."
-                )
-                fallback_shown = True
-
-
+        if fallback:
+             st.info(
+                f"ℹ️ No jobs found for **{location}**. "
+                f"Showing country-level jobs instead."
+            )
             
         if df.empty:
             st.warning("No jobs found.")
@@ -719,11 +716,11 @@ if run_search:
 
         
             # If city filter removes everything, fallback to country-level search
-            if df.empty and not is_remote and locations and not fallback_shown:
+            if df.empty and not is_remote and locations:
                 df, _ = run_engine(
                     skills,
                     levels,
-                    locations=[""],
+                    locations=[""],   # country-level
                     countries=countries,
                     posted_days=posted_days,
                     include_country_safe=True
@@ -733,9 +730,6 @@ if run_search:
                     f"ℹ️ No jobs found for **{location}**. "
                     f"Showing country-level jobs instead."
                 )
-                fallback_shown = True
-
-
 
         
             # ✅ ALWAYS sort AFTER filtering
