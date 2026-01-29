@@ -260,6 +260,14 @@ def city_match(row_location, search_locations):
     row_loc = row_location.lower()
     return any(loc.lower() in row_loc for loc in search_locations)
 
+def strict_skill_match_row(row, skills):
+    text = " ".join([
+        str(row.get("Title", "")),
+        str(row.get("Company", "")),
+        str(row.get("Location", "")),
+    ]).lower()
+
+    return any(skill.lower() in text for skill in skills)
 
 # =========================================================
 # REMOTE SEARCH
@@ -478,7 +486,7 @@ def fetch_usajobs(skills, posted_days):
                 "Location": ", ".join(
                     l["LocationName"] for l in d.get("PositionLocation", [])
                 ),
-                "Country": "UNITED STATES",
+                "Country": "US",
                 "Work Mode": "On-site",
                 "Posted": d.get("PublicationStartDate", ""),
                 "Apply": d["PositionURI"],
@@ -507,7 +515,7 @@ def fetch_arbeitnow(skills):
                 "Title": j.get("title"),
                 "Company": j.get("company_name"),
                 "Location": j.get("location"),
-                "Country": None,
+                "Country": "EU",
                 "Work Mode": "Remote" if j.get("remote") else "On-site",
                 "Posted": "",
                 "Apply": j.get("url"),
@@ -568,24 +576,17 @@ def run_engine(skills, levels, locations, countries, posted_days):
 
     df = pd.DataFrame(all_rows)
 
-    
     # -----------------------------
-    # FIXED COUNTRY FILTER
+    # COUNTRY FILTER ONLY
     # -----------------------------
     allowed_country_names = {c.upper() for c in countries}
-    eu_countries = {"GERMANY", "FRANCE", "NETHERLANDS", "IRELAND", "SPAIN", "ITALY"}
-    
-    # Check if the user has selected ANY EU country
-    user_selected_eu = any(c.upper() in eu_countries for c in allowed_country_names)
-    
-    df = df[
-        df["Country"].isna() | 
-        (df["Country"].str.upper() == "REMOTE") |
-        df["Country"].str.upper().isin(allowed_country_names)
-    ]
 
-
-
+    if "Country" in df.columns:
+        df = df[
+            df["Country"].isna() |
+            (df["Country"].str.upper() == "REMOTE") |
+            df["Country"].str.upper().isin(allowed_country_names)
+        ]
 
     if df.empty:
         return pd.DataFrame(), True
@@ -596,6 +597,10 @@ def run_engine(skills, levels, locations, countries, posted_days):
     )
 
     return df, False
+
+
+
+
 
 # =========================================================
 # STREAMLIT UI
@@ -659,17 +664,7 @@ if run_search:
         
         else:
             df, fallback = run_engine(skills, levels, locations, countries, posted_days)
-
-            # 🔁 COUNTRY-LEVEL FALLBACK
-            if fallback:
-                df, _ = run_engine(
-                    skills,
-                    levels,
-                    locations=[""],   #⬅️ country-only search
-                    countries=countries,
-                    posted_days=posted_days
-                )
-            
+        
             # ➕ append country-safe sources
             extra_rows = []
             if is_us_search:
@@ -680,8 +675,20 @@ if run_search:
                 extra_rows += fetch_arbeitnow(skills)
 
             
-            if extra_rows:
+            if not df.empty and extra_rows:
                 df = pd.concat([df, pd.DataFrame(extra_rows)], ignore_index=True)
+
+
+        
+            # 🔁 COUNTRY-LEVEL FALLBACK
+            if fallback:
+                df, _ = run_engine(
+                    skills,
+                    levels,
+                    locations=[""],   ⬅️ country-only search
+                    countries=countries,
+                    posted_days=posted_days
+                )
 
 
         if fallback:
@@ -693,21 +700,15 @@ if run_search:
         if df.empty:
             st.warning("No jobs found.")
         else:
-            # =========================================================
+            # ---------------------------------------
             # 🔒 FINAL CITY-LEVEL GUARD (NON-REMOTE)
-            # =========================================================
-            if not is_remote:
-                # Check if the user actually typed a city/location
-                # If 'locations' is empty or just contains an empty string, we SKIP filtering
-                actual_cities = [loc for loc in locations if loc.strip()]
-                
-                if actual_cities:
-                    df = df[
-                        df["Location"].apply(
-                            lambda x: city_match(str(x), actual_cities)
-                        )
-                    ]
-
+            # ---------------------------------------
+            if not is_remote and locations:
+                df = df[
+                    df["Location"].apply(
+                        lambda x: city_match(str(x), locations)
+                    )
+                ]
         
             if df.empty:
                 st.warning("No jobs found after location filter.")
@@ -717,6 +718,30 @@ if run_search:
             df = df.sort_values(by=["_date"], ascending=False, na_position="last")
         
             st.success(f"✅ Found {len(df)} jobs")
+
+            # ---------------------------------------
+            # 🔒 FINAL SKILL-LEVEL GUARD (RESTORED)
+            # ---------------------------------------
+            # ---------------------------------------
+            # 🔒 FAST FINAL SKILL FILTER (VECTORIZED)
+            # ---------------------------------------
+            pattern = "|".join(re.escape(skill.lower()) for skill in skills)
+            
+            search_text = (
+                df["Title"].fillna("") + " " +
+                df["Company"].fillna("") + " " +
+                df["Location"].fillna("")
+            ).str.lower()
+            
+            df = df[search_text.str.contains(pattern, regex=True)]
+            
+            if df.empty:
+                st.warning("No jobs found after skill filter.")
+                st.stop()
+
+            if df.empty:
+                st.warning("No jobs found after skill filter.")
+                st.stop()
 
     
             # =========================
@@ -784,50 +809,3 @@ if run_search:
                     "job_results.csv"
                 )
                 st.markdown('</div>', unsafe_allow_html=True)
-
-            # =========================================================
-            # 🔍 API RESPONSE SUMMARY (DEBUG PANEL)
-            # =========================================================
-            st.markdown("---")
-            st.markdown("### 🔎 API Response Summary")
-            
-            if not df.empty and "Source" in df.columns:
-                summary = (
-                    df.groupby("Source")
-                    .size()
-                    .reset_index(name="Jobs Returned")
-                    .sort_values("Jobs Returned", ascending=False)
-                )
-            
-                st.dataframe(
-                    summary,
-                    use_container_width=True
-                )
-            else:
-                st.info("No jobs available to summarize.")
-            
-            # ---------------------------------------------------------
-            # 🔍 Arbeitnow Deep Debug (Germany / EU visibility)
-            # ---------------------------------------------------------
-            if run_search and not is_remote:
-                arbeitnow_raw = fetch_arbeitnow(skills)
-            
-                if arbeitnow_raw:
-                    arbeit_df = pd.DataFrame(arbeitnow_raw)
-            
-                    st.markdown("#### 🇪🇺 Arbeitnow Debug Details")
-            
-                    st.write({
-                        "Total Arbeitnow jobs fetched (raw)": len(arbeit_df),
-                        "Countries selected": countries,
-                        "Unique locations from Arbeitnow": arbeit_df["Location"].dropna().unique()[:10].tolist(),
-                        "Work modes": arbeit_df["Work Mode"].value_counts().to_dict()
-                    })
-            
-                    # Show a small preview
-                    st.dataframe(
-                        arbeit_df[["Title", "Company", "Location", "Work Mode"]].head(5),
-                        use_container_width=True
-                    )
-                else:
-                    st.warning("Arbeitnow API returned 0 jobs (raw).")
