@@ -690,12 +690,13 @@ if run_search:
 
 
 
-        if fallback and not fallback_shown:
-            st.info(
-                f"ℹ️ No jobs found for **{location}**. "
-                f"Showing country-level jobs instead."
-            )
-            fallback_shown = True
+            if fallback and not fallback_shown:
+                st.info(
+                    f"ℹ️ No jobs found for **{location}**. "
+                    f"Showing country-level jobs instead."
+                )
+                fallback_shown = True
+
 
             
         if df.empty:
@@ -718,22 +719,22 @@ if run_search:
 
         
             # If city filter removes everything, fallback to country-level search
-            if df.empty and not is_remote and locations:
+            if df.empty and not is_remote and locations and not fallback_shown:
                 df, _ = run_engine(
                     skills,
                     levels,
-                    locations=[""],   # country-level
+                    locations=[""],
                     countries=countries,
                     posted_days=posted_days,
                     include_country_safe=True
                 )
             
-                if fallback and not fallback_shown:
-                    st.info(
-                        f"ℹ️ No jobs found for **{location}**. "
-                        f"Showing country-level jobs instead."
-                    )
-                    fallback_shown = True
+                st.info(
+                    f"ℹ️ No jobs found for **{location}**. "
+                    f"Showing country-level jobs instead."
+                )
+                fallback_shown = True
+
 
 
         
