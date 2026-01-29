@@ -554,8 +554,7 @@ def fetch_weworkremotely(skills):
 # =========================================================
 # ENGINE (MULTI-SKILL + MULTI-CITY LOGIC)
 # =========================================================
-def run_engine(skills, levels, locations, countries, posted_days, include_country_safe=False):
-
+def run_engine(skills, levels, locations, countries, posted_days):
     all_rows = []
 
     for loc in locations:
@@ -563,16 +562,6 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
             all_rows += fetch_jsearch([skill], levels, countries, posted_days, loc)
             all_rows += fetch_adzuna([skill], levels, countries, posted_days, loc)
             all_rows += fetch_jooble([skill], levels, countries, loc)
-    # ---------------------------------
-    # COUNTRY-SAFE SOURCES (ONCE ONLY)
-    # ---------------------------------
-    if include_country_safe:
-        if "United States" in countries:
-            all_rows += fetch_usajobs(skills, posted_days)
-    
-        eu_list = {"Germany","France","Netherlands","Ireland","Spain","Italy"}
-        if any(c in eu_list for c in countries):
-            all_rows += fetch_arbeitnow(skills)
 
     if not all_rows:
         return pd.DataFrame(), True
@@ -584,6 +573,10 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     # FIXED COUNTRY FILTER
     # -----------------------------
     allowed_country_names = {c.upper() for c in countries}
+    eu_countries = {"GERMANY", "FRANCE", "NETHERLANDS", "IRELAND", "SPAIN", "ITALY"}
+    
+    # Check if the user has selected ANY EU country
+    user_selected_eu = any(c.upper() in eu_countries for c in allowed_country_names)
     
     df = df[
         df["Country"].isna() | 
@@ -665,26 +658,30 @@ if run_search:
             fallback = False
         
         else:
-            df, fallback = run_engine(
-                skills,
-                levels,
-                locations,
-                countries,
-                posted_days,
-                include_country_safe=True
-            )
-            
-            # 🔁 COUNTRY-LEVEL FALLBACK (still needed)
+            df, fallback = run_engine(skills, levels, locations, countries, posted_days)
+
+            # 🔁 COUNTRY-LEVEL FALLBACK
             if fallback:
                 df, _ = run_engine(
                     skills,
                     levels,
-                    locations=[""],
+                    locations=[""],   #⬅️ country-only search
                     countries=countries,
-                    posted_days=posted_days,
-                    include_country_safe=True
+                    posted_days=posted_days
                 )
+            
+            # ➕ append country-safe sources
+            extra_rows = []
+            if is_us_search:
+                extra_rows += fetch_usajobs(skills, posted_days)
+            
+            # EU-only source – safe to always append
+            if any(c in ["Germany","France","Netherlands","Ireland","Spain","Italy"] for c in countries):
+                extra_rows += fetch_arbeitnow(skills)
 
+            
+            if extra_rows:
+                df = pd.concat([df, pd.DataFrame(extra_rows)], ignore_index=True)
 
 
         if fallback:
