@@ -1,12 +1,15 @@
 import pandas as pd
 
 from engine.fetchers import (
+    fetch_remote_jobs,
+    fetch_weworkremotely,
+    fetch_arbeitnow,
     fetch_jsearch,
     fetch_adzuna,
     fetch_jooble,
-    fetch_usajobs,
-    fetch_arbeitnow
+    fetch_usajobs
 )
+
 
 from engine.utils import city_match
 
@@ -66,3 +69,56 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     )
 
     return df, False
+
+    def run_job_search(
+    skills,
+    levels,
+    locations,
+    countries,
+    posted_days,
+    is_remote
+):
+    """
+    Single entry point for job search.
+    This mirrors Streamlit behavior exactly.
+    """
+
+    # -----------------------
+    # REMOTE SEARCH
+    # -----------------------
+    if is_remote:
+        rows = []
+        rows += fetch_remote_jobs(
+            skills,
+            levels[0] if levels else "",
+            posted_days
+        )
+        rows += fetch_arbeitnow(skills)
+        rows += fetch_weworkremotely(skills)
+        return rows, False
+
+    # -----------------------
+    # NON-REMOTE SEARCH
+    # -----------------------
+    df, fallback = run_engine(
+        skills,
+        levels,
+        locations,
+        countries,
+        posted_days,
+        include_country_safe=True
+    )
+
+    # 🔁 COUNTRY-LEVEL FALLBACK (same as Streamlit)
+    if fallback:
+        df, _ = run_engine(
+            skills,
+            levels,
+            locations=[""],
+            countries=countries,
+            posted_days=posted_days,
+            include_country_safe=True
+        )
+
+    return df, fallback
+
