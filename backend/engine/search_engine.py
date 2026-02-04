@@ -1,1 +1,68 @@
+import pandas as pd
 
+from engine.fetchers import (
+    fetch_jsearch,
+    fetch_adzuna,
+    fetch_jooble,
+    fetch_usajobs,
+    fetch_arbeitnow
+)
+
+from engine.utils import city_match
+
+
+# =========================================================
+# ENGINE (MULTI-SKILL + MULTI-CITY LOGIC)
+# =========================================================
+def run_engine(skills, levels, locations, countries, posted_days, include_country_safe=False):
+
+    # 🔑 CRITICAL FIX
+    if not locations:
+        locations = [""]
+    all_rows = []
+
+    for loc in locations:
+        for skill in skills:
+            all_rows += fetch_jsearch([skill], levels, countries, posted_days, loc)
+            all_rows += fetch_adzuna([skill], levels, countries, posted_days, loc)
+            all_rows += fetch_jooble([skill], levels, countries, loc)
+    # ---------------------------------
+    # COUNTRY-SAFE SOURCES (ONCE ONLY)
+    # ---------------------------------
+    if include_country_safe:
+        if "United States" in countries:
+            all_rows += fetch_usajobs(skills, posted_days)
+    
+        eu_list = {"Germany","France","Netherlands","Ireland","Spain","Italy"}
+        if any(c in eu_list for c in countries):
+            all_rows += fetch_arbeitnow(skills)
+
+    if not all_rows:
+        return pd.DataFrame(), True
+
+    df = pd.DataFrame(all_rows)
+
+    
+    # -----------------------------
+    # FIXED COUNTRY FILTER
+    # -----------------------------
+    allowed_country_names = {c.upper() for c in countries}
+    
+    df = df[
+        df["Country"].isna() | 
+        (df["Country"].str.upper() == "REMOTE") |
+        df["Country"].str.upper().isin(allowed_country_names)
+    ]
+
+
+
+
+    if df.empty:
+        return pd.DataFrame(), True
+
+    # Deduplicate across locations
+    df = df.drop_duplicates(
+        subset=["Title", "Company", "Location", "Source"]
+    )
+
+    return df, False
