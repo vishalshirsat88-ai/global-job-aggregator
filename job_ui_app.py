@@ -5,7 +5,7 @@ import re
 from datetime import datetime, timedelta
 
 # --- CONFIG ---
-st.set_page_config(page_title="TalentFlow | Job Aggregator", layout="wide")
+st.set_page_config(page_title="Job Hunt ++ | Aggregator", layout="wide")
 
 # --- CUSTOM UI STYLING ---
 st.markdown("""
@@ -30,7 +30,7 @@ st.markdown("""
     }
 
     .hero-container {
-        padding: 40px 0 30px 0;
+        padding: 50px 0 40px 0;
         text-align: center;
     }
     .text-gradient {
@@ -38,7 +38,7 @@ st.markdown("""
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 800;
-        font-size: 3.5rem;
+        font-size: 4.5rem; /* Increased font size */
         letter-spacing: -2px;
         margin: 0;
     }
@@ -50,6 +50,20 @@ st.markdown("""
         border-radius: 1.5rem;
         padding: 2rem;
         margin-bottom: 2rem;
+    }
+
+    /* FIX FOR INPUT TEXT VISIBILITY */
+    input {
+        color: #ffffff !important;
+    }
+    div[data-baseweb="input"] input {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+    }
+    
+    /* Fix for Multiselect/Select text visibility */
+    div[data-baseweb="select"] span, div[data-baseweb="select"] div {
+        color: #ffffff !important;
     }
 
     .job-card {
@@ -116,7 +130,7 @@ st.markdown("""
     header {visibility: hidden;}
     
     div[data-baseweb="input"], div[data-baseweb="select"] {
-        background-color: rgba(255,255,255,0.05) !important;
+        background-color: rgba(255,255,255,0.08) !important;
         border-radius: 10px !important;
         border: 1px solid rgba(255,255,255,0.1) !important;
     }
@@ -124,7 +138,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- ENGINE SETTINGS ---
-# Using .get() to avoid errors if keys are missing in secrets
 RAPIDAPI_KEY = st.secrets.get("RAPIDAPI_KEY", "")
 JOOBLE_KEY = st.secrets.get("JOOBLE_KEY", "")
 ADZUNA_APP_ID = st.secrets.get("ADZUNA_APP_ID", "")
@@ -209,7 +222,7 @@ def fetch_jooble(skills, levels, countries, location):
 st.markdown("""
 <div class="hero-container">
     <span style="letter-spacing: 2px; font-size: 10px; font-weight: 800; color: #6366f1; text-transform: uppercase;">Global Talent Aggregator</span>
-    <h1 class="text-gradient">TalentFlow</h1>
+    <h1 class="text-gradient">Job Hunt ++</h1>
 </div>
 """, unsafe_allow_html=True)
 
