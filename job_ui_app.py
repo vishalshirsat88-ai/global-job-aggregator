@@ -1,8 +1,7 @@
 import streamlit as st
-import requests
 import pandas as pd
-import re
-from datetime import datetime, timedelta
+from backend.engine.search_engine import run_job_search
+from backend.engine.utils import city_match
 
 st.set_page_config(page_title="Global Job Aggregator", layout="wide")
 
@@ -194,14 +193,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# =========================================================
-# API KEYS
-# =========================================================
-RAPIDAPI_KEY = st.secrets["RAPIDAPI_KEY"]
-JOOBLE_KEY   = st.secrets["JOOBLE_KEY"]
-ADZUNA_APP_ID = st.secrets["ADZUNA_APP_ID"]
-ADZUNA_API_KEY = st.secrets["ADZUNA_API_KEY"]
-REMOTIVE_API = "https://remotive.com/api/remote-jobs"
 
 # =========================================================
 # COUNTRY MAP
@@ -220,399 +211,6 @@ COUNTRIES = {
     "Spain": "es",
     "Italy": "it"
 }
-
-# =========================================================
-# HELPERS
-# =========================================================
-def normalize_date(val):
-    try:
-        return datetime.fromisoformat(val.replace("Z","").replace(".000",""))
-    except:
-        return None
-
-def parse_date(val):
-    try:
-        return datetime.fromisoformat(val.replace("Z","").replace(".000",""))
-    except:
-        return None
-
-def skill_match(text, skill):
-    if not text or not skill:
-        return False
-    return skill.lower() in text.lower()
-
-
-def work_mode(text):
-    t = (text or "").lower()
-    if "remote" in t:
-        return "Remote"
-    if "hybrid" in t:
-        return "Hybrid"
-    return "On-site"
-
-
-def excel_link(url):
-    return f'=HYPERLINK("{url}","Apply")' if url else ""
-
-def city_match(row_location, search_locations):
-    if not row_location:
-        return False
-    row_loc = row_location.lower()
-    return any(loc.lower() in row_loc for loc in search_locations)
-
-
-# =========================================================
-# REMOTE SEARCH
-# =========================================================
-def fetch_remote_jobs(skills, level, posted_days):
-    rows = []
-    cutoff = datetime.utcnow() - timedelta(days=posted_days)
-
-    for skill in skills:
-        r = requests.get(
-            "https://jsearch.p.rapidapi.com/search",
-            headers={
-                "x-rapidapi-key": RAPIDAPI_KEY,
-                "x-rapidapi-host": "jsearch.p.rapidapi.com"
-            },
-            params={
-                "query": f"{skill} {level} remote job",
-                "num_pages": 1
-            },
-            timeout=20
-        )
-
-        if r.status_code == 200:
-            for j in r.json().get("data", []):
-                blob = f"{j.get('job_title','')} {j.get('job_description','')}"
-                if not skill_match(blob, skill):
-                    continue
-
-                dt = parse_date(j.get("job_posted_at_datetime_utc",""))
-                if dt and dt < cutoff:
-                    continue
-
-                rows.append({
-                    "Source": j.get("job_publisher",""),
-                    "Skill": skill,
-                    "Title": j.get("job_title"),
-                    "Company": j.get("employer_name"),
-                    "Location": "Remote",
-                    "Country": "Remote",
-                    "Work Mode": "Remote",
-                    "Posted": j.get("job_posted_at_datetime_utc",""),
-                    "Apply": j.get("job_apply_link"),
-                    "_excel": excel_link(j.get("job_apply_link")),
-                    "_date": dt
-                })
-
-    r = requests.get(REMOTIVE_API, timeout=15).json()
-    for skill in skills:
-        for j in r.get("jobs", []):
-            if not skill_match(j.get("title",""), skill):
-                continue
-
-            rows.append({
-                "Source": "Remotive",
-                "Skill": skill,
-                "Title": j.get("title"),
-                "Company": j.get("company_name"),
-                "Location": "Remote",
-                "Country": "Remote",
-                "Work Mode": "Remote",
-                "Posted": "",
-                "Apply": j.get("url"),
-                "_excel": excel_link(j.get("url")),
-                "_date": None
-            })
-
-    return rows
-
-# =========================================================
-# NON-REMOTE FETCHERS
-# =========================================================
-def fetch_jsearch(skills, levels, countries, posted_days, location):
-    rows = []
-    cutoff = datetime.utcnow() - timedelta(days=posted_days)
-
-    for skill in skills:
-        query = f"{skill} job {location}".strip()
-
-        try:
-            r = requests.get(
-                "https://jsearch.p.rapidapi.com/search",
-                headers={
-                    "x-rapidapi-key": RAPIDAPI_KEY,
-                    "x-rapidapi-host": "jsearch.p.rapidapi.com"
-                },
-                params={
-                    "query": query,
-                    "num_pages": 2
-                },
-                timeout=15   # ⬅ slightly lower is better
-            )
-        except requests.exceptions.ReadTimeout:
-            continue   # skip this call, keep looping
-        except requests.exceptions.RequestException:
-            continue
-
-
-
-        if r.status_code != 200:
-            continue
-
-        for j in r.json().get("data", []):
-            dt = normalize_date(j.get("job_posted_at_datetime_utc",""))
-            if dt and dt < cutoff:
-                continue
-
-            rows.append({
-                "Source": j.get("job_publisher",""),
-                "Skill": skill,
-                "Title": j.get("job_title"),
-                "Company": j.get("employer_name"),
-                "Location": j.get("job_city") or j.get("job_state") or "",
-                "Country": (j.get("job_country") or "").upper(),
-                "Work Mode": work_mode(j.get("job_description","")),
-                "Posted": j.get("job_posted_at_datetime_utc",""),
-                "Apply": j.get("job_apply_link"),
-                "_excel": excel_link(j.get("job_apply_link")),
-                "_date": dt
-            })
-
-    return rows
-
-
-
-def fetch_adzuna(skills, levels, countries, posted_days, location):
-    rows = []
-    cutoff = datetime.utcnow() - timedelta(days=posted_days)
-
-    for c in countries:
-        r = requests.get(
-            f"https://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/1",
-            params={
-                "app_id": ADZUNA_APP_ID,
-                "app_key": ADZUNA_API_KEY,
-                "what": " OR ".join(skills + levels),
-              "where": location or "",   # let Adzuna search country-wide  # ✅ CITY USED
-                "results_per_page": 20
-            },
-            timeout=15
-        ).json()
-
-        for j in r.get("results", []):
-            dt = normalize_date(j.get("created",""))
-            if dt and dt < cutoff:
-                continue
-
-            rows.append({
-                "Source": "Adzuna",
-                "Skill": ", ".join(skills),
-                "Title": j.get("title"),
-                "Company": j.get("company",{}).get("display_name"),
-                "Location": j.get("location",{}).get("display_name"),
-                "Country": c,
-                "Work Mode": work_mode(j.get("title","")),
-                "Posted": j.get("created",""),
-                "Apply": j.get("redirect_url"),
-                "_excel": excel_link(j.get("redirect_url")),
-                "_date": dt
-            })
-
-    return rows
-
-
-def fetch_jooble(skills, levels, countries, location):
-    rows = []
-
-    for c in countries:
-        r = requests.post(
-            f"https://jooble.org/api/{JOOBLE_KEY}",
-            json={
-                "keywords": " ".join(skills + levels),
-                "location": location or c   # country-level search only
-            },
-            timeout=15
-        ).json()
-
-        for j in r.get("jobs", []):
-            rows.append({
-                "Source": "Jooble",
-                "Skill": ", ".join(skills),
-                "Title": j.get("title"),
-                "Company": j.get("company"),
-                "Location": j.get("location"),
-                "Country": None,  # ✅ important change
-                "Work Mode": work_mode(j.get("title","")),
-                "Posted": "",
-                "Apply": j.get("link"),
-                "_excel": excel_link(j.get("link")),
-                "_date": None
-            })
-
-    return rows
-
-def fetch_usajobs(skills, posted_days):
-    rows = []
-    cutoff = datetime.utcnow() - timedelta(days=posted_days)
-
-    for skill in skills:
-        r = requests.get(
-            "https://data.usajobs.gov/api/search",
-            headers={
-                "User-Agent": st.secrets["USAJOBS_EMAIL"],
-                "Authorization-Key": st.secrets["USAJOBS_API_KEY"]
-            },
-            params={
-                "Keyword": skill,
-                "ResultsPerPage": 25
-            },
-            timeout=20
-        )
-
-        if r.status_code != 200:
-            continue
-
-        for j in r.json()["SearchResult"]["SearchResultItems"]:
-            d = j["MatchedObjectDescriptor"]
-
-            rows.append({
-                "Source": "USAJobs",
-                "Skill": skill,
-                "Title": d["PositionTitle"],
-                "Company": d["OrganizationName"],
-                "Location": ", ".join(
-                    l["LocationName"] for l in d.get("PositionLocation", [])
-                ),
-                "Country": "UNITED STATES",
-                "Work Mode": "On-site",
-                "Posted": d.get("PublicationStartDate", ""),
-                "Apply": d["PositionURI"],
-                "_excel": excel_link(d["PositionURI"]),
-                "_date": normalize_date(d.get("PublicationStartDate", ""))
-            })
-
-    return rows
-
-
-def fetch_arbeitnow(skills):
-    rows = []
-    r = requests.get("https://www.arbeitnow.com/api/job-board-api", timeout=15)
-
-    if r.status_code != 200:
-        return rows
-
-    for j in r.json().get("data", []):
-        for skill in skills:
-            if not skill_match(j.get("title", ""), skill):
-                continue
-
-            rows.append({
-                "Source": "Arbeitnow",
-                "Skill": skill,
-                "Title": j.get("title"),
-                "Company": j.get("company_name"),
-                "Location": j.get("location"),
-                "Country": None,
-                "Work Mode": "Remote" if j.get("remote") else "On-site",
-                "Posted": "",
-                "Apply": j.get("url"),
-                "_excel": excel_link(j.get("url")),
-                "_date": None
-            })
-
-    return rows
-
-import feedparser
-
-def fetch_weworkremotely(skills):
-    rows = []
-    feeds = [
-        "https://weworkremotely.com/categories/remote-programming-jobs.rss",
-        "https://weworkremotely.com/categories/remote-management-jobs.rss"
-    ]
-
-    for feed_url in feeds:
-        feed = feedparser.parse(feed_url)
-
-        for e in feed.entries:
-            for skill in skills:
-                if not skill_match(e.title, skill):
-                    continue
-
-                rows.append({
-                    "Source": "WeWorkRemotely",
-                    "Skill": skill,
-                    "Title": e.title,
-                    "Company": "",
-                    "Location": "Remote",
-                    "Country": "Remote",
-                    "Work Mode": "Remote",
-                    "Posted": "",
-                    "Apply": e.link,
-                    "_excel": excel_link(e.link),
-                    "_date": None
-                })
-
-    return rows
-
-
-# =========================================================
-# ENGINE (MULTI-SKILL + MULTI-CITY LOGIC)
-# =========================================================
-def run_engine(skills, levels, locations, countries, posted_days, include_country_safe=False):
-
-    # 🔑 CRITICAL FIX
-    if not locations:
-        locations = [""]
-    all_rows = []
-
-    for loc in locations:
-        for skill in skills:
-            all_rows += fetch_jsearch([skill], levels, countries, posted_days, loc)
-            all_rows += fetch_adzuna([skill], levels, countries, posted_days, loc)
-            all_rows += fetch_jooble([skill], levels, countries, loc)
-    # ---------------------------------
-    # COUNTRY-SAFE SOURCES (ONCE ONLY)
-    # ---------------------------------
-    if include_country_safe:
-        if "United States" in countries:
-            all_rows += fetch_usajobs(skills, posted_days)
-    
-        eu_list = {"Germany","France","Netherlands","Ireland","Spain","Italy"}
-        if any(c in eu_list for c in countries):
-            all_rows += fetch_arbeitnow(skills)
-
-    if not all_rows:
-        return pd.DataFrame(), True
-
-    df = pd.DataFrame(all_rows)
-
-    
-    # -----------------------------
-    # FIXED COUNTRY FILTER
-    # -----------------------------
-    allowed_country_names = {c.upper() for c in countries}
-    
-    df = df[
-        df["Country"].isna() | 
-        (df["Country"].str.upper() == "REMOTE") |
-        df["Country"].str.upper().isin(allowed_country_names)
-    ]
-
-
-
-
-    if df.empty:
-        return pd.DataFrame(), True
-
-    # Deduplicate across locations
-    df = df.drop_duplicates(
-        subset=["Title", "Company", "Location", "Source"]
-    )
-
-    return df, False
 
 # =========================================================
 # STREAMLIT UI
@@ -634,10 +232,6 @@ countries = st.multiselect(
     disabled=is_remote
 )
 
-is_us_search = (
-    "United States" in countries or
-    location.strip().lower() in ["usa", "united states","america"]
-)
 
 if not is_remote and not countries:
     st.error("Country is mandatory unless location is Remote.")
@@ -664,44 +258,26 @@ with col_download:
 
 if run_search:
     with st.spinner("Fetching jobs..."):
+        df_or_rows, fallback = run_job_search(
+            skills=skills,
+            levels=levels,
+            locations=locations,
+            countries=countries,
+            posted_days=posted_days,
+            is_remote=is_remote
+        )
+        
         if is_remote:
-            rows = fetch_remote_jobs(skills, levels[0] if levels else "", posted_days)
-        
-            # ➕ append new remote-safe sources
-            rows += fetch_arbeitnow(skills)
-            rows += fetch_weworkremotely(skills)
-        
-            df = pd.DataFrame(rows)
-            fallback = False
-        
+            df = pd.DataFrame(df_or_rows)
         else:
-            df, fallback = run_engine(
-                skills,
-                levels,
-                locations,
-                countries,
-                posted_days,
-                include_country_safe=True
-            )
-            
-            # 🔁 COUNTRY-LEVEL FALLBACK (still needed)
-            if fallback:
-                df, _ = run_engine(
-                    skills,
-                    levels,
-                    locations=[""],
-                    countries=countries,
-                    posted_days=posted_days,
-                    include_country_safe=True
-                )
-
-
-
+            df = df_or_rows
+   
         if fallback:
-             st.info(
+            st.info(
                 f"ℹ️ No jobs found for **{location}**. "
                 f"Showing country-level jobs instead."
             )
+
             
         if df.empty:
             st.warning("No jobs found.")
@@ -722,23 +298,7 @@ if run_search:
                     ]
 
         
-            # If city filter removes everything, fallback to country-level search
-            if df.empty and not is_remote and locations:
-                df, _ = run_engine(
-                    skills,
-                    levels,
-                    locations=[""],   # country-level
-                    countries=countries,
-                    posted_days=posted_days,
-                    include_country_safe=True
-                )
-            
-                st.info(
-                    f"ℹ️ No jobs found for **{location}**. "
-                    f"Showing country-level jobs instead."
-                )
-
-        
+                   
             # ✅ ALWAYS sort AFTER filtering
             df = df.sort_values(by=["_date"], ascending=False, na_position="last")
         
@@ -832,28 +392,4 @@ if run_search:
             else:
                 st.info("No jobs available to summarize.")
             
-            # ---------------------------------------------------------
-            # 🔍 Arbeitnow Deep Debug (Germany / EU visibility)
-            # ---------------------------------------------------------
-            if run_search and not is_remote:
-                arbeitnow_raw = fetch_arbeitnow(skills)
             
-                if arbeitnow_raw:
-                    arbeit_df = pd.DataFrame(arbeitnow_raw)
-            
-                    st.markdown("#### 🇪🇺 Arbeitnow Debug Details")
-            
-                    st.write({
-                        "Total Arbeitnow jobs fetched (raw)": len(arbeit_df),
-                        "Countries selected": countries,
-                        "Unique locations from Arbeitnow": arbeit_df["Location"].dropna().unique()[:10].tolist(),
-                        "Work modes": arbeit_df["Work Mode"].value_counts().to_dict()
-                    })
-            
-                    # Show a small preview
-                    st.dataframe(
-                        arbeit_df[["Title", "Company", "Location", "Work Mode"]].head(5),
-                        use_container_width=True
-                    )
-                else:
-                    st.warning("Arbeitnow API returned 0 jobs (raw).")
