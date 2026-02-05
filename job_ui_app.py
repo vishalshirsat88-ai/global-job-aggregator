@@ -1,14 +1,20 @@
+import os
+import streamlit as st
+import pandas as pd
+import requests
+
 BACKEND_URL = os.getenv(
     "BACKEND_URL",
     "http://localhost:8000"
 )
 
-import streamlit as st
-import pandas as pd
-import requests
-import os
 
-from backend.engine.utils import city_match
+def city_match(row_location, search_locations):
+    if not row_location:
+        return False
+    row_loc = row_location.lower()
+    return any(loc.lower() in row_loc for loc in search_locations)
+
 
 st.set_page_config(page_title="Global Job Aggregator", layout="wide")
 
@@ -297,11 +303,6 @@ if run_search:
             st.error(f"❌ Cannot reach backend: {e}")
             st.stop()
 
-        
-        if is_remote:
-            df = pd.DataFrame(df_or_rows)
-        else:
-            df = df_or_rows
    
         if fallback:
             st.info(
