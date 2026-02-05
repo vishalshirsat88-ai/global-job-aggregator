@@ -1,6 +1,13 @@
+BACKEND_URL = os.getenv(
+    "BACKEND_URL",
+    "http://localhost:8000"
+)
+
 import streamlit as st
 import pandas as pd
-from backend.engine.search_engine import run_job_search
+import requests
+import os
+
 from backend.engine.utils import city_match
 
 st.set_page_config(page_title="Global Job Aggregator", layout="wide")
@@ -258,14 +265,38 @@ with col_download:
 
 if run_search:
     with st.spinner("Fetching jobs..."):
-        df_or_rows, fallback = run_job_search(
-            skills=skills,
-            levels=levels,
-            locations=locations,
-            countries=countries,
-            posted_days=posted_days,
-            is_remote=is_remote
-        )
+        payload = {
+            "skills": skills,
+            "levels": levels,
+            "locations": locations,
+            "countries": countries,
+            "posted_days": posted_days,
+            "is_remote": is_remote
+        }
+        
+        try:
+            resp = requests.post(
+                f"{BACKEND_URL}/search",
+                json=payload,
+                timeout=60
+            )
+        
+            if resp.status_code != 200:
+                st.error(f"Backend error: {resp.text}")
+                st.stop()
+        
+            data = resp.json()
+            fallback = data.get("fallback", False)
+        
+            if is_remote:
+                df = pd.DataFrame(data["rows"])
+            else:
+                df = pd.DataFrame(data["rows"])
+        
+        except requests.exceptions.RequestException as e:
+            st.error(f"❌ Cannot reach backend: {e}")
+            st.stop()
+
         
         if is_remote:
             df = pd.DataFrame(df_or_rows)
