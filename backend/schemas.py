@@ -1,39 +1,23 @@
-from typing import List, Optional
+from typing import List
 from pydantic import BaseModel, Field
 
 
-# =========================
-# REQUEST SCHEMA
-# =========================
 class JobSearchRequest(BaseModel):
-    skills: List[str] = Field(..., example=["Python", "Data Analyst"])
-    levels: List[str] = Field(default_factory=list, example=["Senior"])
-    locations: List[str] = Field(default_factory=list, example=["Mumbai"])
-    countries: List[str] = Field(default_factory=list, example=["India"])
+    skills: List[str]
+    levels: List[str] = []
+    locations: List[str] = []
+    countries: List[str] = []
     posted_days: int = Field(7, ge=1, le=60)
     is_remote: bool = False
 
-
-# =========================
-# SINGLE JOB ROW
-# =========================
-class JobRow(BaseModel):
-    Source: Optional[str]
-    Skill: Optional[str]
-    Title: Optional[str]
-    Company: Optional[str]
-    Location: Optional[str]
-    Country: Optional[str]
-    Work_Mode: Optional[str] = Field(alias="Work Mode")
-    Posted: Optional[str]
-    Apply: Optional[str]
-    _excel: Optional[str]
-    _date: Optional[str]
+    # 🔹 pagination inputs
+    page: int = Field(1, ge=1)
+    page_size: int = Field(25, ge=5, le=100)
 
 
-# =========================
-# RESPONSE SCHEMA
-# =========================
 class JobSearchResponse(BaseModel):
-    rows: List[dict]
+    total: int
+    page: int
+    page_size: int
     fallback: bool
+    rows: List[dict]
