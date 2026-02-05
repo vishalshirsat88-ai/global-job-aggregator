@@ -8,6 +8,17 @@ BACKEND_URL = os.getenv(
     "http://localhost:8000"
 )
 
+if "page" not in st.session_state:
+    st.session_state.page = 1
+
+if "page_size" not in st.session_state:
+    st.session_state.page_size = 20
+
+if "has_searched" not in st.session_state:
+    st.session_state.has_searched = False
+
+if "_disable_next" not in st.session_state:
+    st.session_state._disable_next = True
 
 def city_match(row_location, search_locations):
     if not row_location:
@@ -259,8 +270,35 @@ posted_days = st.slider("Posted within last X days", 1, 60, 7)
 # PAGINATION CONTROLS
 # =========================
 
-page = st.number_input("Page", min_value=1, value=1, step=1)
-page_size = st.selectbox("Results per page", [10, 25, 50], index=1)
+
+st.markdown("### 🔢 Pagination")
+
+col_p1, col_p2, col_p3 = st.columns([2, 2, 2])
+
+with col_p1:
+    new_page_size = st.selectbox(
+        "Jobs per page",
+        [10, 20, 50],
+        index=[10, 20, 50].index(st.session_state.page_size)
+    )
+    
+    if new_page_size != st.session_state.page_size:
+        st.session_state.page_size = new_page_size
+        st.session_state.page = 1
+
+
+with col_p2:
+    if st.button("⬅️ Previous", disabled=st.session_state.page <= 1):
+        st.session_state.page -= 1
+        st.experimental_rerun()
+
+with col_p3:
+    if st.button("➡️ Next", disabled=st.session_state.get("_disable_next", False)):
+        st.session_state.page += 1
+        st.experimental_rerun()
+
+
+
 
 # =========================
 # TOP ACTION BAR
@@ -280,6 +318,10 @@ with col_download:
 
 
 if run_search:
+    st.session_state.page = 1
+    st.session_state.has_searched = True
+
+if st.session_state.has_searched:
     with st.spinner("Fetching jobs..."):
         payload = {
             "skills": skills,
@@ -288,33 +330,34 @@ if run_search:
             "countries": countries,
             "posted_days": posted_days,
             "is_remote": is_remote,
-            "page": page,
-            "page_size": page_size
+            "page": st.session_state.page,
+            "page_size": st.session_state.page_size
         }
 
-        
         try:
             resp = requests.post(
                 f"{BACKEND_URL}/search",
                 json=payload,
                 timeout=60
             )
-        
+
             if resp.status_code != 200:
                 st.error(f"Backend error: {resp.text}")
                 st.stop()
-        
+
             data = resp.json()
             fallback = data.get("fallback", False)
-        
-            if is_remote:
-                df = pd.DataFrame(data["rows"])
-            else:
-                df = pd.DataFrame(data["rows"])
-        
+
+            df = pd.DataFrame(data.get("rows", []))
+            returned = data.get("returned", 0)
+            total = data.get("total", 0)
+
+            st.session_state._disable_next = returned < st.session_state.page_size
+
         except requests.exceptions.RequestException as e:
             st.error(f"❌ Cannot reach backend: {e}")
             st.stop()
+
 
    
         if fallback:
@@ -348,6 +391,10 @@ if run_search:
             df = df.sort_values(by=["_date"], ascending=False, na_position="last")
         
             st.success(f"✅ Found {len(df)} jobs")
+            st.caption(
+                f"Showing page {st.session_state.page} "
+                f"({returned} of {total} jobs)"
+            )
 
     
             # =========================
