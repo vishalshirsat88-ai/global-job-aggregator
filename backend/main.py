@@ -35,16 +35,28 @@ def search_jobs(req: JobSearchRequest):
         is_remote=req.is_remote
     )
 
-    # Remote returns rows, non-remote returns DataFrame
+    # Normalize rows
     if req.is_remote:
-        jobs = df_or_rows
+        rows = df_or_rows
     else:
-        jobs = df_or_rows.to_dict("records")
+        rows = df_or_rows.to_dict("records")
+
+    total = len(rows)
+
+    # -------------------------
+    # PAGINATION LOGIC
+    # -------------------------
+    start = (req.page - 1) * req.page_size
+    end = start + req.page_size
+    paginated_rows = rows[start:end]
 
     return {
-        "total": len(jobs),
+        "total": total,
+        "page": req.page,
+        "page_size": req.page_size,
         "fallback": fallback,
-        "rows": jobs
+        "rows": paginated_rows
     }
+
 
 
