@@ -1,7 +1,6 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import List
 
+from backend.schemas import JobSearchRequest, JobSearchResponse
 from engine.search_engine import run_job_search
 
 app = FastAPI(
@@ -12,13 +11,6 @@ app = FastAPI(
 # -------------------------
 # Request Schema
 # -------------------------
-class SearchRequest(BaseModel):
-    skills: List[str]
-    levels: List[str]
-    locations: List[str]
-    countries: List[str]
-    posted_days: int
-    is_remote: bool
 
 
 # -------------------------
@@ -32,8 +24,8 @@ def health():
 # -------------------------
 # Job Search Endpoint
 # -------------------------
-@app.post("/search")
-def search_jobs(req: SearchRequest):
+@app.post("/search", response_model=JobSearchResponse)
+def search_jobs(req: JobSearchRequest):
     df_or_rows, fallback = run_job_search(
         skills=req.skills,
         levels=req.levels,
@@ -52,6 +44,7 @@ def search_jobs(req: SearchRequest):
     return {
         "total": len(jobs),
         "fallback": fallback,
-        "jobs": jobs
+        "rows": jobs
     }
+
 
