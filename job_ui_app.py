@@ -253,9 +253,19 @@ if not is_remote and not countries:
 posted_days = st.slider("Posted within last X days", 1, 60, 7)
 
 
+
+
+# =========================
+# PAGINATION CONTROLS
+# =========================
+
+page = st.number_input("Page", min_value=1, value=1, step=1)
+page_size = st.selectbox("Results per page", [10, 25, 50], index=1)
+
 # =========================
 # TOP ACTION BAR
 # =========================
+
 col_run, col_toggle, col_download = st.columns([2, 3, 2])
 
 with col_run:
@@ -277,8 +287,11 @@ if run_search:
             "locations": locations,
             "countries": countries,
             "posted_days": posted_days,
-            "is_remote": is_remote
+            "is_remote": is_remote,
+            "page": page,
+            "page_size": page_size
         }
+
         
         try:
             resp = requests.post(
