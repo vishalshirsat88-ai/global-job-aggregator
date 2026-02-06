@@ -1,8 +1,7 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import List
-
+from backend.schemas import JobSearchRequest, JobSearchResponse
 from engine.search_engine import run_job_search
+from models import SearchResponse
 
 app = FastAPI(
     title="Global Job Aggregator API",
@@ -12,13 +11,6 @@ app = FastAPI(
 # -------------------------
 # Request Schema
 # -------------------------
-class SearchRequest(BaseModel):
-    skills: List[str]
-    levels: List[str]
-    locations: List[str]
-    countries: List[str]
-    posted_days: int
-    is_remote: bool
 
 
 # -------------------------
@@ -32,8 +24,8 @@ def health():
 # -------------------------
 # Job Search Endpoint
 # -------------------------
-@app.post("/search")
-def search_jobs(req: SearchRequest):
+@app.post("/search", response_model=SearchResponse)
+def search_jobs(req: JobSearchRequest):
     df_or_rows, fallback = run_job_search(
         skills=req.skills,
         levels=req.levels,
@@ -43,15 +35,35 @@ def search_jobs(req: SearchRequest):
         is_remote=req.is_remote
     )
 
-    # Remote returns rows, non-remote returns DataFrame
+    # Normalize rows
     if req.is_remote:
-        jobs = df_or_rows
+        rows = df_or_rows
     else:
-        jobs = df_or_rows.to_dict("records")
+        rows = df_or_rows.to_dict("records")
+
+    total = len(rows)
+    # -------------------------
+    # PAGINATION GUARDS
+    # -------------------------
+
+    MAX_PAGE_SIZE = 50
+    page = max(req.page, 1)
+    page_size = min(req.page_size, MAX_PAGE_SIZE)
+
+    
+    # -------------------------
+    # PAGINATION LOGIC
+    # -------------------------
+   
+    start = (page - 1) * page_size
+    end = start + page_size
+    paginated_rows = rows[start:end]
+
 
     return {
-        "total": len(jobs),
-        "fallback": fallback,
-        "jobs": jobs
+        "total": total,
+        "returned": len(paginated_rows),
+        "page": page,
+        "page_size": page_size,
+        "rows": paginated_rows
     }
-

@@ -11,7 +11,7 @@ from engine.fetchers import (
 )
 
 
-from engine.utils import city_match
+from backend.utils.helpers import city_match
 
 
 # =========================================================
