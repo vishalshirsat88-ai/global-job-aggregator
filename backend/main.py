@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-
 from backend.schemas import JobSearchRequest, JobSearchResponse
 from engine.search_engine import run_job_search
+from models import SearchResponse
 
 app = FastAPI(
     title="Global Job Aggregator API",
@@ -24,7 +24,7 @@ def health():
 # -------------------------
 # Job Search Endpoint
 # -------------------------
-@app.post("/search", response_model=JobSearchResponse)
+@app.post("/search", response_model=SearchResponse)
 def search_jobs(req: JobSearchRequest):
     df_or_rows, fallback = run_job_search(
         skills=req.skills,
@@ -42,21 +42,28 @@ def search_jobs(req: JobSearchRequest):
         rows = df_or_rows.to_dict("records")
 
     total = len(rows)
+    # -------------------------
+    # PAGINATION GUARDS
+    # -------------------------
 
+    MAX_PAGE_SIZE = 50
+    page = max(req.page, 1)
+    page_size = min(req.page_size, MAX_PAGE_SIZE)
+
+    
     # -------------------------
     # PAGINATION LOGIC
     # -------------------------
-    start = (req.page - 1) * req.page_size
-    end = start + req.page_size
+   
+    start = (page - 1) * page_size
+    end = start + page_size
     paginated_rows = rows[start:end]
+
 
     return {
         "total": total,
-        "page": req.page,
-        "page_size": req.page_size,
-        "fallback": fallback,
+        "returned": len(paginated_rows),
+        "page": page,
+        "page_size": page_size,
         "rows": paginated_rows
     }
-
-
-
