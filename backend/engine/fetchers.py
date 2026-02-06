@@ -5,12 +5,15 @@ import feedparser
 # =========================
 # ENV VARIABLES (FETCHERS)
 # =========================
+
 RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
 JOOBLE_KEY = os.getenv("JOOBLE_KEY")
 ADZUNA_APP_ID = os.getenv("ADZUNA_APP_ID")
 ADZUNA_API_KEY = os.getenv("ADZUNA_API_KEY")
 USAJOBS_EMAIL = os.getenv("USAJOBS_EMAIL")
 USAJOBS_API_KEY = os.getenv("USAJOBS_API_KEY")
+REMOTIVE_API = "https://remotive.com/api/remote-jobs"
+
 
 if not RAPIDAPI_KEY:
     raise RuntimeError("RAPIDAPI_KEY missing")
@@ -37,7 +40,7 @@ COUNTRIES = {
 from datetime import datetime, timedelta
 
 
-from backend.utils.cache import (
+from backend.utils.helpers import (
     normalize_date,
     parse_date,
     skill_match,
@@ -56,7 +59,7 @@ def fetch_remote_jobs(skills, level, posted_days):
         r = requests.get(
             "https://jsearch.p.rapidapi.com/search",
             headers={
-                "x-rapidapi-key": rapidapi_key,
+                "x-rapidapi-key": RAPIDAPI_KEY,
                 "x-rapidapi-host": "jsearch.p.rapidapi.com"
             },
             params={
@@ -235,17 +238,21 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
     for c in countries:
+        if not c or c not in COUNTRIES:
+            continue
+
         r = requests.get(
             f"https://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/1",
             params={
                 "app_id": ADZUNA_APP_ID,
                 "app_key": ADZUNA_API_KEY,
                 "what": " OR ".join(skills + levels),
-                "where": location or "",   # let Adzuna search country-wide  # ✅ CITY USED
+                "where": location or "",
                 "results_per_page": 20
             },
             timeout=15
         ).json()
+
 
         for j in r.get("results", []):
             dt = normalize_date(j.get("created",""))
@@ -307,8 +314,8 @@ def fetch_usajobs(skills, posted_days):
         r = requests.get(
             "https://data.usajobs.gov/api/search",
             headers={
-                "User-Agent": st.secrets["USAJOBS_EMAIL"],
-                "Authorization-Key": st.secrets["USAJOBS_API_KEY"]
+                "User-Agent": USAJOBS_EMAIL,
+                "Authorization-Key": USAJOBS_API_KEY
             },
             params={
                 "Keyword": skill,

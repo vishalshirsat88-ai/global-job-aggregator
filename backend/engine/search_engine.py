@@ -10,13 +10,11 @@ from backend.engine.fetchers import (
 )
 
 
-from backend.utils.helpers import city_match
-
 
 # =========================================================
 # ENGINE (MULTI-SKILL + MULTI-CITY LOGIC)
 # =========================================================
-def run_engine(skills, levels, locations, countries, posted_days, include_country_safe=False):
+def run_engine(skills, levels, locations, countries, posted_days, include_country_safe=True):
 
     # 🔑 CRITICAL FIX
     if not locations:
@@ -66,60 +64,12 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     df = df.drop_duplicates(
         subset=["Title", "Company", "Location", "Source"]
     )
+    # 🔒 FINAL GUARANTEED RETURN
+    if df.empty:
+        return pd.DataFrame(), True
 
     return df, False
 
-    def run_job_search(
-        skills,
-        levels,
-        locations,
-        countries,
-        posted_days,
-        is_remote
-    ):
-        """
-        Single entry point for job search.
-        This mirrors Streamlit behavior exactly.
-        """
-
-        # -----------------------
-        # REMOTE SEARCH
-        # -----------------------
-        if is_remote:
-            rows = []
-            rows += fetch_remote_jobs(
-                skills,
-                levels[0] if levels else "",
-                posted_days
-            )
-            rows += fetch_arbeitnow(skills)
-            rows += fetch_weworkremotely(skills)
-            return rows, False
-
-        # -----------------------
-        # NON-REMOTE SEARCH
-        # -----------------------
-        df, fallback = run_engine(
-            skills,
-            levels,
-            locations,
-            countries,
-            posted_days,
-            include_country_safe=True
-        )
-
-        # 🔁 COUNTRY-LEVEL FALLBACK (same as Streamlit)
-        if fallback:
-            df, _ = run_engine(
-                skills,
-                levels,
-                locations=[""],
-                countries=countries,
-                posted_days=posted_days,
-                include_country_safe=True
-            )
-
-        return df, fallback
 def run_job_search(
     skills,
     levels,
