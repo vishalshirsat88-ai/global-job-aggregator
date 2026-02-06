@@ -1,6 +1,5 @@
 import pandas as pd
-
-from engine.fetchers import (
+from backend.engine.fetchers import (
     fetch_remote_jobs,
     fetch_weworkremotely,
     fetch_arbeitnow,
@@ -71,6 +70,57 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     return df, False
 
     def run_job_search(
+        skills,
+        levels,
+        locations,
+        countries,
+        posted_days,
+        is_remote
+    ):
+        """
+        Single entry point for job search.
+        This mirrors Streamlit behavior exactly.
+        """
+
+        # -----------------------
+        # REMOTE SEARCH
+        # -----------------------
+        if is_remote:
+            rows = []
+            rows += fetch_remote_jobs(
+                skills,
+                levels[0] if levels else "",
+                posted_days
+            )
+            rows += fetch_arbeitnow(skills)
+            rows += fetch_weworkremotely(skills)
+            return rows, False
+
+        # -----------------------
+        # NON-REMOTE SEARCH
+        # -----------------------
+        df, fallback = run_engine(
+            skills,
+            levels,
+            locations,
+            countries,
+            posted_days,
+            include_country_safe=True
+        )
+
+        # 🔁 COUNTRY-LEVEL FALLBACK (same as Streamlit)
+        if fallback:
+            df, _ = run_engine(
+                skills,
+                levels,
+                locations=[""],
+                countries=countries,
+                posted_days=posted_days,
+                include_country_safe=True
+            )
+
+        return df, fallback
+def run_job_search(
     skills,
     levels,
     locations,
@@ -79,46 +129,25 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     is_remote
 ):
     """
-    Single entry point for job search.
-    This mirrors Streamlit behavior exactly.
+    Unified entry point for both Streamlit & FastAPI
     """
 
-    # -----------------------
-    # REMOTE SEARCH
-    # -----------------------
     if is_remote:
         rows = []
-        rows += fetch_remote_jobs(
-            skills,
-            levels[0] if levels else "",
-            posted_days
-        )
+        rows += fetch_remote_jobs(skills, levels[0] if levels else "", posted_days)
         rows += fetch_arbeitnow(skills)
         rows += fetch_weworkremotely(skills)
         return rows, False
 
-    # -----------------------
-    # NON-REMOTE SEARCH
-    # -----------------------
+    # Non-remote flow
     df, fallback = run_engine(
-        skills,
-        levels,
-        locations,
-        countries,
-        posted_days,
+        skills=skills,
+        levels=levels,
+        locations=locations,
+        countries=countries,
+        posted_days=posted_days,
         include_country_safe=True
     )
-
-    # 🔁 COUNTRY-LEVEL FALLBACK (same as Streamlit)
-    if fallback:
-        df, _ = run_engine(
-            skills,
-            levels,
-            locations=[""],
-            countries=countries,
-            posted_days=posted_days,
-            include_country_safe=True
-        )
 
     return df, fallback
 
