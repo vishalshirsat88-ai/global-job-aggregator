@@ -20,7 +20,7 @@ def get_access_token():
     return resp.json()["access_token"]
 
 @router.get("/paypal/success")
-def paypal_success(token: str):
+def paypal_success(token: str, email: str):
     access_token = get_access_token()
 
     capture = requests.post(
