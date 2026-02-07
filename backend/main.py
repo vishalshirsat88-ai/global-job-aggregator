@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 from typing import List, Optional
 from dotenv import load_dotenv
+from backend.payments.paypal import router as paypal_router
+app.include_router(paypal_router)
+
 load_dotenv()
 
 from backend.engine.search_engine import run_job_search
