@@ -3,7 +3,12 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from dotenv import load_dotenv
 from backend.payments.paypal import router as paypal_router
-app.include_router(paypal_router)
+
+app = FastAPI(
+    title="Global Job Aggregator API",
+    version="1.0.0"
+)
+
 
 load_dotenv()
 
@@ -14,9 +19,12 @@ validate_env()
 
 
 
-app = FastAPI(
-    title="Global Job Aggregator API",
-    version="1.0.0"
+
+# ✅ REGISTER ROUTERS AFTER app IS CREATED
+app.include_router(
+    paypal_router,
+    prefix="/payments",
+    tags=["Payments"]
 )
 
 # -------------------------
