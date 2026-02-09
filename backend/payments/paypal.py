@@ -20,11 +20,12 @@ def paypal_success(token: str, email: str):
     if not PAYPAL_CLIENT_ID or not PAYPAL_CLIENT_SECRET:
         raise HTTPException(
             status_code=500,
-            detail="PayPal is not configured"
+            detail="PayPal not configured"
         )
 
     access_token = get_access_token()
     ...
+
 
 
 PAYPAL_API_BASE = (
