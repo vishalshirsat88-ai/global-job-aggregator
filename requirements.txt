@@ -1,5 +1,6 @@
-streamlit
-requests
+fastapi
 pandas
+requests
+streamlit
 feedparser
-
+uvicorn
