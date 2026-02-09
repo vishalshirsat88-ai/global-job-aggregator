@@ -102,6 +102,14 @@ def paypal_success(token: str, email: str):
             detail="Invalid PayPal response"
         )
 
-    amount_info = purchase_units[0]["payments"]["captures"][0]["amount"]
-    paid_amount = amount_info["value"]
-    currency = amount_info["currency_cod_]()_
+    amount_info = (
+    capture_data
+    .get("purchase_units", [{}])[0]
+    .get("payments", {})
+    .get("captures", [{}])[0]
+    .get("amount", {})
+)
+
+currency = amount_info.get("currency_code")
+value = amount_info.get("value")
+
