@@ -14,8 +14,18 @@ PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 PAYPAL_MODE = os.getenv("PAYPAL_MODE", "sandbox")  # sandbox | live
 TOOL_URL = os.getenv("TOOL_URL", "https://your-streamlit-tool-url")
 
-if not PAYPAL_CLIENT_ID or not PAYPAL_CLIENT_SECRET:
-    raise RuntimeError("PayPal credentials not set")
+@router.get("/paypal/success")
+def paypal_success(token: str, email: str):
+
+    if not PAYPAL_CLIENT_ID or not PAYPAL_CLIENT_SECRET:
+        raise HTTPException(
+            status_code=500,
+            detail="PayPal is not configured"
+        )
+
+    access_token = get_access_token()
+    ...
+
 
 PAYPAL_API_BASE = (
     "https://api-m.paypal.com"
@@ -95,3 +105,4 @@ def paypal_success(token: str, email: str):
     # TODO (next phase): save email, transaction id, currency, value to DB
 
     return RedirectResponse(url=TOOL_URL, status_code=302)
+    print("PAYPAL_MODE =", PAYPAL_MODE)
