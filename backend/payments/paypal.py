@@ -3,7 +3,7 @@ import requests
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import RedirectResponse
 
-router = APIRouter()
+router = APIRouter(prefix="/paypal", tags=["payments"])
 
 # ===============================
 # ENV CONFIG
@@ -11,13 +11,8 @@ router = APIRouter()
 
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
-
 PAYPAL_MODE = os.getenv("PAYPAL_MODE", "sandbox")  # sandbox | live
-
-TOOL_URL = os.getenv(
-    "TOOL_URL",
-    "https://your-streamlit-tool-url"
-)
+TOOL_URL = os.getenv("TOOL_URL", "https://your-streamlit-tool-url")
 
 if not PAYPAL_CLIENT_ID or not PAYPAL_CLIENT_SECRET:
     raise RuntimeError("PayPal credentials not set")
@@ -41,17 +36,11 @@ def get_access_token() -> str:
     )
 
     if resp.status_code != 200:
-        raise HTTPException(
-            status_code=500,
-            detail="PayPal authentication failed"
-        )
+        raise HTTPException(status_code=500, detail="PayPal authentication failed")
 
     token = resp.json().get("access_token")
     if not token:
-        raise HTTPException(
-            status_code=500,
-            detail="PayPal access token missing"
-        )
+        raise HTTPException(status_code=500, detail="PayPal access token missing")
 
     return token
 
@@ -60,7 +49,7 @@ def get_access_token() -> str:
 # PAYMENT SUCCESS CALLBACK
 # ===============================
 
-@router.get("/paypal/success")
+@router.get("/success")
 def paypal_success(token: str, email: str):
     """
     Verifies PayPal payment and redirects user to tool access
@@ -78,10 +67,7 @@ def paypal_success(token: str, email: str):
     )
 
     if capture_resp.status_code not in (200, 201):
-        raise HTTPException(
-            status_code=400,
-            detail="PayPal capture request failed"
-        )
+        raise HTTPException(status_code=400, detail="PayPal capture request failed")
 
     data = capture_resp.json()
 
@@ -90,26 +76,22 @@ def paypal_success(token: str, email: str):
     # ===============================
 
     if data.get("status") != "COMPLETED":
-        raise HTTPException(
-            status_code=400,
-            detail="Payment not completed"
-        )
-
-    purchase_units = data.get("purchase_units", [])
-    if not purchase_units:
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid PayPal response"
-        )
+        raise HTTPException(status_code=400, detail="Payment not completed")
 
     amount_info = (
-    capture_data
-    .get("purchase_units", [{}])[0]
-    .get("payments", {})
-    .get("captures", [{}])[0]
-    .get("amount", {})
-)
+        data
+        .get("purchase_units", [{}])[0]
+        .get("payments", {})
+        .get("captures", [{}])[0]
+        .get("amount", {})
+    )
 
-currency = amount_info.get("currency_code")
-value = amount_info.get("value")
+    currency = amount_info.get("currency_code")
+    value = amount_info.get("value")
 
+    if not currency or not value:
+        raise HTTPException(status_code=400, detail="Invalid payment amount data")
+
+    # TODO (next phase): save email, transaction id, currency, value to DB
+
+    return RedirectResponse(url=TOOL_URL, status_code=302)
