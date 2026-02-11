@@ -53,7 +53,6 @@ def get_access_token() -> str:
 @router.post("/create-order")
 def create_order(email: str):
     @router.post("/create-order")
-def create_order(email: str):
 
     print("=== DEBUG ENV CHECK ===")
     print("CLIENT ID:", PAYPAL_CLIENT_ID)
