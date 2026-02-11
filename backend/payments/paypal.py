@@ -11,22 +11,12 @@ router = APIRouter(prefix="/paypal", tags=["payments"])
 
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
-PAYPAL_MODE = os.getenv("PAYPAL_MODE", "sandbox")  # sandbox | live
+PAYPAL_MODE = os.getenv("PAYPAL_MODE", "sandbox").lower()
 TOOL_URL = os.getenv("TOOL_URL", "https://your-streamlit-tool-url")
+BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL")
 
-@router.get("/paypal/success")
-def paypal_success(token: str, email: str):
-
-    if not PAYPAL_CLIENT_ID or not PAYPAL_CLIENT_SECRET:
-        raise HTTPException(
-            status_code=500,
-            detail="PayPal not configured"
-        )
-
-    access_token = get_access_token()
-    ...
-
-
+if not BACKEND_BASE_URL:
+    raise Exception("BACKEND_BASE_URL not configured")
 
 PAYPAL_API_BASE = (
     "https://api-m.paypal.com"
@@ -57,14 +47,56 @@ def get_access_token() -> str:
 
 
 # ===============================
+# CREATE ORDER
+# ===============================
+
+@router.post("/create-order")
+def create_order(email: str):
+    access_token = get_access_token()
+
+    response = requests.post(
+        f"{PAYPAL_API_BASE}/v2/checkout/orders",
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}",
+        },
+        json={
+            "intent": "CAPTURE",
+            "purchase_units": [
+                {
+                    "amount": {
+                        "currency_code": "USD",
+                        "value": "10.00"
+                    }
+                }
+            ],
+            "application_context": {
+                "return_url": f"{BACKEND_BASE_URL}/payments/paypal/success?email={email}",
+                "cancel_url": TOOL_URL
+            }
+        },
+        timeout=10,
+    )
+
+    if response.status_code not in (200, 201):
+        raise HTTPException(status_code=400, detail="Failed to create PayPal order")
+
+    data = response.json()
+
+    approval_url = next(
+        link["href"] for link in data["links"]
+        if link["rel"] == "approve"
+    )
+
+    return {"approval_url": approval_url}
+
+
+# ===============================
 # PAYMENT SUCCESS CALLBACK
 # ===============================
 
 @router.get("/success")
 def paypal_success(token: str, email: str):
-    """
-    Verifies PayPal payment and redirects user to tool access
-    """
 
     access_token = get_access_token()
 
@@ -81,10 +113,6 @@ def paypal_success(token: str, email: str):
         raise HTTPException(status_code=400, detail="PayPal capture request failed")
 
     data = capture_resp.json()
-
-    # ===============================
-    # STRONG VERIFICATION
-    # ===============================
 
     if data.get("status") != "COMPLETED":
         raise HTTPException(status_code=400, detail="Payment not completed")
@@ -103,7 +131,4 @@ def paypal_success(token: str, email: str):
     if not currency or not value:
         raise HTTPException(status_code=400, detail="Invalid payment amount data")
 
-    # TODO (next phase): save email, transaction id, currency, value to DB
-
     return RedirectResponse(url=TOOL_URL, status_code=302)
-    print("PAYPAL_MODE =", PAYPAL_MODE)
