@@ -4,6 +4,8 @@ from typing import List, Optional
 from dotenv import load_dotenv
 from backend.payments.paypal import router as paypal_router
 
+
+
 app = FastAPI(
     title="Global Job Aggregator API",
     version="1.0.0"
@@ -11,6 +13,17 @@ app = FastAPI(
 
 
 load_dotenv()
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # tighten later
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 from backend.engine.search_engine import run_job_search
 from backend.config import validate_env
