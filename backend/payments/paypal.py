@@ -52,6 +52,17 @@ def get_access_token() -> str:
 
 @router.post("/create-order")
 def create_order(email: str):
+    @router.post("/create-order")
+def create_order(email: str):
+
+    print("=== DEBUG ENV CHECK ===")
+    print("CLIENT ID:", PAYPAL_CLIENT_ID)
+    print("SECRET EXISTS:", bool(PAYPAL_CLIENT_SECRET))
+    print("MODE:", PAYPAL_MODE)
+    print("BACKEND_BASE_URL:", BACKEND_BASE_URL)
+    print("=======================")
+
+    
     access_token = get_access_token()
 
     response = requests.post(
@@ -87,6 +98,8 @@ def create_order(email: str):
         link["href"] for link in data["links"]
         if link["rel"] == "approve"
     )
+
+    
 
     return {"approval_url": approval_url}
 
