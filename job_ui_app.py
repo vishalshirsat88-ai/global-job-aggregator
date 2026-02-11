@@ -5,7 +5,7 @@ import re
 from datetime import datetime, timedelta
 
 # Keep your specific backend URL
-BACKEND_URL = "https://solid-train-wr695xqwjrrgc9v7j-8000.app.github.dev"
+BACKEND_URL ="https://global-job-aggregator-production.up.railway.app"
 
 st.set_page_config(page_title="Global Job Aggregator", layout="wide")
 
