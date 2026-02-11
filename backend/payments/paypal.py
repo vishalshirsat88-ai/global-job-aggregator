@@ -80,7 +80,7 @@ def create_order(email: str):
                 }
             ],
             "application_context": {
-                "return_url": f"{BACKEND_BASE_URL}/payments/paypal/success?email={email}",
+                "return_url": f"{BACKEND_BASE_URL}/payments/paypal/success",
                 "cancel_url": TOOL_URL
             }
         },
@@ -107,7 +107,8 @@ def create_order(email: str):
 # ===============================
 
 @router.get("/success")
-def paypal_success(token: str, email: str):
+def paypal_success(token: str, email: str = None):
+
 
     access_token = get_access_token()
 
