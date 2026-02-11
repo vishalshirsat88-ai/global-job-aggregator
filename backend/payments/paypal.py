@@ -1,9 +1,8 @@
 import os
 import requests
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import RedirectResponse
 
-router = APIRouter(prefix="/paypal", tags=["payments"])
+router = APIRouter(prefix="/paypal", tags=["Payments"])
 
 # ===============================
 # ENV CONFIG
@@ -12,11 +11,13 @@ router = APIRouter(prefix="/paypal", tags=["payments"])
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 PAYPAL_MODE = os.getenv("PAYPAL_MODE", "sandbox").lower()
-TOOL_URL = os.getenv("TOOL_URL", "https://your-streamlit-tool-url")
-BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL")
+TOOL_URL = os.getenv("TOOL_URL")
 
-if not BACKEND_BASE_URL:
-    raise Exception("BACKEND_BASE_URL not configured")
+if not PAYPAL_CLIENT_ID or not PAYPAL_CLIENT_SECRET:
+    raise Exception("PayPal credentials not configured")
+
+if not TOOL_URL:
+    raise Exception("TOOL_URL not configured")
 
 PAYPAL_API_BASE = (
     "https://api-m.paypal.com"
@@ -28,22 +29,18 @@ PAYPAL_API_BASE = (
 # PAYPAL AUTH
 # ===============================
 
-def get_access_token() -> str:
-    resp = requests.post(
+def get_access_token():
+    response = requests.post(
         f"{PAYPAL_API_BASE}/v1/oauth2/token",
         auth=(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET),
         data={"grant_type": "client_credentials"},
-        timeout=10,
+        timeout=15,
     )
 
-    if resp.status_code != 200:
+    if response.status_code != 200:
         raise HTTPException(status_code=500, detail="PayPal authentication failed")
 
-    token = resp.json().get("access_token")
-    if not token:
-        raise HTTPException(status_code=500, detail="PayPal access token missing")
-
-    return token
+    return response.json().get("access_token")
 
 
 # ===============================
@@ -52,39 +49,37 @@ def get_access_token() -> str:
 
 @router.post("/create-order")
 def create_order(email: str):
+    """
+    Creates PayPal order and returns approval URL
+    """
 
-    print("=== DEBUG ENV CHECK ===")
-    print("CLIENT ID:", PAYPAL_CLIENT_ID)
-    print("SECRET EXISTS:", bool(PAYPAL_CLIENT_SECRET))
-    print("MODE:", PAYPAL_MODE)
-    print("BACKEND_BASE_URL:", BACKEND_BASE_URL)
-    print("=======================")
-
-    
     access_token = get_access_token()
+
+    order_data = {
+        "intent": "CAPTURE",
+        "purchase_units": [
+            {
+                "amount": {
+                    "currency_code": "USD",
+                    "value": "0.60"  # ₹49 equivalent
+                },
+                "custom_id": email  # attach email safely here
+            }
+        ],
+        "application_context": {
+            "return_url": TOOL_URL,
+            "cancel_url": TOOL_URL
+        }
+    }
 
     response = requests.post(
         f"{PAYPAL_API_BASE}/v2/checkout/orders",
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {access_token}",
+            "Authorization": f"Bearer {access_token}"
         },
-        json={
-            "intent": "CAPTURE",
-            "purchase_units": [
-                {
-                    "amount": {
-                        "currency_code": "USD",
-                        "value": "10.00"
-                    }
-                }
-            ],
-            "application_context": {
-                "return_url": f"{BACKEND_BASE_URL}/payments/paypal/success",
-                "cancel_url": TOOL_URL
-            }
-        },
-        timeout=10,
+        json=order_data,
+        timeout=15,
     )
 
     if response.status_code not in (200, 201):
@@ -97,50 +92,49 @@ def create_order(email: str):
         if link["rel"] == "approve"
     )
 
-    
-
-    return {"approval_url": approval_url}
+    return {
+        "approval_url": approval_url,
+        "order_id": data["id"]
+    }
 
 
 # ===============================
-# PAYMENT SUCCESS CALLBACK
+# CAPTURE ORDER
 # ===============================
 
-@router.get("/success")
-def paypal_success(token: str, email: str = None):
-
+@router.post("/capture-order")
+def capture_order(order_id: str):
+    """
+    Captures PayPal order after user approval
+    """
 
     access_token = get_access_token()
 
-    capture_resp = requests.post(
-        f"{PAYPAL_API_BASE}/v2/checkout/orders/{token}/capture",
+    response = requests.post(
+        f"{PAYPAL_API_BASE}/v2/checkout/orders/{order_id}/capture",
         headers={
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {access_token}",
+            "Authorization": f"Bearer {access_token}"
         },
-        timeout=10,
+        timeout=15,
     )
 
-    if capture_resp.status_code not in (200, 201):
-        raise HTTPException(status_code=400, detail="PayPal capture request failed")
+    if response.status_code not in (200, 201):
+        raise HTTPException(status_code=400, detail="Capture failed")
 
-    data = capture_resp.json()
+    data = response.json()
 
     if data.get("status") != "COMPLETED":
         raise HTTPException(status_code=400, detail="Payment not completed")
 
-    amount_info = (
-        data
-        .get("purchase_units", [{}])[0]
-        .get("payments", {})
-        .get("captures", [{}])[0]
-        .get("amount", {})
-    )
+    # Extract payment details safely
+    purchase_unit = data["purchase_units"][0]
+    capture_info = purchase_unit["payments"]["captures"][0]
 
-    currency = amount_info.get("currency_code")
-    value = amount_info.get("value")
-
-    if not currency or not value:
-        raise HTTPException(status_code=400, detail="Invalid payment amount data")
-
-    return RedirectResponse(url=TOOL_URL, status_code=302)
+    return {
+        "status": "success",
+        "order_id": order_id,
+        "amount": capture_info["amount"]["value"],
+        "currency": capture_info["amount"]["currency_code"],
+        "payer_email": purchase_unit.get("custom_id")
+    }
