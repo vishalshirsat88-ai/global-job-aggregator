@@ -75,6 +75,7 @@ def create_order(email: str):
     access_token = get_access_token()
 
     print("📦 Creating PayPal order for:", email)
+    print("RETURN URL BEING SENT:", f"{BACKEND_BASE_URL}/payments/paypal/success")
 
     order_data = {
         "intent": "CAPTURE",
