@@ -92,7 +92,7 @@ def create_order(email: str):
             "brand_name": "JobHunt++",
             "landing_page": "LOGIN",
             "user_action": "PAY_NOW",
-            "return_url": "https://dreamy-dodol-6c8de0.netlify.app",
+            "return_url": "https://dreamy-dodol-6c8de0.netlify.app/success.html",
             "cancel_url": TOOL_URL,
             "shipping_preference": "NO_SHIPPING"
         }
