@@ -59,14 +59,22 @@ def create_order(email: str):
                 "custom_id": email
             }
         ],
-        "application_context": {
-            "brand_name": "JobHunt++",
-            "landing_page": "LOGIN",
-            "user_action": "PAY_NOW",
-            "return_url": f"{BACKEND_BASE_URL}/payments/paypal/success",
-            "cancel_url": TOOL_URL
+        "payment_source": {
+            "paypal": {
+                "experience_context": {
+                    "payment_method_preference": "IMMEDIATE_PAYMENT_REQUIRED",
+                    "brand_name": "JobHunt++",
+                    "locale": "en-US",
+                    "landing_page": "LOGIN",
+                    "shipping_preference": "NO_SHIPPING",
+                    "user_action": "PAY_NOW",
+                    "return_url": f"{BACKEND_BASE_URL}/payments/paypal/success",
+                    "cancel_url": TOOL_URL
+                }
+            }
         }
     }
+
 
     response = requests.post(
         f"{PAYPAL_API_BASE}/v2/checkout/orders",
