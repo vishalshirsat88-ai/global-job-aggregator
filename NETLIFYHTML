@@ -602,7 +602,7 @@
             localStorage.setItem("payment_email", emailValue);
     
             // Redirect user to PayPal
-            window.location.href = data.approval_url;
+            window.open(data.approval_url, "_self");
     
         } catch (error) {
             console.error(error);
@@ -626,37 +626,38 @@
 
     	document.querySelectorAll('.reveal, #wish-trigger').forEach(el => observer.observe(el));
 
-      // ===============================
-      // HANDLE PAYPAL RETURN + CAPTURE
-      // ===============================
-      
-      (async function () {
-          const params = new URLSearchParams(window.location.search);
-          const token = params.get("token");
-      
-          if (!token) return;
-      
-          try {
-              const response = await fetch(
-                  "https://global-job-aggregator-production.up.railway.app/payments/paypal/capture-order?order_id=" + token,
-                  { method: "POST" }
-              );
-      
-              if (!response.ok) {
-                  alert("Payment verification failed");
-                  return;
-              }
-      
-              alert("✅ Payment successful! Unlocking access...");
-      
-              // redirect to Streamlit tool
-              window.location.href = "https://streamlit-frontend-production-1667.up.railway.app";
-      
-          } catch (err) {
-              console.error(err);
-              alert("Payment verification error");
-          }
-      })();
+        // ===============================
+        // HANDLE PAYPAL RETURN + CAPTURE
+        // ===============================
+        
+        (async function () {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get("token");
+        
+            if (!token) return;
+        
+            console.log("PayPal token detected:", token);
+        
+            try {
+                const res = await fetch(
+                    "https://global-job-aggregator-production.up.railway.app/payments/paypal/capture-order?token=" + token,
+                    { method: "POST" }
+                );
+        
+                if (!res.ok) throw new Error("Capture failed");
+        
+                const data = await res.json();
+        
+                if (data.success) {
+                    window.location.href = data.redirect;
+                }
+        
+            } catch (err) {
+                console.error("Capture failed:", err);
+                alert("Payment verification failed.");
+            }
+        })();
+
 
 </script>
 
