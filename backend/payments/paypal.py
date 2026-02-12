@@ -88,10 +88,14 @@ def create_order(email: str):
             }
         ],
         "application_context": {
+            "brand_name": "JobHunt++",
+            "landing_page": "LOGIN",
+            "user_action": "PAY_NOW",
             "return_url": f"{BACKEND_BASE_URL}/payments/paypal/success",
             "cancel_url": TOOL_URL,
-            "user_action": "PAY_NOW"
+            "shipping_preference": "NO_SHIPPING"
         }
+
     }
 
     try:
