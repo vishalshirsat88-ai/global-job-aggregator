@@ -134,8 +134,9 @@ def create_order(email: str):
 
 @router.get("/success")
 def paypal_success(token: str = None):
-    print("✅ PayPal success called")
+    print("🔥 SUCCESS ROUTE HIT — REDIRECTING TO:", TOOL_URL)
     print("Token:", token)
+
 
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
