@@ -1,6 +1,7 @@
 import os
 import requests
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import RedirectResponse
 
 router = APIRouter(prefix="/paypal", tags=["Payments"])
 
@@ -71,9 +72,13 @@ def create_order(email: str):
             }
         ],
         "application_context": {
-            "return_url": TOOL_URL,
-            "cancel_url": TOOL_URL
+            "return_url": f"{TOOL_URL}?payment=success",
+            "cancel_url": f"{TOOL_URL}?payment=cancel",
+            "user_action": "PAY_NOW",
+            "landing_page": "BILLING",
+            "shipping_preference": "NO_SHIPPING"
         }
+
     }
 
     response = requests.post(
@@ -144,3 +149,18 @@ def capture_order(order_id: str):
         "currency": capture_info["amount"]["currency_code"],
         "payer_email": purchase_unit.get("custom_id")
     }
+from fastapi.responses import RedirectResponse
+
+@router.get("/success")
+def paypal_success(token: str = None):
+
+    if not token:
+        raise HTTPException(status_code=400, detail="Missing token")
+
+    # Capture order
+    result = capture_order(token)
+
+    # Redirect to Streamlit tool
+    return RedirectResponse(
+        "https://streamlit-frontend-production-1667.up.railway.app"
+    )
