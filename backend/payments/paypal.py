@@ -89,13 +89,13 @@ def create_order(email: str):
             }
         ],
         "application_context": {
-            "brand_name": "JobHunt++",
-            "landing_page": "LOGIN",
             "user_action": "PAY_NOW",
+            "landing_page": "BILLING",
             "return_url": "https://dreamy-dodol-6c8de0.netlify.app/success.html",
             "cancel_url": TOOL_URL,
             "shipping_preference": "NO_SHIPPING"
         }
+
 
     }
 
