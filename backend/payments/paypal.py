@@ -66,20 +66,27 @@ def create_order(email: str):
             {
                 "amount": {
                     "currency_code": "USD",
-                    "value": "0.60"  # ₹49 equivalent
+                    "value": "0.60"
                 },
-                "custom_id": email  # attach email safely here
+                "custom_id": email
             }
         ],
-        "application_context": {
-            "return_url": f"{TOOL_URL}?payment=success",
-            "cancel_url": f"{TOOL_URL}?payment=cancel",
-            "user_action": "PAY_NOW",
-            "landing_page": "BILLING",
-            "shipping_preference": "NO_SHIPPING"
+        "payment_source": {
+            "paypal": {
+                "experience_context": {
+                    "payment_method_preference": "IMMEDIATE_PAYMENT_REQUIRED",
+                    "brand_name": "JobHunt++",
+                    "locale": "en-US",
+                    "landing_page": "LOGIN",
+                    "shipping_preference": "NO_SHIPPING",
+                    "user_action": "PAY_NOW",
+                    "return_url": TOOL_URL,
+                    "cancel_url": TOOL_URL
+                }
+            }
         }
-
     }
+
 
     response = requests.post(
         f"{PAYPAL_API_BASE}/v2/checkout/orders",
