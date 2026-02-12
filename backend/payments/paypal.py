@@ -14,6 +14,13 @@ PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 PAYPAL_MODE = os.getenv("PAYPAL_MODE", "sandbox").lower()
 TOOL_URL = os.getenv("TOOL_URL")
 
+PAYPAL_API_BASE = (
+    "https://api-m.paypal.com"
+    if PAYPAL_MODE == "live"
+    else "https://api-m.sandbox.paypal.com"
+)
+
+
 def validate_config():
     if not PAYPAL_CLIENT_ID or not PAYPAL_CLIENT_SECRET:
         raise HTTPException(status_code=500, detail="PayPal not configured")
@@ -21,12 +28,6 @@ def validate_config():
     if not TOOL_URL:
         raise HTTPException(status_code=500, detail="TOOL_URL not configured")
 
-
-PAYPAL_API_BASE = (
-    "https://api-m.paypal.com"
-    if PAYPAL_MODE == "live"
-    else "https://api-m.sandbox.paypal.com"
-)
 
 # ===============================
 # PAYPAL AUTH
@@ -51,16 +52,6 @@ def get_access_token():
 # ===============================
 
 @router.post("/create-order")
-def create_order(email: str):
-    validate_config()
-
-    """
-    Creates PayPal order and returns approval URL
-    """
-
-    access_token = get_access_token()
-
-    @router.post("/create-order")
 def create_order(email: str):
     validate_config()
 
@@ -96,16 +87,14 @@ def create_order(email: str):
         timeout=15,
     )
 
-    # 🔥 PRINT FULL PAYPAL RESPONSE
-    print("=== PAYPAL RESPONSE STATUS ===", response.status_code)
-    print("=== PAYPAL RESPONSE BODY ===", response.text)
+    print("PAYPAL STATUS:", response.status_code)
+    print("PAYPAL RESPONSE:", response.text)
 
     if response.status_code not in (200, 201):
         raise HTTPException(status_code=400, detail="Failed to create PayPal order")
 
     data = response.json()
 
-    # SAFE APPROVAL URL EXTRACTION
     approval_url = None
     for link in data.get("links", []):
         if link.get("rel") == "approve":
@@ -113,31 +102,24 @@ def create_order(email: str):
             break
 
     if not approval_url:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Approval URL missing from PayPal response: {data}"
-        )
+        raise HTTPException(status_code=500, detail=f"Approval URL missing: {data}")
 
     return {"approval_url": approval_url}
 
 
-
 # ===============================
-# CAPTURE ORDER
+# SUCCESS CALLBACK
 # ===============================
 
-@router.post("/capture-order")
-def capture_order(order_id: str):
-    validate_config()
-
-    """
-    Captures PayPal order after user approval
-    """
+@router.get("/success")
+def paypal_success(token: str = None):
+    if not token:
+        raise HTTPException(status_code=400, detail="Missing token")
 
     access_token = get_access_token()
 
     response = requests.post(
-        f"{PAYPAL_API_BASE}/v2/checkout/orders/{order_id}/capture",
+        f"{PAYPAL_API_BASE}/v2/checkout/orders/{token}/capture",
         headers={
             "Content-Type": "application/json",
             "Authorization": f"Bearer {access_token}"
@@ -146,36 +128,11 @@ def capture_order(order_id: str):
     )
 
     if response.status_code not in (200, 201):
-        raise HTTPException(status_code=400, detail="Capture failed")
+        raise HTTPException(status_code=400, detail="Payment capture failed")
 
     data = response.json()
 
     if data.get("status") != "COMPLETED":
         raise HTTPException(status_code=400, detail="Payment not completed")
 
-    # Extract payment details safely
-    purchase_unit = data["purchase_units"][0]
-    capture_info = purchase_unit["payments"]["captures"][0]
-
-    return {
-        "status": "success",
-        "order_id": order_id,
-        "amount": capture_info["amount"]["value"],
-        "currency": capture_info["amount"]["currency_code"],
-        "payer_email": purchase_unit.get("custom_id")
-    }
-from fastapi.responses import RedirectResponse
-
-@router.get("/success")
-def paypal_success(token: str = None):
-
-    if not token:
-        raise HTTPException(status_code=400, detail="Missing token")
-
-    # Capture order
-    result = capture_order(token)
-
-    # Redirect to Streamlit tool
-    return RedirectResponse(
-        "https://streamlit-frontend-production-1667.up.railway.app"
-    )
+    return RedirectResponse(TOOL_URL)
