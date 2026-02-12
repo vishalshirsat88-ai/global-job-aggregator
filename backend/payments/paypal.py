@@ -131,6 +131,46 @@ def create_order(email: str):
         print("❌ Create order error:", str(e))
         raise HTTPException(status_code=500, detail="PayPal connection error")
 
+# ===============================
+# CAPTURE ORDER FROM FRONTEND
+# ===============================
+
+@router.post("/capture-order")
+def capture_order(token: str):
+    print("💰 Frontend capture request:", token)
+
+    if not token:
+        raise HTTPException(status_code=400, detail="Missing token")
+
+    validate_config()
+    access_token = get_access_token()
+
+    try:
+        response = requests.post(
+            f"{PAYPAL_API_BASE}/v2/checkout/orders/{token}/capture",
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {access_token}"
+            },
+            timeout=15,
+        )
+
+        print("💰 Capture Status:", response.status_code)
+        print("💰 Capture Response:", response.text)
+
+        if response.status_code not in (200, 201):
+            raise HTTPException(status_code=400, detail="Capture failed")
+
+        data = response.json()
+
+        if data.get("status") != "COMPLETED":
+            raise HTTPException(status_code=400, detail="Payment not completed")
+
+        return {"success": True, "redirect": TOOL_URL}
+
+    except requests.RequestException as e:
+        print("❌ Capture error:", str(e))
+        raise HTTPException(status_code=500, detail="Capture failed")
 
 # ===============================
 # PAYMENT SUCCESS CALLBACK
