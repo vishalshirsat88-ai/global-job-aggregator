@@ -75,7 +75,7 @@ def create_order(email: str):
     access_token = get_access_token()
 
     print("📦 Creating PayPal order for:", email)
-    print("RETURN URL BEING SENT:", f"{BACKEND_BASE_URL}/payments/paypal/success")
+    print("RETURN URL HARDCODED:", "https://dreamy-dodol-6c8de0.netlify.app")
 
     order_data = {
         "intent": "CAPTURE",
