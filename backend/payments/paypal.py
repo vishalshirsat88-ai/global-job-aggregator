@@ -60,6 +60,12 @@ def create_order(email: str):
 
     access_token = get_access_token()
 
+    @router.post("/create-order")
+def create_order(email: str):
+    validate_config()
+
+    access_token = get_access_token()
+
     order_data = {
         "intent": "CAPTURE",
         "purchase_units": [
@@ -75,12 +81,10 @@ def create_order(email: str):
             "brand_name": "JobHunt++",
             "landing_page": "LOGIN",
             "user_action": "PAY_NOW",
-            "return_url": f"{TOOL_URL}?order_id={{order_id}}",
+            "return_url": TOOL_URL,
             "cancel_url": TOOL_URL
         }
     }
-
-
 
     response = requests.post(
         f"{PAYPAL_API_BASE}/v2/checkout/orders",
@@ -92,11 +96,16 @@ def create_order(email: str):
         timeout=15,
     )
 
+    # 🔥 PRINT FULL PAYPAL RESPONSE
+    print("=== PAYPAL RESPONSE STATUS ===", response.status_code)
+    print("=== PAYPAL RESPONSE BODY ===", response.text)
+
     if response.status_code not in (200, 201):
         raise HTTPException(status_code=400, detail="Failed to create PayPal order")
 
     data = response.json()
 
+    # SAFE APPROVAL URL EXTRACTION
     approval_url = None
     for link in data.get("links", []):
         if link.get("rel") == "approve":
@@ -104,13 +113,13 @@ def create_order(email: str):
             break
 
     if not approval_url:
-        raise HTTPException(status_code=500, detail="Approval URL not returned by PayPal")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Approval URL missing from PayPal response: {data}"
+        )
 
+    return {"approval_url": approval_url}
 
-    return {
-        "approval_url": approval_url,
-        "order_id": data["id"]
-    }
 
 
 # ===============================
