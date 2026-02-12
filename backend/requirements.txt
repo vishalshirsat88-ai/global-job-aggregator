@@ -1,6 +1,6 @@
 fastapi
-uvicorn
 pandas
 requests
 streamlit
 feedparser
+uvicorn

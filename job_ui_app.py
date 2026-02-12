@@ -3,6 +3,10 @@ import requests
 import pandas as pd
 import re
 from datetime import datetime, timedelta
+import os
+port = int(os.environ.get("PORT", 8501))
+
+
 
 # Keep your specific backend URL
 BACKEND_URL ="https://global-job-aggregator-production.up.railway.app"
