@@ -44,7 +44,7 @@ def create_order(email: str):
     access_token = get_access_token()
     
     # URL to your Netlify file named 'success'
-    SUCCESS_URL = "https://dreamy-dodol-6c8de0.netlify.app/success"
+    SUCCESS_URL = "https://dreamy-dodol-6c8de0.netlify.app/success.html"
     
     order_data = {
         "intent": "CAPTURE",
