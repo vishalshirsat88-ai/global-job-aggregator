@@ -586,7 +586,7 @@
     
         try {
             const response = await fetch(
-                "https://global-job-aggregator-production.up.railway.app/payments/paypal/create-order?email=" +
+                "/payments/paypal/create-order?email=" +
                 encodeURIComponent(emailValue),
                 { method: "POST" }
             );
