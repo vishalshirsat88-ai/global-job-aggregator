@@ -3,13 +3,24 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from dotenv import load_dotenv
 from backend.payments.paypal import router as paypal_router
-
-
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI
+import os
 
 app = FastAPI(
     title="Global Job Aggregator API",
     version="1.0.0"
 )
+
+
+# Mount static folder if needed later
+app.mount("/static", StaticFiles(directory="frontend"), name="static")
+
+@app.get("/", response_class=HTMLResponse)
+def serve_landing():
+    with open("frontend/landing.html", "r", encoding="utf-8") as f:
+        return f.read()
 
 
 load_dotenv()
