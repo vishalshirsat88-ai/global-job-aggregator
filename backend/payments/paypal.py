@@ -58,8 +58,9 @@ def create_order(email: str):
     validate_config()
     access_token = get_access_token()
     
-    print(f"📦 Creating PayPal order for: {email}")
-
+    # REMOVED .html because your file is named 'success'
+    SUCCESS_URL = "https://dreamy-dodol-6c8de0.netlify.app/success"
+    
     order_data = {
         "intent": "CAPTURE",
         "purchase_units": [
@@ -70,12 +71,13 @@ def create_order(email: str):
         ],
         "application_context": {
             "user_action": "PAY_NOW",
-            "landing_page": "BILLING",
-            "return_url": "https://dreamy-dodol-6c8de0.netlify.app/success.html",
-            "cancel_url": TOOL_URL,
+            "return_url": SUCCESS_URL,
+            "cancel_url": SUCCESS_URL,
             "shipping_preference": "NO_SHIPPING"
         }
     }
+
+    # ... rest of your code to send request to PayPal ...
 
     try:
         response = requests.post(
