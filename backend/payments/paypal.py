@@ -57,6 +57,8 @@ def create_order(email: str):
 
     access_token = get_access_token()
 
+    BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL")
+
     order_data = {
         "intent": "CAPTURE",
         "purchase_units": [
@@ -72,10 +74,11 @@ def create_order(email: str):
             "brand_name": "JobHunt++",
             "landing_page": "LOGIN",
             "user_action": "PAY_NOW",
-            "return_url": TOOL_URL,
+            "return_url": f"{BACKEND_BASE_URL}/payments/paypal/success",
             "cancel_url": TOOL_URL
         }
     }
+
 
     response = requests.post(
         f"{PAYPAL_API_BASE}/v2/checkout/orders",
