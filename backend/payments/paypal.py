@@ -63,17 +63,11 @@ def create_order(email: str):
     
     order_data = {
         "intent": "CAPTURE",
-        "purchase_units": [
-            {
-                "amount": {"currency_code": "USD", "value": "0.60"},
-                "custom_id": email
-            }
-        ],
+        "purchase_units": [{"amount": {"currency_code": "USD", "value": "0.60"}, "custom_id": email}],
         "application_context": {
             "user_action": "PAY_NOW",
-            "return_url": SUCCESS_URL,
-            "cancel_url": SUCCESS_URL,
-            "shipping_preference": "NO_SHIPPING"
+            "return_url": SUCCESS_URL, # This MUST match the filename on Netlify
+            "cancel_url": SUCCESS_URL
         }
     }
 
