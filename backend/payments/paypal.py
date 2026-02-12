@@ -5,14 +5,11 @@ from fastapi.responses import RedirectResponse
 
 router = APIRouter(prefix="/paypal", tags=["Payments"])
 
-# ===============================
-# ENV CONFIG
-# ===============================
-
 PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
 PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET")
 PAYPAL_MODE = os.getenv("PAYPAL_MODE", "sandbox").lower()
 TOOL_URL = os.getenv("TOOL_URL")
+BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL")
 
 PAYPAL_API_BASE = (
     "https://api-m.paypal.com"
@@ -28,10 +25,9 @@ def validate_config():
     if not TOOL_URL:
         raise HTTPException(status_code=500, detail="TOOL_URL not configured")
 
+    if not BACKEND_BASE_URL:
+        raise HTTPException(status_code=500, detail="BACKEND_BASE_URL not configured")
 
-# ===============================
-# PAYPAL AUTH
-# ===============================
 
 def get_access_token():
     response = requests.post(
@@ -47,17 +43,10 @@ def get_access_token():
     return response.json().get("access_token")
 
 
-# ===============================
-# CREATE ORDER
-# ===============================
-
 @router.post("/create-order")
 def create_order(email: str):
     validate_config()
-
     access_token = get_access_token()
-
-    BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL")
 
     order_data = {
         "intent": "CAPTURE",
@@ -78,7 +67,6 @@ def create_order(email: str):
             "cancel_url": TOOL_URL
         }
     }
-
 
     response = requests.post(
         f"{PAYPAL_API_BASE}/v2/checkout/orders",
@@ -110,15 +98,12 @@ def create_order(email: str):
     return {"approval_url": approval_url}
 
 
-# ===============================
-# SUCCESS CALLBACK
-# ===============================
-
 @router.get("/success")
 def paypal_success(token: str = None):
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
 
+    validate_config()
     access_token = get_access_token()
 
     response = requests.post(
