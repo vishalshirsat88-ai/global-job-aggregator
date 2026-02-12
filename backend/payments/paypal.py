@@ -71,21 +71,15 @@ def create_order(email: str):
                 "custom_id": email
             }
         ],
-        "payment_source": {
-            "paypal": {
-                "experience_context": {
-                    "payment_method_preference": "IMMEDIATE_PAYMENT_REQUIRED",
-                    "brand_name": "JobHunt++",
-                    "locale": "en-US",
-                    "landing_page": "LOGIN",
-                    "shipping_preference": "NO_SHIPPING",
-                    "user_action": "PAY_NOW",
-                    "return_url": TOOL_URL,
-                    "cancel_url": TOOL_URL
-                }
-            }
+        "application_context": {
+            "brand_name": "JobHunt++",
+            "landing_page": "LOGIN",
+            "user_action": "PAY_NOW",
+            "return_url": f"{TOOL_URL}?order_id={{order_id}}",
+            "cancel_url": TOOL_URL
         }
     }
+
 
 
     response = requests.post(
@@ -103,10 +97,15 @@ def create_order(email: str):
 
     data = response.json()
 
-    approval_url = next(
-        link["href"] for link in data["links"]
-        if link["rel"] == "approve"
-    )
+    approval_url = None
+    for link in data.get("links", []):
+        if link.get("rel") == "approve":
+            approval_url = link.get("href")
+            break
+
+    if not approval_url:
+        raise HTTPException(status_code=500, detail="Approval URL not returned by PayPal")
+
 
     return {
         "approval_url": approval_url,
