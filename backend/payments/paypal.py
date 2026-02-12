@@ -91,7 +91,7 @@ def create_order(email: str):
             "brand_name": "JobHunt++",
             "landing_page": "LOGIN",
             "user_action": "PAY_NOW",
-            "return_url": f"{BACKEND_BASE_URL}/payments/paypal/success",
+            "return_url": "https://YOUR-LANDING-PAGE-DOMAIN?payment=success",
             "cancel_url": TOOL_URL,
             "shipping_preference": "NO_SHIPPING"
         }
