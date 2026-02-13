@@ -337,6 +337,158 @@
             opacity: 1;
         }
 
+        /* EXIT INTENT POPUP */
+        .exit-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .exit-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .exit-box {
+            background: #0c0c0c;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+
+        .exit-box h3 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+
+        .exit-box p {
+            color: #aaa;
+            margin-bottom: 25px;
+        }
+
+        .exit-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .exit-primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 12px 22px;
+            border-radius: 999px;
+            cursor: pointer;
+        }
+
+        .exit-secondary {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #bbb;
+            padding: 12px 20px;
+            border-radius: 999px;
+            cursor: pointer;
+        }
+
+        /* TESTIMONIAL PRO SLIDER */
+
+        .testimonial-wrapper {
+            overflow: hidden;
+        }
+
+        .testimonial-track {
+            display: flex;
+            transition: transform 0.7s ease;
+        }
+
+        .testimonial-card {
+            min-width: 100%;
+            padding: 40px;
+            border-radius: 24px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stars {
+            font-size: 22px;
+            color: gold;
+            margin-bottom: 15px;
+            animation: starPulse 1.5s infinite;
+        }
+
+        @keyframes starPulse {
+            0%,100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .testimonial-text {
+            font-size: 20px;
+            line-height: 1.6;
+            color: #ddd;
+            margin-bottom: 25px;
+        }
+
+        .testimonial-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .testimonial-user img {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+        }
+
+        .name {
+            font-weight: 700;
+        }
+
+        .role {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .verified {
+            font-size: 11px;
+            color: #22c55e;
+            margin-left: 6px;
+        }
+
+        .trust-icons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            justify-content: center;
+        }
+
+        .trust-item {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 20px;
+            border-radius: 100px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ddd;
+        }
+
+
+
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -550,6 +702,95 @@
         </div>
     </section>
 
+    <!-- TESTIMONIALS -->
+    <section class="py-28 px-6 bg-white/[0.02]">
+        <div class="max-w-5xl mx-auto text-center">
+
+            <h2 class="heading-font text-4xl md:text-6xl font-bold mb-16">
+                Trusted by 10,000+ Job Seekers
+            </h2>
+
+            <div class="testimonial-wrapper">
+                <div id="testimonial-track" class="testimonial-track">
+
+                    <!-- CARD 1 -->
+                    <div class="testimonial-card">
+
+                        <div class="stars">★★★★★</div>
+
+                        <p class="testimonial-text">
+                            I used to spend hours checking multiple portals daily.
+                            Now everything is in one dashboard.
+                            Got 3 interview calls within 2 days!
+                        </p>
+
+                        <div class="testimonial-user">
+                            <img src="https://i.pravatar.cc/80?img=12">
+                            <div>
+                                <div class="name">
+                                    Rahul Sharma
+                                    <span class="verified">✔ Verified</span>
+                                </div>
+                                <div class="role">Software Engineer — TCS</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- CARD 2 -->
+                    <div class="testimonial-card">
+
+                        <div class="stars">★★★★★</div>
+
+                        <p class="testimonial-text">
+                            The remote job filters alone are worth ₹49.
+                            Found international opportunities in minutes.
+                        </p>
+
+                        <div class="testimonial-user">
+                            <img src="https://i.pravatar.cc/80?img=32">
+                            <div>
+                                <div class="name">
+                                    Sneha Patel
+                                    <span class="verified">✔ Verified</span>
+                                </div>
+                                <div class="role">UI Designer — Infosys</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- CARD 3 -->
+                    <div class="testimonial-card">
+
+                        <div class="stars">★★★★★</div>
+
+                        <p class="testimonial-text">
+                            Applied to 50+ relevant jobs in one evening.
+                            This tool literally saved my job search.
+                        </p>
+
+                        <div class="testimonial-user">
+                            <img src="https://i.pravatar.cc/80?img=45">
+                            <div>
+                                <div class="name">
+                                    Arjun Mehta
+                                    <span class="verified">✔ Verified</span>
+                                </div>
+                                <div class="role">MBA Graduate — IIM Indore</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+
     <section class="py-32 px-6 bg-white/[0.01]">
         <div class="max-w-4xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -609,6 +850,28 @@
         <div class="text-4xl md:text-6xl font-black text-emerald-400 mb-4 drop-shadow-lg">Total Bonus Value: ₹2,000+</div>
         <p class="text-xl font-bold text-white uppercase tracking-tighter">Yours Free. Today only.</p>
     </section>
+
+    <!-- TRUST BAR -->
+    <section class="py-12 px-6 bg-white/[0.02] border-y border-white/5">
+        <div class="max-w-5xl mx-auto text-center">
+
+            <p class="text-gray-400 mb-8 font-semibold">
+                Secure Payment • Trusted by 10,000+ Users
+            </p>
+
+            <div class="trust-icons">
+
+                <div class="trust-item">🔒 SSL Secure</div>
+                <div class="trust-item">💳 Razorpay</div>
+                <div class="trust-item">🌍 PayPal</div>
+                <div class="trust-item">⚡ Instant Access</div>
+                <div class="trust-item">⭐ 4.9/5 Rating</div>
+
+            </div>
+
+        </div>
+    </section>
+
 
     <footer id="unlock-section" class="py-40 px-6 text-center relative border-t border-white/5 bg-[#080808]">
         <div class="max-w-4xl mx-auto">
@@ -703,6 +966,27 @@
         </div>
     </footer>
 
+    <!-- Exit Intent Popup -->
+    <div id="exit-popup" class="exit-overlay">
+        <div class="exit-box">
+            <h3>WAIT! Don’t Miss This Launch Offer 🚀</h3>
+            <p>
+                Get <b>Lifetime Access for ₹49</b> today only.<br>
+                Price goes up to <b>₹99 tomorrow</b>.
+            </p>
+
+            <div class="exit-actions">
+                <button onclick="closeExitPopup()" class="exit-secondary">
+                    No thanks
+                </button>
+                <button onclick="handleExitCTA()" class="exit-primary">
+                    Unlock Now →
+                </button>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Sticky Bottom CTA Bar -->
     <div id="sticky-cta" class="sticky-cta">
         <div class="sticky-cta-inner">
@@ -715,6 +999,8 @@
             </button>
         </div>
     </div>
+
+
 <script>
 lucide.createIcons();
 
@@ -942,6 +1228,62 @@ window.addEventListener("scroll", () => {
     }
 });
 
+/* ===============================
+EXIT INTENT LOGIC
+=============================== */
+
+let exitShown = false;
+const exitPopup = document.getElementById("exit-popup");
+
+/* DESKTOP EXIT DETECTION */
+document.addEventListener("mouseout", (e) => {
+    if (exitShown) return;
+
+    if (e.clientY <= 0) {
+        showExitPopup();
+    }
+});
+
+/* MOBILE EXIT DETECTION */
+let lastScroll = window.scrollY;
+
+window.addEventListener("scroll", () => {
+    const current = window.scrollY;
+
+    if (!exitShown && current < lastScroll - 50 && current < 200) {
+        showExitPopup();
+    }
+
+    lastScroll = current;
+});
+
+function showExitPopup() {
+    exitShown = true;
+    exitPopup.classList.add("show");
+}
+
+function closeExitPopup() {
+    exitPopup.classList.remove("show");
+}
+
+function handleExitCTA() {
+    closeExitPopup();
+    handlePaymentClick();
+}
+
+/* TESTIMONIAL AUTO SLIDER */
+
+const track = document.getElementById("testimonial-track");
+
+if (track) {
+    let testimonialIndex = 0;
+    const total = track.children.length;
+
+    setInterval(() => {
+        testimonialIndex = (testimonialIndex + 1) % total;
+        track.style.transform = `translateX(-${testimonialIndex * 100}%)`;
+    }, 3500);
+}
 
 
 
