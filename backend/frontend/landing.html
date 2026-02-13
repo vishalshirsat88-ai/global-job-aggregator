@@ -69,13 +69,16 @@
             background: rgba(16, 185, 129, 0.05);
             border: 1px solid rgba(16, 185, 129, 0.2);
             color: #d1fae5;
-            animation: fast-float 2s ease-in-out infinite;
+            animation: fast-float 1.2s ease-in-out infinite;
         }
+
 
         @keyframes fast-float {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
+            50% { transform: translateY(-14px); }
         }
+
+       
 
         .loop-pill {
             background: rgba(239, 68, 68, 0.05);
@@ -223,6 +226,106 @@
             border-color: #ef4444 !important;
             box-shadow: 0 0 15px rgba(239, 68, 68, 0.3) !important;
         }
+
+
+        .nav-cta-animated {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-cta-animated::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -150%;
+            width: 150%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255,255,255,0.6),
+                transparent
+            );
+            animation: shine-wave 2.5s linear infinite;
+        }
+
+        @keyframes shine-wave {
+            0% { left: -150%; }
+            100% { left: 150%; }
+        }
+
+        .nav-cta-animated {
+            animation: glow-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes glow-pulse {
+            0%,100% { box-shadow: 0 0 10px rgba(124,58,237,0.4); }
+            50% { box-shadow: 0 0 25px rgba(124,58,237,0.8); }
+        }
+
+        /* Sticky Bottom CTA */
+        .sticky-cta {
+            position: fixed;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 9998;
+            pointer-events: none;
+        }
+
+        .sticky-cta-inner {
+            pointer-events: auto;
+            background: rgba(10,10,10,0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            transform: translateY(120%);
+            transition: transform 0.5s ease;
+        }
+
+        .sticky-cta.show .sticky-cta-inner {
+            transform: translateY(0);
+        }
+
+        .sticky-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sticky-text .price {
+            font-size: 22px;
+            font-weight: 900;
+            color: #22c55e;
+        }
+
+        .sticky-text .label {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .sticky-button {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 10px 20px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sticky-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(124,58,237,0.7);
+        }
+
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -245,7 +348,7 @@
 
     <nav class="fixed top-0 w-full z-50 glass-card px-6 py-4 flex justify-between items-center border-none bg-[#050505]/80">
         <div class="text-2xl font-extrabold heading-font gradient-text tracking-tighter">JobHunt++</div>
-        <button onclick="handlePaymentClick()" class="premium-button text-white px-5 py-2 rounded-full font-bold text-sm">
+        <button onclick="handlePaymentClick()" class="premium-button nav-cta-animated text-white px-5 py-2 rounded-full font-bold text-sm">
             Unlock Access
         </button>
     </nav>
@@ -253,7 +356,7 @@
     <header class="pt-40 pb-12 px-6 max-w-7xl mx-auto text-center relative">
         <div class="absolute top-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-600/10 blur-[120px] rounded-full -z-10"></div>
         
-        <div class="inline-flex active-pill px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] mb-12 items-center gap-2">
+        <div class="inline-flex active-pill px-8 py-3 rounded-full text-sm md:text-base font-extrabold uppercase tracking-[0.25em] mb-12 items-center gap-3">
             <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
             10000+ HAPPY USERS ONBOARDED
         </div>
@@ -533,7 +636,7 @@
                     </p>
                 </div>
             </div>
-            
+
             <button 
                 id="cta-pay-button"
                 onclick="handlePaymentClick()"
@@ -786,8 +889,44 @@ PAYMENT CANCEL BANNER
         setTimeout(scrollToEmailSection, 500);
     }
 })();
+
+
+/* ===============================
+STICKY CTA VISIBILITY
+=============================== */
+
+const sticky = document.getElementById("sticky-cta");
+
+window.addEventListener("scroll", () => {
+    const unlockSection = document.getElementById("unlock-section");
+
+    if (!unlockSection) return;
+
+    const rect = unlockSection.getBoundingClientRect();
+
+    // Show sticky only when user scrolls past hero
+    if (window.scrollY > 600 && rect.top > window.innerHeight) {
+        sticky.classList.add("show");
+        sticky.classList.remove("hidden");
+    } else {
+        sticky.classList.remove("show");
+    }
+});
+
 </script>
 
+<!-- Sticky Bottom CTA Bar -->
+<div id="sticky-cta" class="sticky-cta hidden">
+    <div class="sticky-cta-inner">
+        <div class="sticky-text">
+            <span class="price">₹49</span>
+            <span class="label">Lifetime Access</span>
+        </div>
+        <button onclick="handlePaymentClick()" class="sticky-button">
+            Unlock Now →
+        </button>
+    </div>
+</div>
 
 
 
