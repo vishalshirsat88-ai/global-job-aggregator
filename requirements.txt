@@ -6,6 +6,6 @@ feedparser
 uvicorn
 python-dotenv
 # railway-rebuild
-razorpay==1.3.0
+razorpay==1.4.2
 setuptools>=65.0.0
 
