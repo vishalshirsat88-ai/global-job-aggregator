@@ -2,6 +2,7 @@ import os
 import requests
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import RedirectResponse
+from backend.services.email_service import send_access_email
 
 # DB imports
 from backend.payments.db import save_payment, verify_and_register_session
@@ -160,7 +161,11 @@ def paypal_success(token: str = None):
 
         # ✅ Generate & Save Access Token
         access_token_value = save_payment(email, order_id)
-
+        
+        try:
+            send_access_email(email, access_token_value)
+        except Exception as e:
+            print("⚠️ Email send failed:", e)
         print("🎉 Payment successful!")
         print("🔑 Generated Access Token:", access_token_value)
 
