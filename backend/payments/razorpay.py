@@ -6,6 +6,9 @@ from pydantic import BaseModel
 # DB imports
 from backend.payments.db import save_payment
 
+# 🆕 Email service import
+from backend.services.email_service import send_access_email
+
 router = APIRouter(prefix="/razorpay", tags=["Razorpay Payments"])
 
 # ===============================
@@ -17,7 +20,7 @@ TOOL_URL = os.getenv("TOOL_URL")
 
 
 # ===============================
-# REQUEST MODEL (NEW)
+# REQUEST MODEL
 # ===============================
 class RazorpayVerifyRequest(BaseModel):
     razorpay_payment_id: str
@@ -36,14 +39,10 @@ def get_client():
 
 
 # ===============================
-# 1️⃣ CREATE ORDER
+# CREATE ORDER
 # ===============================
 @router.post("/create-order")
 def create_order(amount: int, email: str):
-    """
-    Create Razorpay order
-    Amount must be in paise
-    """
 
     client = get_client()
 
@@ -71,17 +70,14 @@ def create_order(amount: int, email: str):
 
 
 # ===============================
-# 2️⃣ VERIFY PAYMENT (FIXED)
+# VERIFY PAYMENT + EMAIL SEND
 # ===============================
 @router.post("/verify-payment")
 def verify_payment(data: RazorpayVerifyRequest):
-    """
-    Verifies Razorpay payment signature
-    Then saves payment & generates token
-    """
 
     client = get_client()
 
+    # 🔐 Verify signature
     try:
         params_dict = {
             "razorpay_order_id": data.razorpay_order_id,
@@ -94,9 +90,15 @@ def verify_payment(data: RazorpayVerifyRequest):
     except Exception:
         raise HTTPException(status_code=400, detail="Payment verification failed")
 
+    # 💾 Save payment + generate token
     try:
-        # Save payment
         access_token = save_payment(data.email, data.razorpay_order_id)
+
+        # 🆕 SEND EMAIL (non-blocking safe call)
+        try:
+            send_access_email(data.email, access_token)
+        except Exception as e:
+            print("⚠️ Email send failed:", e)
 
         redirect_url = f"{TOOL_URL}?token={access_token}"
 
