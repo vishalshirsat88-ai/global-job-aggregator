@@ -525,7 +525,11 @@
             <div class="max-w-md mx-auto mb-10 space-y-4">
                 <label for="user-email" class="block text-gray-400 text-sm font-bold uppercase tracking-widest mb-2">Enter your primary email to proceed</label>
                 <div class="relative">
-                    <input 
+                    <input
+                    <p id="email-error" class="text-red-500 text-sm mt-2 hidden">
+                        Please enter a valid email address
+                    </p>
+ 
                         type="email" 
                         id="user-email" 
                         placeholder="e.g. yourname@gmail.com"
@@ -606,16 +610,25 @@ detectUserCountry();
 HELPERS
 =============================== */
 function scrollToEmailSection() {
-    const input = document.getElementById("user-email");
+    const btn = document.getElementById("cta-pay-button");
 
-    const yOffset = -150; // keeps CTA visible
-    const y = input.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    if (!btn) return;
 
-    window.scrollTo({
-        top: y,
-        behavior: "smooth"
+    // scroll so button is centered
+    btn.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
     });
+
+    // then move slightly upward so input is visible too
+    setTimeout(() => {
+        window.scrollBy({
+            top: -120,
+            behavior: "smooth"
+        });
+    }, 300);
 }
+
 
 
 
@@ -636,10 +649,14 @@ function setButtonLoading(state) {
 
 function validateEmail() {
     const input = document.getElementById("user-email");
+    const error = document.getElementById("email-error");
+
     const val = input.value.trim();
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!val || !regex.test(val)) {
+        error.classList.remove("hidden");
+
         scrollToEmailSection();
 
         setTimeout(() => {
@@ -650,8 +667,11 @@ function validateEmail() {
 
         return null;
     }
+
+    error.classList.add("hidden");
     return val;
 }
+
 
 /* ===============================
 PAYPAL PAYMENT
