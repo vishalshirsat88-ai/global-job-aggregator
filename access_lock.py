@@ -7,7 +7,6 @@ BACKEND_URL = "https://global-job-aggregator-production.up.railway.app"
 
 def verify_access():
     params = st.query_params
-
     token = params.get("token")
 
     if not token:
@@ -35,6 +34,15 @@ def verify_access():
         if not data.get("valid"):
             st.error(f"🚫 {data.get('message', 'Access denied')}")
             st.stop()
+
+        # ===============================
+        # 🎉 SHOW WELCOME MESSAGE ONCE
+        # ===============================
+        if "welcome_shown" not in st.session_state:
+            st.session_state.welcome_shown = True
+
+            st.success("🎉 Payment Successful! Welcome to JobHunt++ Premium Access!")
+            st.info("🚀 You now have lifetime access. Enjoy exploring global job opportunities!")
 
     except Exception:
         st.error("⚠️ Unable to verify access. Please try again later.")
