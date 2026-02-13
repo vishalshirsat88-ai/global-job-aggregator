@@ -155,7 +155,11 @@ def paypal_success(token: str = None):
 
         data = response.json()
 
-        email = data["purchase_units"][0]["custom_id"]
+        try:
+            email = data["purchase_units"][0]["payments"]["captures"][0]["custom_id"]
+        except:
+            email = "unknown"
+
         order_id = data["id"]
 
         # Save payment and generate access token
