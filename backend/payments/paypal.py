@@ -200,4 +200,5 @@ def verify_access(
 # ===============================
 @router.get("/payment-cancelled")
 def cancelled():
-    return RedirectResponse("/")
+    return RedirectResponse("/?status=cancelled")
+

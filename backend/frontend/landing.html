@@ -224,6 +224,22 @@
 </head>
 <body class="overflow-x-hidden">
 
+<div id="payment-banner" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    background:#ef4444;
+    color:white;
+    text-align:center;
+    padding:12px;
+    font-weight:600;
+    z-index:9999;
+">
+    ❌ Payment cancelled. No charges were made. Please try again below.
+</div>
+
     <nav class="fixed top-0 w-full z-50 glass-card px-6 py-4 flex justify-between items-center border-none bg-[#050505]/80">
         <div class="text-2xl font-extrabold heading-font gradient-text tracking-tighter">JobHunt++</div>
         <button onclick="handlePaymentClick()" class="premium-button text-white px-5 py-2 rounded-full font-bold text-sm">
@@ -564,16 +580,16 @@
     </footer>
 
     <script>
-    	lucide.createIcons();
+    lucide.createIcons();
 
-    	async function handlePaymentClick() {
+    async function handlePaymentClick() {
         const emailInput = document.getElementById('user-email');
         const emailValue = emailInput.value.trim();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
         if (!emailValue || !emailRegex.test(emailValue)) {
             emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
+
             setTimeout(() => {
                 emailInput.focus();
                 emailInput.classList.add('shake-element');
@@ -583,58 +599,70 @@
             }, 500);
             return;
         }
-    
+
         try {
             const response = await fetch(
                 "/payments/paypal/create-order?email=" +
                 encodeURIComponent(emailValue),
                 { method: "POST" }
             );
-    
+
             if (!response.ok) {
                 alert("Payment initiation failed");
                 return;
             }
-    
+
             const data = await response.json();
-    
-            // Save email locally for later verification
+
             localStorage.setItem("payment_email", emailValue);
-    
-            // Redirect user to PayPal
+
             window.location.href = data.approval_url;
-    
+
         } catch (error) {
             console.error(error);
             alert("Payment failed. Please try again.");
         }
     }
 
+    // Scroll animations
+    const observerOptions = { threshold: 0.1 };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                if(entry.target.id === 'wish-trigger') {
+                    entry.target.classList.add('revealed');
+                }
+            }
+        });
+    }, observerOptions);
 
-    	// Scroll animations
-    	const observerOptions = { threshold: 0.1 };
-    	const observer = new IntersectionObserver((entries) => {
-        		entries.forEach(entry => {
-            			if (entry.isIntersecting) {
-                				entry.target.classList.add('active');
-                				if(entry.target.id === 'wish-trigger') {
-                    					entry.target.classList.add('revealed');
-                				}
-            			}
-        		});
-    	}, observerOptions);
+    document.querySelectorAll('.reveal, #wish-trigger')
+        .forEach(el => observer.observe(el));
 
-    	document.querySelectorAll('.reveal, #wish-trigger').forEach(el => observer.observe(el));
 
-        // ===============================
-        // HANDLE PAYPAL RETURN + CAPTURE
-        // ===============================
-        
-       
+    // ===============================
+    // PAYMENT STATUS MESSAGE + SCROLL
+    // ===============================
 
-</script>
+    (function () {
+        const params = new URLSearchParams(window.location.search);
+        const status = params.get("status");
+
+        if (status === "cancelled") {
+            const banner = document.getElementById("payment-banner");
+            banner.style.display = "block";
+
+            setTimeout(() => {
+                document.getElementById("unlock-section")
+                    .scrollIntoView({ behavior: "smooth" });
+            }, 500);
+        }
+    })();
+    </script>
 
 
 </body>
+
 </html>
 
