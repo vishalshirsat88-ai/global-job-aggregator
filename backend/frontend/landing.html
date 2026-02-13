@@ -606,13 +606,14 @@ detectUserCountry();
 HELPERS
 =============================== */
 function scrollToEmailSection() {
-    const emailInput = document.getElementById("user-email");
+    const btn = document.getElementById("cta-pay-button");
 
-    emailInput.scrollIntoView({
+    btn.scrollIntoView({
         behavior: "smooth",
-        block: "center"   // 👈 keeps CTA visible
+        block: "center"
     });
 }
+
 
 
 function setButtonLoading(state) {
