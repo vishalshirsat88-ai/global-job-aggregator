@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JobHunt++ | Your Career's New Best Friend</title>
+    <!-- ONLY NEW ADDITION in <head> section -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- PayPal SDK Integration with integration source attribute to handle cross-origin/iframe environments better -->
@@ -580,86 +583,153 @@
     </footer>
 
     <script>
-    lucide.createIcons();
+lucide.createIcons();
 
-    async function handlePaymentClick() {
-        const emailInput = document.getElementById('user-email');
-        const emailValue = emailInput.value.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/* ===============================
+   PAYPAL FUNCTION (UNCHANGED)
+=============================== */
+async function handlePaypalPayment() {
+    const emailInput = document.getElementById('user-email');
+    const emailValue = emailInput.value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (!emailValue || !emailRegex.test(emailValue)) {
-            emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
+    if (!emailValue || !emailRegex.test(emailValue)) {
+        emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+            emailInput.focus();
+            emailInput.classList.add('shake-element');
             setTimeout(() => {
-                emailInput.focus();
-                emailInput.classList.add('shake-element');
-                setTimeout(() => {
-                    emailInput.classList.remove('shake-element');
-                }, 600);
-            }, 500);
+                emailInput.classList.remove('shake-element');
+            }, 600);
+        }, 500);
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            "/payments/paypal/create-order?email=" +
+            encodeURIComponent(emailValue),
+            { method: "POST" }
+        );
+
+        if (!response.ok) {
+            alert("Payment initiation failed");
             return;
         }
 
-        try {
-            const response = await fetch(
-                "/payments/paypal/create-order?email=" +
-                encodeURIComponent(emailValue),
-                { method: "POST" }
-            );
+        const data = await response.json();
+        localStorage.setItem("payment_email", emailValue);
+        window.location.href = data.approval_url;
 
-            if (!response.ok) {
-                alert("Payment initiation failed");
-                return;
-            }
+    } catch (error) {
+        console.error(error);
+        alert("Payment failed. Please try again.");
+    }
+}
 
-            const data = await response.json();
+/* ===============================
+   RAZORPAY FUNCTION (NEW PRIMARY)
+=============================== */
+async function handlePaymentClick() {
+    const emailInput = document.getElementById('user-email');
+    const emailValue = emailInput.value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            localStorage.setItem("payment_email", emailValue);
-
-            window.location.href = data.approval_url;
-
-        } catch (error) {
-            console.error(error);
-            alert("Payment failed. Please try again.");
-        }
+    if (!emailValue || !emailRegex.test(emailValue)) {
+        emailInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => {
+            emailInput.focus();
+            emailInput.classList.add('shake-element');
+            setTimeout(() => {
+                emailInput.classList.remove('shake-element');
+            }, 600);
+        }, 500);
+        return;
     }
 
-    // Scroll animations
-    const observerOptions = { threshold: 0.1 };
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-                if(entry.target.id === 'wish-trigger') {
-                    entry.target.classList.add('revealed');
+    try {
+        const response = await fetch(
+            `/payments/razorpay/create-order?amount=4900&email=${encodeURIComponent(emailValue)}`,
+            { method: "POST" }
+        );
+
+        const data = await response.json();
+
+        const options = {
+            key: data.key,
+            amount: data.amount,
+            currency: data.currency,
+            name: "JobHunt++",
+            description: "Lifetime Access",
+            order_id: data.order_id,
+
+            handler: async function (response) {
+                const verifyRes = await fetch("/payments/razorpay/verify-payment", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_signature: response.razorpay_signature,
+                        email: emailValue
+                    })
+                });
+
+                const verifyData = await verifyRes.json();
+
+                if (verifyData.success) {
+                    window.location.href = verifyData.redirect_url;
+                } else {
+                    alert("Payment verification failed.");
                 }
+            },
+
+            theme: { color: "#6366f1" }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+
+    } catch (error) {
+        console.error(error);
+        alert("Payment failed. Please try again.");
+    }
+}
+
+/* ===============================
+   EXISTING ANIMATIONS (UNCHANGED)
+=============================== */
+const observerOptions = { threshold: 0.1 };
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+            if(entry.target.id === 'wish-trigger') {
+                entry.target.classList.add('revealed');
             }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.reveal, #wish-trigger')
-        .forEach(el => observer.observe(el));
-
-
-    // ===============================
-    // PAYMENT STATUS MESSAGE + SCROLL
-    // ===============================
-
-    (function () {
-        const params = new URLSearchParams(window.location.search);
-        const status = params.get("status");
-
-        if (status === "cancelled") {
-            const banner = document.getElementById("payment-banner");
-            banner.style.display = "block";
-
-            setTimeout(() => {
-                document.getElementById("unlock-section")
-                    .scrollIntoView({ behavior: "smooth" });
-            }, 500);
         }
-    })();
-    </script>
+    });
+}, observerOptions);
+
+document.querySelectorAll('.reveal, #wish-trigger')
+    .forEach(el => observer.observe(el));
+
+(function () {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("status");
+
+    if (status === "cancelled") {
+        const banner = document.getElementById("payment-banner");
+        banner.style.display = "block";
+
+        setTimeout(() => {
+            document.getElementById("unlock-section")
+                .scrollIntoView({ behavior: "smooth" });
+        }, 500);
+    }
+})();
+</script>
+
 
 
 </body>
