@@ -83,7 +83,7 @@ def create_order(email: str):
         "application_context": {
             "user_action": "PAY_NOW",
             "return_url": f"{BACKEND_BASE_URL}/payments/paypal/success",
-            "cancel_url": f"{BACKEND_BASE_URL}/payment-cancelled",
+            "cancel_url": f"{BACKEND_BASE_URL}/payments/paypal/payment-cancelled",
             "shipping_preference": "NO_SHIPPING"
         }
     }
