@@ -42,28 +42,30 @@ from backend.utils.helpers import (
 # 🛡️ SAFE REQUEST HELPER
 # =========================================================
 def safe_json_request(method, url, **kwargs):
-    """
-    Universal safe API caller:
-    - Handles non-200 responses
-    - Handles empty responses
-    - Handles invalid JSON
-    - Never crashes backend
-    """
     try:
         r = requests.request(method, url, timeout=20, **kwargs)
 
+        print(f"\n🔎 API CALL → {url}")
+        print(f"Status Code: {r.status_code}")
+
         if r.status_code != 200:
-            print(f"⚠️ API ERROR {url} → {r.status_code}")
+            print("❌ ERROR RESPONSE:", r.text[:200])
             return {}
 
         if not r.text:
-            print(f"⚠️ EMPTY RESPONSE → {url}")
+            print("⚠️ EMPTY RESPONSE")
             return {}
 
-        return r.json()
+        data = r.json()
+
+        # Quick result count debug
+        if isinstance(data, dict):
+            print("✅ Keys Returned:", list(data.keys()))
+
+        return data
 
     except Exception as e:
-        print(f"⚠️ REQUEST FAILED {url} → {e}")
+        print(f"❌ REQUEST FAILED → {url} → {e}")
         return {}
 
 
