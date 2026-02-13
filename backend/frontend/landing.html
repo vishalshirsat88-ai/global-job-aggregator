@@ -263,6 +263,7 @@
             50% { box-shadow: 0 0 25px rgba(124,58,237,0.8); }
         }
 
+       
         /* Sticky Bottom CTA */
         .sticky-cta {
             position: fixed;
@@ -273,7 +274,11 @@
             justify-content: center;
             z-index: 9998;
             pointer-events: none;
+
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
+
 
         .sticky-cta-inner {
             pointer-events: auto;
@@ -326,6 +331,12 @@
             box-shadow: 0 0 20px rgba(124,58,237,0.7);
         }
 
+        
+
+        .sticky-cta.show {
+            opacity: 1;
+        }
+
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -376,7 +387,7 @@
             <p class="mt-4 font-medium text-indigo-400">Smart. Clean. Daily-updated. Yours for just ₹49.</p>
         </div>
 
-        <button onclick="handlePaymentClick()" class="premium-button px-10 py-5 rounded-2xl text-xl font-extrabold flex items-center gap-3 mx-auto">
+        <button id="hero-cta" onclick="handlePaymentClick()" class="premium-button px-10 py-5 rounded-2xl text-xl font-extrabold flex items-center gap-3 mx-auto">
             Unlock Access Now →
         </button>
     </header>
@@ -692,6 +703,18 @@
         </div>
     </footer>
 
+    <!-- Sticky Bottom CTA Bar -->
+    <div id="sticky-cta" class="sticky-cta">
+        <div class="sticky-cta-inner">
+            <div class="sticky-text">
+                <span class="price">₹49</span>
+                <span class="label">Lifetime Access</span>
+            </div>
+            <button onclick="handlePaymentClick()" class="sticky-button">
+                Unlock Now →
+            </button>
+        </div>
+    </div>
 <script>
 lucide.createIcons();
 
@@ -895,38 +918,36 @@ PAYMENT CANCEL BANNER
 STICKY CTA VISIBILITY
 =============================== */
 
-const sticky = document.getElementById("sticky-cta");
+/* ===============================
+SMART STICKY TRIGGER (FINAL)
+=============================== */
 
 window.addEventListener("scroll", () => {
-    const unlockSection = document.getElementById("unlock-section");
+    const sticky = document.getElementById("sticky-cta");
+    const heroCTA = document.getElementById("hero-cta");
+    const footer = document.getElementById("unlock-section");
 
-    if (!unlockSection) return;
+    if (!sticky || !heroCTA || !footer) return;
 
-    const rect = unlockSection.getBoundingClientRect();
+    const heroRect = heroCTA.getBoundingClientRect();
+    const footerRect = footer.getBoundingClientRect();
 
-    // Show sticky only when user scrolls past hero
-    if (window.scrollY > 600 && rect.top > window.innerHeight) {
+    const heroPassed = heroRect.bottom < 0;
+    const footerVisible = footerRect.top < window.innerHeight;
+
+    if (heroPassed && !footerVisible) {
         sticky.classList.add("show");
-        sticky.classList.remove("hidden");
     } else {
         sticky.classList.remove("show");
     }
 });
 
+
+
+
 </script>
 
-<!-- Sticky Bottom CTA Bar -->
-<div id="sticky-cta" class="sticky-cta hidden">
-    <div class="sticky-cta-inner">
-        <div class="sticky-text">
-            <span class="price">₹49</span>
-            <span class="label">Lifetime Access</span>
-        </div>
-        <button onclick="handlePaymentClick()" class="sticky-button">
-            Unlock Now →
-        </button>
-    </div>
-</div>
+
 
 
 
