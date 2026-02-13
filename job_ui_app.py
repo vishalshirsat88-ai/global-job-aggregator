@@ -1,8 +1,13 @@
+from access_lock import verify_access
+
+verify_access()
+
 import streamlit as st
 import requests
 import pandas as pd
 import re
 from datetime import datetime, timedelta
+
 
 # Keep your specific backend URL
 BACKEND_URL ="https://global-job-aggregator-production.up.railway.app"
