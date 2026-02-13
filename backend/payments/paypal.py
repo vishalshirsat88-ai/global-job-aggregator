@@ -1,6 +1,5 @@
 import os
 import requests
-import uuid
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import RedirectResponse
 
@@ -37,7 +36,7 @@ def validate_config():
 
 
 # ===============================
-# GET ACCESS TOKEN
+# GET PAYPAL ACCESS TOKEN
 # ===============================
 def get_access_token():
     try:
@@ -73,10 +72,7 @@ def create_order(email: str):
         "intent": "CAPTURE",
         "purchase_units": [
             {
-                "amount": {
-                    "currency_code": "USD",
-                    "value": "0.60"
-                },
+                "amount": {"currency_code": "USD", "value": "0.60"},
                 "custom_id": email
             }
         ],
@@ -144,7 +140,6 @@ def paypal_success(token: str = None):
             timeout=15,
         )
 
-        # Already captured
         if response.status_code == 422:
             print("ℹ️ Order already captured")
             return RedirectResponse("/")
@@ -155,22 +150,25 @@ def paypal_success(token: str = None):
 
         data = response.json()
 
+        # ✅ Correct PayPal path for email
         try:
             email = data["purchase_units"][0]["payments"]["captures"][0]["custom_id"]
-        except:
+        except Exception:
             email = "unknown"
 
         order_id = data["id"]
 
-        # Save payment and generate access token
+        # ✅ Generate & Save Access Token
         access_token_value = save_payment(email, order_id)
 
         print("🎉 Payment successful!")
         print("🔑 Generated Access Token:", access_token_value)
 
-        redirect_url = f"{TOOL_URL}?access={access_token_value}"
+        # ✅ Redirect to Streamlit WITH TOKEN
+        redirect_url = f"{TOOL_URL}?token={access_token_value}"
+        print("➡️ Redirecting to:", redirect_url)
 
-        return RedirectResponse(redirect_url)
+        return RedirectResponse(redirect_url, status_code=302)
 
     except Exception as e:
         print("❌ Capture error:", e)
@@ -178,7 +176,7 @@ def paypal_success(token: str = None):
 
 
 # ===============================
-# 3️⃣ VERIFY ACCESS (SESSION CONTROL)
+# 3️⃣ VERIFY ACCESS (STREAMLIT CALLS THIS)
 # ===============================
 @router.get("/verify-access")
 def verify_access(
@@ -186,9 +184,9 @@ def verify_access(
     session_id: str = Query(...)
 ):
     """
-    Called by Streamlit to:
-    - verify token
-    - enforce concurrent session limit
+    Called by Streamlit:
+    - verifies token exists
+    - enforces concurrent session limit
     """
 
     is_valid, message = verify_and_register_session(token, session_id)
@@ -200,9 +198,8 @@ def verify_access(
 
 
 # ===============================
-# CANCEL ROUTE
+# 4️⃣ PAYMENT CANCELLED
 # ===============================
 @router.get("/payment-cancelled")
 def cancelled():
     return RedirectResponse("/?status=cancelled")
-
