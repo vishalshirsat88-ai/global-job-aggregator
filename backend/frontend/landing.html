@@ -1,217 +1,764 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JobHunt++ | Your Career's New Best Friend</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobHunt++ | Your Career's New Best Friend</title>
+    <!-- ONLY NEW ADDITION in <head> section -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- PayPal SDK Integration with integration source attribute to handle cross-origin/iframe environments better -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #ffffff;
+            scroll-behavior: smooth;
+        }
+        .heading-font {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #818cf8 0%, #c084fc 50%, #fb7185 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        .neon-green {
+            color: #22c55e;
+            text-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+        }
 
-<style>
-/* === YOUR EXISTING CSS (UNCHANGED) === */
-body{font-family:'Inter',sans-serif;background:#050505;color:#fff;scroll-behavior:smooth}
-.heading-font{font-family:'Plus Jakarta Sans',sans-serif}
-.premium-button{background:linear-gradient(135deg,#4f46e5,#7c3aed);transition:.3s}
-.premium-button:disabled{opacity:.7;background:#333;cursor:not-allowed}
-@keyframes shake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-6px)}20%,40%,60%,80%{transform:translateX(6px)}}
-.shake-element{animation:shake .5s both;border-color:#ef4444!important}
-</style>
+        .pink-gradient-animate {
+            background: linear-gradient(90deg, #ff0080, #ff8c00, #ff0080);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+        
+        .premium-button {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .premium-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.4);
+        }
+        .premium-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            background: #333;
+        }
+
+        .active-pill {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #d1fae5;
+            animation: fast-float 2s ease-in-out infinite;
+        }
+
+        @keyframes fast-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .loop-pill {
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            padding: 1rem 1.5rem;
+            border-radius: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .wish-granted {
+            opacity: 0;
+            transform: scale(0.9);
+            color: #22c55e;
+            transition: all 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .wish-granted.revealed {
+            opacity: 1;
+            transform: scale(1.1);
+            text-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-capsule {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 0.75rem 1.25rem;
+            border-radius: 100px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+        .feature-capsule:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+            transform: scale(1.02);
+        }
+
+        .persona-card {
+            border-radius: 2rem;
+            overflow: hidden;
+            position: relative;
+            height: 400px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .persona-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .persona-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+        .persona-card:hover .persona-img {
+            transform: scale(1.1);
+        }
+        .persona-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 10%, rgba(0,0,0,0.4) 50%, transparent 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2rem;
+        }
+
+        .bonus-badge {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+        
+        .accent-border {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .video-card {
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        .video-card:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-5px);
+        }
+        .video-placeholder {
+            aspect-ratio: 16/9;
+            background: linear-gradient(45deg, #111, #222);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .video-glow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+        }
+        .play-btn {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: black;
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
+            20%, 40%, 60%, 80% { transform: translateX(6px); }
+        }
+        .shake-element {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3) !important;
+        }
+    </style>
 </head>
-
 <body class="overflow-x-hidden">
 
-<!-- ============================= -->
-<!-- PAYMENT CANCELLED BANNER -->
-<!-- ============================= -->
-<div id="payment-banner" style="display:none;position:fixed;top:0;width:100%;background:#ef4444;color:white;text-align:center;padding:12px;font-weight:600;z-index:9999">
-❌ Payment cancelled. No charges were made. Please try again below.
+<div id="payment-banner" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    background:#ef4444;
+    color:white;
+    text-align:center;
+    padding:12px;
+    font-weight:600;
+    z-index:9999;
+">
+    ❌ Payment cancelled. No charges were made. Please try again below.
 </div>
 
-<!-- ============================= -->
-<!-- NAVBAR -->
-<!-- ============================= -->
-<nav class="fixed top-0 w-full z-50 px-6 py-4 flex justify-between items-center bg-[#050505]/90">
-<div class="text-2xl font-extrabold heading-font">JobHunt++</div>
-<button onclick="handlePaymentClick()" class="premium-button text-white px-5 py-2 rounded-full font-bold text-sm">
-Unlock Access
-</button>
-</nav>
+    <nav class="fixed top-0 w-full z-50 glass-card px-6 py-4 flex justify-between items-center border-none bg-[#050505]/80">
+        <div class="text-2xl font-extrabold heading-font gradient-text tracking-tighter">JobHunt++</div>
+        <button onclick="handlePaymentClick()" class="premium-button text-white px-5 py-2 rounded-full font-bold text-sm">
+            Unlock Access
+        </button>
+    </nav>
 
-<!-- ============================= -->
-<!-- CTA SECTION -->
-<!-- ============================= -->
-<footer id="unlock-section" class="py-40 px-6 text-center bg-[#080808]">
+    <header class="pt-40 pb-12 px-6 max-w-7xl mx-auto text-center relative">
+        <div class="absolute top-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-600/10 blur-[120px] rounded-full -z-10"></div>
+        
+        <div class="inline-flex active-pill px-6 py-2 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] mb-12 items-center gap-2">
+            <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+            10000+ HAPPY USERS ONBOARDED
+        </div>
 
-<h2 class="text-4xl font-bold mb-10">Unlock Lifetime Access</h2>
+        <h1 class="heading-font text-5xl md:text-8xl font-extrabold mb-8 leading-[1.1] tracking-tight">
+            Job Hunting Feels Like a <br/>
+            <span class="gradient-text">Full-Time Job?</span>
+        </h1>
+        <p class="text-gray-400 text-lg md:text-2xl max-w-3xl mx-auto mb-8 leading-relaxed">
+            Tired of jumping between LinkedIn, Naukri, Indeed, TimesJobs... just to find the same old jobs in a new place?
+        </p>
+        <div class="mb-10 text-2xl font-bold neon-green tracking-wide">Let Us Fix That.</div>
+        
+        <div class="max-w-2xl mx-auto mb-12 text-gray-300 text-lg">
+            <p class="mb-4 font-extrabold pink-gradient-animate text-4xl leading-tight">Meet your new shortcut.</p>
+            <p>A single tool to access all top job listings, filter by your skills, level, and country, and apply in one click.</p>
+            <p class="mt-4 font-medium text-indigo-400">Smart. Clean. Daily-updated. Yours for just ₹49.</p>
+        </div>
 
-<button id="cta-pay-button"
-onclick="handlePaymentClick()"
-class="premium-button px-16 py-6 rounded-2xl text-2xl font-black mb-6">
-Unlock Lifetime Access Now
-</button>
+        <button onclick="handlePaymentClick()" class="premium-button px-10 py-5 rounded-2xl text-xl font-extrabold flex items-center gap-3 mx-auto">
+            Unlock Access Now →
+        </button>
+    </header>
 
-<div class="max-w-md mx-auto space-y-4">
-<input type="email" id="user-email" placeholder="Enter your email"
-class="w-full bg-white/5 border border-white/10 rounded-xl px-6 py-4 text-white text-lg text-center">
-</div>
+    <section class="pt-16 pb-32 px-6 bg-white/[0.02]">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="heading-font text-4xl md:text-6xl font-bold mb-12 text-white">Let’s be real. Finding a <span class="text-rose-500">job sucks.</span></h2>
+            <p class="text-xl text-gray-400 mb-12">You tell people you're looking for a job — all smile, but few really help.</p>
+            
+            <div class="space-y-4 max-w-2xl mx-auto text-left mb-16">
+                <p class="text-rose-400 font-bold uppercase tracking-widest text-sm mb-6">Then you start The Loop:</p>
+                <div class="loop-pill reveal">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 font-bold text-xs">01</div>
+                    <div class="text-gray-200">Open LinkedIn. Search. Apply.</div>
+                </div>
+                <div class="loop-pill reveal">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 font-bold text-xs">02</div>
+                    <div class="text-gray-200">Open Naukri. Search. Apply again (maybe even the same job).</div>
+                </div>
+                <div class="loop-pill reveal">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 font-bold text-xs">03</div>
+                    <div class="text-gray-200">Open TimesJobs. Start over.</div>
+                </div>
+                <div class="loop-pill reveal italic opacity-80">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-500/20 flex items-center justify-center text-gray-400 font-bold text-xs">∞</div>
+                    <div class="text-gray-200">Forget where you applied. Rinse. Repeat. Regret.</div>
+                </div>
+            </div>
 
-</footer>
+            <div class="max-w-2xl mx-auto text-xl text-gray-300 mb-12">
+                And while you’re stuck in this loop… jobs close, opportunities expire, and you just wish:
+            </div>
 
-<!-- ============================= -->
-<!-- SCRIPT SECTION -->
-<!-- ============================= -->
+            <div class="text-2xl md:text-4xl font-serif italic mb-12 text-indigo-300">
+                “God, please… just show me everything in one place.”
+            </div>
+
+            <div id="wish-trigger" class="text-6xl md:text-8xl font-black wish-granted py-10">
+                Wish granted.
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 px-6 max-w-7xl mx-auto">
+        <div class="text-center mb-20">
+            <h2 class="heading-font text-4xl md:text-6xl font-bold mb-6">Introducing: JobHunt++</h2>
+            <p class="text-2xl gradient-text font-bold">Your Career’s New Best Friend.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start mb-20">
+            <div class="text-lg text-gray-400 space-y-6">
+                <p>We built this because we’ve been there. We were tired of chaos.</p>
+                <p class="mb-8">So we created the most powerful, beautifully simple job aggregator you’ve never seen.</p>
+                
+                <div class="flex flex-wrap gap-3 mt-8">
+                    <div class="feature-capsule reveal">
+                        <i data-lucide="search" class="w-4 h-4 text-indigo-400"></i>
+                        <span class="text-white text-sm font-medium">Search by mastered skills</span>
+                    </div>
+                    <div class="feature-capsule reveal" style="transition-delay: 50ms;">
+                        <i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i>
+                        <span class="text-white text-sm font-medium">Fresher to Director levels</span>
+                    </div>
+                    <div class="feature-capsule reveal" style="transition-delay: 100ms;">
+                        <i data-lucide="globe" class="w-4 h-4 text-indigo-400"></i>
+                        <span class="text-white text-sm font-medium">All major portals (LinkedIn, Naukri, Indeed)</span>
+                    </div>
+                    <div class="feature-capsule reveal" style="transition-delay: 150ms;">
+                        <i data-lucide="copy-minus" class="w-4 h-4 text-indigo-400"></i>
+                        <span class="text-white text-sm font-medium">Zero duplicates</span>
+                    </div>
+                    <div class="feature-capsule reveal" style="transition-delay: 200ms;">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-indigo-400"></i>
+                        <span class="text-white text-sm font-medium">One place, one price</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-6">
+                <h3 class="text-3xl font-bold mb-8 heading-font text-white">Who It’s For</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="persona-card reveal group">
+                        <div class="accent-border bg-blue-500"></div>
+                        <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=800" class="persona-img" alt="Fresher">
+                        <div class="persona-overlay">
+                            <h4 class="text-xl font-bold text-white mb-2">The Fresher</h4>
+                            <p class="text-sm text-gray-300">Chasing your dream job right out of college.</p>
+                        </div>
+                    </div>
+                    <div class="persona-card reveal group" style="transition-delay: 100ms;">
+                        <div class="accent-border bg-purple-500"></div>
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=800" class="persona-img" alt="Manager">
+                        <div class="persona-overlay">
+                            <h4 class="text-xl font-bold text-white mb-2">The Manager</h4>
+                            <p class="text-sm text-gray-300">Ready for that big leap into leadership.</p>
+                        </div>
+                    </div>
+                    <div class="persona-card reveal group" style="transition-delay: 200ms;">
+                        <div class="accent-border bg-amber-500"></div>
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=800" class="persona-img" alt="Superstar">
+                        <div class="persona-overlay">
+                            <h4 class="text-xl font-bold text-white mb-2">The Superstar</h4>
+                            <p class="text-sm text-gray-300">Retired stud looking to try something new.</p>
+                        </div>
+                    </div>
+                    <div class="persona-card reveal group" style="transition-delay: 300ms;">
+                        <div class="accent-border bg-emerald-500"></div>
+                        <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&q=80&w=800" class="persona-img" alt="Nomad">
+                        <div class="persona-overlay">
+                            <h4 class="text-xl font-bold text-white mb-2">The Nomad</h4>
+                            <p class="text-sm text-gray-300">Remote-first lifestyle looking for freedom.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-12 mb-32">
+            <h2 class="heading-font text-5xl md:text-7xl font-extrabold gradient-text">This is built for you.</h2>
+        </div>
+
+        <div class="pt-10">
+            <div class="text-center mb-16">
+                <h2 class="heading-font text-3xl md:text-5xl font-bold mb-4">See It In Action</h2>
+                <p class="text-gray-400">Zero fluff. Just pure speed and efficiency.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="video-card reveal">
+                    <div class="video-placeholder">
+                        <div class="video-glow"></div>
+                        <div class="play-btn"><i data-lucide="play" fill="currentColor"></i></div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-bold text-lg mb-2">Smart Dashboard</h4>
+                        <p class="text-sm text-gray-400">One interface to rule all job portals.</p>
+                    </div>
+                </div>
+                <div class="video-card reveal" style="transition-delay: 100ms;">
+                    <div class="video-placeholder">
+                        <div class="video-glow"></div>
+                        <div class="play-btn"><i data-lucide="play" fill="currentColor"></i></div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-bold text-lg mb-2">Power Filters</h4>
+                        <p class="text-sm text-gray-400">Find jobs by skill, not just keywords.</p>
+                    </div>
+                </div>
+                <div class="video-card reveal" style="transition-delay: 200ms;">
+                    <div class="video-placeholder">
+                        <div class="video-glow"></div>
+                        <div class="play-btn"><i data-lucide="play" fill="currentColor"></i></div>
+                    </div>
+                    <div class="p-6">
+                        <h4 class="font-bold text-lg mb-2">Instant Apply</h4>
+                        <p class="text-sm text-gray-400">Save 2 hours every single day.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 px-6 bg-white/[0.01]">
+        <div class="max-w-4xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-card p-10 rounded-3xl opacity-80">
+                    <h4 class="text-xl font-bold mb-6 text-gray-300">Traditional Subscriptions</h4>
+                    <ul class="space-y-4 text-gray-500">
+                        <li class="line-through decoration-rose-500 decoration-2">LinkedIn Premium: ₹1,000/month</li>
+                        <li class="line-through decoration-rose-500 decoration-2">Naukri FastForward: ₹500/month</li>
+                        <li class="line-through decoration-rose-500 decoration-2">TimesJobs Pro: ₹700/month</li>
+                    </ul>
+                    <p class="mt-8 text-sm uppercase tracking-widest text-gray-500">Same jobs. Same stress.</p>
+                </div>
+                <div class="glass-card p-10 rounded-3xl border-indigo-500/50 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-indigo-500 px-4 py-1 text-xs font-bold">SMART CHOICE</div>
+                    <h4 class="text-2xl font-bold mb-6 text-white">JobHunt++</h4>
+                    <div class="text-5xl font-black text-white mb-2">₹49.</div>
+                    <p class="text-indigo-300 font-bold mb-8 italic">That’s it.</p>
+                    <p class="text-sm font-bold text-white mb-4 uppercase">And you get…</p>
+                    <ul class="space-y-2 text-gray-300 text-sm">
+                        <li>• All-in-one job access</li>
+                        <li>• Filtered & smart listings</li>
+                        <li>• Direct application links</li>
+                        <li>• Plus bonuses worth ₹2000+</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-12 text-center">
+                <p class="text-rose-400 font-black text-xl animate-pulse">Only for first 24 hrs — then price goes up to ₹99.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 px-6 text-center max-w-4xl mx-auto">
+        <div class="mb-16 italic text-2xl md:text-3xl font-serif text-indigo-200">
+            “Picture abhi baaki hai mere dost. <br/>
+            Hum wo nahi jo tumhe raste me chod jayenge, <br/>
+            Hum manjil tak tumhare kaam ayenge.”
+        </div>
+        <h3 class="heading-font text-3xl font-bold mb-10 uppercase tracking-widest text-white">You Also Get (FREE With Your Plan):</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+            <div class="glass-card p-6 rounded-2xl border-emerald-500/20">
+                <div class="bonus-badge mb-3">Value ₹999</div>
+                <p class="font-bold text-white mb-2">50+ Resume Templates</p>
+                <p class="text-xs text-gray-400">professionally designed</p>
+            </div>
+            <div class="glass-card p-6 rounded-2xl border-emerald-500/20">
+                <div class="bonus-badge mb-3">Value ₹599</div>
+                <p class="font-bold text-white mb-2">Interview Prep Kit</p>
+                <p class="text-xs text-gray-400">common Q&As + recruiter tips</p>
+            </div>
+            <div class="glass-card p-6 rounded-2xl border-emerald-500/20">
+                <div class="bonus-badge mb-3">Value ₹399</div>
+                <p class="font-bold text-white mb-2">Cover Letter Templates</p>
+                <p class="text-xs text-gray-400">& AI writing guidance</p>
+            </div>
+        </div>
+        <div class="text-4xl md:text-6xl font-black text-emerald-400 mb-4 drop-shadow-lg">Total Bonus Value: ₹2,000+</div>
+        <p class="text-xl font-bold text-white uppercase tracking-tighter">Yours Free. Today only.</p>
+    </section>
+
+    <footer id="unlock-section" class="py-40 px-6 text-center relative border-t border-white/5 bg-[#080808]">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="heading-font text-3xl md:text-5xl font-bold mb-10 text-white leading-tight">You Spend ₹49 On Snacks/Junk. <br> <span class="neon-green">But This, Could Change Your Career.</span></h2>
+            
+            <p class="text-xl text-gray-400 mb-10">We don’t sell dreams. We help you find the ones already hiring.</p>
+            <p class="text-xl font-bold mb-12 text-gray-200">
+                Act now — this ₹49 launch price is LIVE only for 24 hrs. <br> 
+                <span class="flex flex-wrap justify-center gap-x-4">
+                    <span class="text-red-600">Tomorrow? ₹99.</span>
+                    <span class="text-red-700">Week later? ₹199.</span>
+                </span>
+            </p>
+            
+            <button 
+                id="cta-pay-button"
+                onclick="handlePaymentClick()"
+                class="premium-button px-16 py-8 rounded-[2rem] text-2xl md:text-3xl font-black transition-transform active:scale-95 flex items-center justify-center gap-4 mx-auto w-full max-w-lg mb-6"
+            >
+                Unlock Lifetime Access Now
+            </button>
+
+            <!-- PayPal Button Container -->
+            <div id="paypal-button-container" class="mt-6 max-w-lg mx-auto hidden"></div>
+
+            <p class="text-xl font-bold mb-12 text-indigo-400">Not just a job tool. It’s a career partner.</p>
+
+            <div class="max-w-md mx-auto mb-10 space-y-4">
+                <label for="user-email" class="block text-gray-400 text-sm font-bold uppercase tracking-widest mb-2">Enter your primary email to proceed</label>
+                <div class="relative">
+                    <input 
+                        type="email" 
+                        id="user-email" 
+                        placeholder="e.g. yourname@gmail.com"
+                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-lg focus:border-indigo-500 focus:bg-white/10 outline-none transition-all text-center"
+                    >
+                </div>
+                <div class="text-left bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl flex items-start gap-3">
+                    <i data-lucide="info" class="w-4 h-4 text-indigo-400 mt-1 flex-shrink-0"></i>
+                    <p class="text-xs text-indigo-200">
+                        <span class="font-bold uppercase tracking-tighter text-indigo-300">Note:</span> Use a real email ID. Post-payment access to the tool and bonuses will be granted to this exact address.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-32 text-left max-w-2xl mx-auto bg-white/[0.02] p-8 md:p-12 rounded-3xl border border-white/5">
+                <h4 class="text-3xl font-bold mb-10 heading-font text-center text-white">Frequently Asked Questions</h4>
+                <div class="space-y-10">
+                    <div>
+                        <p class="font-bold text-indigo-300 mb-3 text-lg">Q. What exactly do I get for ₹49?</p>
+                        <p class="text-gray-400 leading-relaxed">You get access to the JobHunt++ portal, which aggregates live job listings from 10+ major portals. You also get 50+ resume templates, an interview preparation kit, and access to our Cover Letter AI tool.</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-indigo-300 mb-3 text-lg">Q. Is this a monthly subscription?</p>
+                        <p class="text-gray-400 leading-relaxed">No. This is a one-time payment for complete access. We hate monthly subscriptions just as much as you do.</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-indigo-300 mb-3 text-lg">Q. How often are the job listings updated?</p>
+                        <p class="text-gray-400 leading-relaxed">Our engine scans and updates job listings every 15 minutes, 24/7, to ensure you see openings before they get saturated with applicants.</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-indigo-300 mb-3 text-lg">Q. Can I use this for remote jobs worldwide?</p>
+                        <p class="text-gray-400 leading-relaxed">Yes! You can filter listings by "Remote" and specific countries (USA, India, UK, etc.) to find the exact type of role you're looking for.</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-indigo-300 mb-3 text-lg">Q. What Happens next, post Payment, How do I access my bonuses?</p>
+                        <p class="text-gray-400 leading-relaxed">You instantly unlock lifetime access to the job dashboard + bonuses (resume kit, interview prep, etc.). Immediately after payment, you'll receive a welcome email for the portal and direct download links for all bonus materials.</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-indigo-300 mb-3 text-lg">Q. Is there a refund?</p>
+                        <p class="text-gray-400 leading-relaxed">It’s digital access, so no refunds. But we doubt you’ll need one.</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-indigo-300 mb-3 text-lg">Q. Can I use this tool from anwhere in the world?</p>
+                        <p class="text-gray-400 leading-relaxed">Absolutely. We support global job filters by country. Whether you're in Your home country or abroad, you’re covered.</p>
+                    </div>
+                    <div>
+                        <p class="font-bold text-indigo-300 mb-3 text-lg">Q. Do I need a technical background to use this?</p>
+                        <p class="text-gray-400 leading-relaxed">Not at all. If you can search Google, you can use JobHunt++. It's designed to be clean, simple, and intuitive.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-32 text-gray-700 text-[10px] uppercase tracking-[0.5em] font-medium">JobHunt++ &copy; 2026</div>
+        </div>
+    </footer>
+
 <script>
-
 lucide.createIcons();
 
-/* ================================
+/* ===============================
 GLOBAL STATE
-================================ */
+=============================== */
 let userCountry = "IN";
 
-/* ================================
+/* ===============================
 COUNTRY DETECTION
-================================ */
-async function detectUserCountry(){
-    try{
+=============================== */
+async function detectUserCountry() {
+    try {
         const res = await fetch("https://ipapi.co/json/");
         const data = await res.json();
-        if(data.country_code) userCountry = data.country_code;
-    }catch{}
+        if (data.country_code) userCountry = data.country_code;
+    } catch {}
 }
 detectUserCountry();
 
-/* ================================
+/* ===============================
 HELPERS
-================================ */
-function scrollToEmailSection(){
+=============================== */
+function scrollToEmailSection() {
     document.getElementById("unlock-section")
-        .scrollIntoView({behavior:"smooth",block:"start"});
+        .scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function setButtonLoading(state){
-    const btn=document.getElementById("cta-pay-button");
-    if(!btn) return;
-    if(state){
-        btn.disabled=true;
-        btn.dataset.txt=btn.innerHTML;
-        btn.innerHTML="Processing...";
-    }else{
-        btn.disabled=false;
-        btn.innerHTML=btn.dataset.txt;
+function setButtonLoading(state) {
+    const btn = document.getElementById("cta-pay-button");
+    if (!btn) return;
+
+    if (state) {
+        btn.disabled = true;
+        btn.dataset.txt = btn.innerHTML;
+        btn.innerHTML = "Processing...";
+    } else {
+        btn.disabled = false;
+        btn.innerHTML = btn.dataset.txt;
     }
 }
 
-function validateEmail(){
-    const input=document.getElementById("user-email");
-    const val=input.value.trim();
-    const regex=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function validateEmail() {
+    const input = document.getElementById("user-email");
+    const val = input.value.trim();
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if(!val||!regex.test(val)){
+    if (!val || !regex.test(val)) {
         scrollToEmailSection();
-        setTimeout(()=>{
+
+        setTimeout(() => {
             input.focus();
             input.classList.add("shake-element");
-            setTimeout(()=>input.classList.remove("shake-element"),600);
-        },400);
+            setTimeout(() => input.classList.remove("shake-element"), 600);
+        }, 400);
+
         return null;
     }
     return val;
 }
 
-/* ================================
+/* ===============================
 PAYPAL PAYMENT
-================================ */
-async function handlePaypalPayment(){
-
-    const email=validateEmail();
-    if(!email) return;
+=============================== */
+async function handlePaypalPayment() {
+    const email = validateEmail();
+    if (!email) return;
 
     setButtonLoading(true);
 
-    try{
-        const res=await fetch(`/payments/paypal/create-order?email=${encodeURIComponent(email)}`,{method:"POST"});
-        const data=await res.json();
+    try {
+        const res = await fetch(
+            "/payments/paypal/create-order?email=" + encodeURIComponent(email),
+            { method: "POST" }
+        );
 
-        localStorage.setItem("payment_email",email);
-        window.location.href=data.approval_url;
+        const data = await res.json();
+        localStorage.setItem("payment_email", email);
+        window.location.href = data.approval_url;
 
-    }catch{
+    } catch {
         alert("PayPal failed.");
         setButtonLoading(false);
     }
 }
 
-/* ================================
+/* ===============================
 MAIN PAYMENT FLOW
-================================ */
-async function handlePaymentClick(){
-
-    const email=validateEmail();
-    if(!email) return;
+=============================== */
+async function handlePaymentClick() {
+    const email = validateEmail();
+    if (!email) return;
 
     setButtonLoading(true);
 
     /* NON INDIA → PAYPAL FIRST */
-    if(userCountry!=="IN"){
+    if (userCountry !== "IN") {
         handlePaypalPayment();
         return;
     }
 
     /* INDIA → RAZORPAY FIRST */
-    try{
+    try {
+        const res = await fetch(
+            `/payments/razorpay/create-order?amount=4900&email=${encodeURIComponent(email)}`,
+            { method: "POST" }
+        );
 
-        const res=await fetch(`/payments/razorpay/create-order?amount=4900&email=${encodeURIComponent(email)}`,{method:"POST"});
-        const data=await res.json();
+        const data = await res.json();
 
-        const options={
-            key:data.key,
-            amount:data.amount,
-            currency:data.currency,
-            order_id:data.order_id,
+        const options = {
+            key: data.key,
+            amount: data.amount,
+            currency: data.currency,
+            order_id: data.order_id,
 
-            handler:async function(resp){
-                const verify=await fetch("/payments/razorpay/verify-payment",{
-                    method:"POST",
-                    headers:{"Content-Type":"application/json"},
-                    body:JSON.stringify({...resp,email})
+            handler: async function (resp) {
+                const verify = await fetch("/payments/razorpay/verify-payment", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ ...resp, email })
                 });
 
-                const verifyData=await verify.json();
-                if(verifyData.success) window.location.href=verifyData.redirect_url;
-                else{
+                const verifyData = await verify.json();
+
+                if (verifyData.success) {
+                    window.location.href = verifyData.redirect_url;
+                } else {
                     alert("Verification failed");
                     setButtonLoading(false);
                 }
             },
 
-            modal:{ondismiss:()=>setButtonLoading(false)}
+            modal: { ondismiss: () => setButtonLoading(false) }
         };
 
         new Razorpay(options).open();
 
-    }catch{
-
-        /* AUTO FALLBACK → PAYPAL */
-        handlePaypalPayment();
+    } catch {
+        handlePaypalPayment(); // fallback
     }
 }
 
-/* ================================
-CANCELLED PAYMENT BANNER
-================================ */
-(function(){
-const params=new URLSearchParams(window.location.search);
-if(params.get("status")==="cancelled"){
-document.getElementById("payment-banner").style.display="block";
-setTimeout(scrollToEmailSection,500);
-}
+/* ===============================
+EXISTING ANIMATIONS (UNCHANGED)
+=============================== */
+const observerOptions = { threshold: 0.1 };
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+            if(entry.target.id === 'wish-trigger') {
+                entry.target.classList.add('revealed');
+            }
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.reveal, #wish-trigger')
+    .forEach(el => observer.observe(el));
+
+/* ===============================
+PAYMENT CANCEL BANNER
+=============================== */
+(function () {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("status") === "cancelled") {
+        document.getElementById("payment-banner").style.display = "block";
+        setTimeout(scrollToEmailSection, 500);
+    }
 })();
 </script>
 
+
+
+
 </body>
+
 </html>
+
