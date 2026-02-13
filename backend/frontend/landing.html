@@ -606,9 +606,14 @@ detectUserCountry();
 HELPERS
 =============================== */
 function scrollToEmailSection() {
-    document.getElementById("unlock-section")
-        .scrollIntoView({ behavior: "smooth", block: "start" });
+    const emailInput = document.getElementById("user-email");
+
+    emailInput.scrollIntoView({
+        behavior: "smooth",
+        block: "center"   // 👈 keeps CTA visible
+    });
 }
+
 
 function setButtonLoading(state) {
     const btn = document.getElementById("cta-pay-button");
