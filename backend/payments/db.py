@@ -32,13 +32,17 @@ def init_db():
         CREATE TABLE IF NOT EXISTS active_sessions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             access_token TEXT,
-            session_id TEXT,
+            session_id TEXT UNIQUE,
             last_active TIMESTAMP
         )
     """)
 
     conn.commit()
     conn.close()
+
+
+# Run init automatically on import
+init_db()
 
 
 # ===============================
@@ -69,7 +73,7 @@ def cleanup_expired_sessions(cursor):
 
     cursor.execute(
         "DELETE FROM active_sessions WHERE last_active < ?",
-        (expiry_time,)
+        (expiry_time.isoformat(),)
     )
 
 
@@ -92,7 +96,7 @@ def verify_and_register_session(token, session_id):
     # Cleanup old sessions
     cleanup_expired_sessions(cursor)
 
-    # Check if this session already exists
+    # Check if session already active
     cursor.execute(
         "SELECT id FROM active_sessions WHERE session_id=?",
         (session_id,)
@@ -100,16 +104,15 @@ def verify_and_register_session(token, session_id):
     existing = cursor.fetchone()
 
     if existing:
-        # Update activity time
         cursor.execute(
             "UPDATE active_sessions SET last_active=? WHERE session_id=?",
-            (datetime.utcnow(), session_id)
+            (datetime.utcnow().isoformat(), session_id)
         )
         conn.commit()
         conn.close()
         return True, "Session refreshed"
 
-    # Count active sessions
+    # Count active users for this token
     cursor.execute(
         "SELECT COUNT(*) FROM active_sessions WHERE access_token=?",
         (token,)
@@ -123,7 +126,7 @@ def verify_and_register_session(token, session_id):
     # Register new session
     cursor.execute(
         "INSERT INTO active_sessions (access_token, session_id, last_active) VALUES (?, ?, ?)",
-        (token, session_id, datetime.utcnow())
+        (token, session_id, datetime.utcnow().isoformat())
     )
 
     conn.commit()
