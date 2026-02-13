@@ -6,3 +6,5 @@ feedparser
 uvicorn
 python-dotenv
 # railway-rebuild
+razorpay==1.4.2
+
