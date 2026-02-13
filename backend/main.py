@@ -67,6 +67,17 @@ app.include_router(
 )
 
 # ===============================
+# RAZORPAY ROUTER  ✅ NEW
+# ===============================
+from backend.payments.razorpay import router as razorpay_router
+
+app.include_router(
+    razorpay_router,
+    prefix="/payments",
+    tags=["Payments"]
+)
+
+# ===============================
 # STREAMLIT TOKEN VERIFY API
 # ===============================
 @app.post("/verify-access")
