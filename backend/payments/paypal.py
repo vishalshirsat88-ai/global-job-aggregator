@@ -1,7 +1,11 @@
 import os
 import requests
-from fastapi import APIRouter, HTTPException
+import uuid
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import RedirectResponse
+
+# DB imports
+from backend.payments.db import save_payment, verify_and_register_session
 
 router = APIRouter(prefix="/paypal", tags=["Payments"])
 
@@ -51,7 +55,7 @@ def get_access_token():
         return response.json().get("access_token")
 
     except Exception as e:
-        print(f"❌ Token Error: {e}")
+        print("❌ Token Error:", e)
         raise HTTPException(status_code=500, detail="PayPal connection error")
 
 
@@ -64,7 +68,6 @@ def create_order(email: str):
     access_token = get_access_token()
 
     print("📦 Creating PayPal order for:", email)
-    print("🔁 Return URL:", f"{BACKEND_BASE_URL}/payments/paypal/success")
 
     order_data = {
         "intent": "CAPTURE",
@@ -80,7 +83,7 @@ def create_order(email: str):
         "application_context": {
             "user_action": "PAY_NOW",
             "return_url": f"{BACKEND_BASE_URL}/payments/paypal/success",
-            "cancel_url": TOOL_URL,
+            "cancel_url": f"{BACKEND_BASE_URL}/payment-cancelled",
             "shipping_preference": "NO_SHIPPING"
         }
     }
@@ -118,7 +121,7 @@ def create_order(email: str):
 
 
 # ===============================
-# 2️⃣ SUCCESS ROUTE (CAPTURE + REDIRECT)
+# 2️⃣ SUCCESS ROUTE (CAPTURE + TOKEN GENERATION)
 # ===============================
 @router.get("/success")
 def paypal_success(token: str = None):
@@ -126,7 +129,7 @@ def paypal_success(token: str = None):
     print("🔥 PayPal returned with token:", token)
 
     if not token:
-        return RedirectResponse(TOOL_URL)
+        return RedirectResponse("/")
 
     validate_config()
     access_token = get_access_token()
@@ -141,18 +144,60 @@ def paypal_success(token: str = None):
             timeout=15,
         )
 
-        # Already captured (user refresh)
+        # Already captured
         if response.status_code == 422:
             print("ℹ️ Order already captured")
-            return RedirectResponse(TOOL_URL)
+            return RedirectResponse("/")
 
         if response.status_code not in (200, 201):
             print("❌ Capture failed:", response.text)
-            return RedirectResponse(TOOL_URL)
+            return RedirectResponse("/")
 
-        print("🎉 Payment successful — redirecting to tool")
-        return RedirectResponse(TOOL_URL)
+        data = response.json()
+
+        email = data["purchase_units"][0]["custom_id"]
+        order_id = data["id"]
+
+        # Save payment and generate access token
+        access_token_value = save_payment(email, order_id)
+
+        print("🎉 Payment successful!")
+        print("🔑 Generated Access Token:", access_token_value)
+
+        redirect_url = f"{TOOL_URL}?access={access_token_value}"
+
+        return RedirectResponse(redirect_url)
 
     except Exception as e:
         print("❌ Capture error:", e)
-        return RedirectResponse(TOOL_URL)
+        return RedirectResponse("/")
+
+
+# ===============================
+# 3️⃣ VERIFY ACCESS (SESSION CONTROL)
+# ===============================
+@router.get("/verify-access")
+def verify_access(
+    token: str = Query(...),
+    session_id: str = Query(...)
+):
+    """
+    Called by Streamlit to:
+    - verify token
+    - enforce concurrent session limit
+    """
+
+    is_valid, message = verify_and_register_session(token, session_id)
+
+    return {
+        "valid": is_valid,
+        "message": message
+    }
+
+
+# ===============================
+# CANCEL ROUTE
+# ===============================
+@router.get("/payment-cancelled")
+def cancelled():
+    return RedirectResponse("/")

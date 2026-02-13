@@ -27,6 +27,9 @@ def serve_landing():
 
 load_dotenv()
 
+from backend.payments.db import init_db
+init_db()
+
 from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
