@@ -36,13 +36,16 @@ def verify_access():
             st.stop()
 
         # ===============================
-        # 🎉 SHOW WELCOME MESSAGE ONCE
+        # 🎉 SHOW WELCOME MESSAGE ONLY ON FIRST LOAD
         # ===============================
-        if "welcome_shown" not in st.session_state:
-            st.session_state.welcome_shown = True
+        if "just_unlocked" not in st.session_state:
+            st.session_state.just_unlocked = True
 
             st.success("🎉 Payment Successful! Welcome to JobHunt++ Premium Access!")
             st.info("🚀 You now have lifetime access. Enjoy exploring global job opportunities!")
+
+            # 🔥 REMOVE TOKEN FROM URL AFTER SHOWING MESSAGE
+            st.query_params.clear()
 
     except Exception:
         st.error("⚠️ Unable to verify access. Please try again later.")
