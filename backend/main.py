@@ -52,7 +52,7 @@ app.add_middleware(
 # ===============================
 # DB INIT
 # ===============================
-from backend.db import init_db, verify_and_register_session
+from backend.payments.db import init_db, verify_and_register_session
 init_db()
 
 # ===============================
