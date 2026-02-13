@@ -1,8 +1,9 @@
 import os
 import razorpay
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
-# DB imports (same as PayPal)
+# DB imports
 from backend.payments.db import save_payment
 
 router = APIRouter(prefix="/razorpay", tags=["Razorpay Payments"])
@@ -13,6 +14,17 @@ router = APIRouter(prefix="/razorpay", tags=["Razorpay Payments"])
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
 TOOL_URL = os.getenv("TOOL_URL")
+
+
+# ===============================
+# REQUEST MODEL (NEW)
+# ===============================
+class RazorpayVerifyRequest(BaseModel):
+    razorpay_payment_id: str
+    razorpay_order_id: str
+    razorpay_signature: str
+    email: str
+
 
 # ===============================
 # CLIENT INIT
@@ -59,15 +71,10 @@ def create_order(amount: int, email: str):
 
 
 # ===============================
-# 2️⃣ VERIFY PAYMENT
+# 2️⃣ VERIFY PAYMENT (FIXED)
 # ===============================
 @router.post("/verify-payment")
-def verify_payment(
-    razorpay_payment_id: str,
-    razorpay_order_id: str,
-    razorpay_signature: str,
-    email: str
-):
+def verify_payment(data: RazorpayVerifyRequest):
     """
     Verifies Razorpay payment signature
     Then saves payment & generates token
@@ -76,11 +83,10 @@ def verify_payment(
     client = get_client()
 
     try:
-        # Signature verification
         params_dict = {
-            "razorpay_order_id": razorpay_order_id,
-            "razorpay_payment_id": razorpay_payment_id,
-            "razorpay_signature": razorpay_signature,
+            "razorpay_order_id": data.razorpay_order_id,
+            "razorpay_payment_id": data.razorpay_payment_id,
+            "razorpay_signature": data.razorpay_signature,
         }
 
         client.utility.verify_payment_signature(params_dict)
@@ -89,10 +95,9 @@ def verify_payment(
         raise HTTPException(status_code=400, detail="Payment verification failed")
 
     try:
-        # Save payment (same as PayPal)
-        access_token = save_payment(email, razorpay_order_id)
+        # Save payment
+        access_token = save_payment(data.email, data.razorpay_order_id)
 
-        # Generate redirect URL
         redirect_url = f"{TOOL_URL}?token={access_token}"
 
         return {
