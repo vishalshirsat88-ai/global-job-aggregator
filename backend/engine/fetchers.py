@@ -70,28 +70,64 @@ from backend.utils.helpers import (
 # SAFE REQUEST HELPER WITH KEY ROTATION
 # =========================================================
 def safe_json_request(method, url, **kwargs):
+    """
+    Failover RapidAPI rotation + DEBUG logging
+    """
     try:
-        headers = kwargs.get("headers", {})
+        # -------------------------------
+        # Handle RapidAPI calls
+        # -------------------------------
+        if "rapidapi" in url and RAPIDAPI_KEYS and RAPIDAPI_KEYS != [""]:
 
-        # Inject RapidAPI headers automatically
-        if "rapidapi" in url:
-            key = get_rapidapi_key()
-            if key:
+            for key in RAPIDAPI_KEYS:
+
+                headers = kwargs.get("headers", {})
                 headers["x-rapidapi-key"] = key
                 headers["x-rapidapi-host"] = "jsearch.p.rapidapi.com"
                 kwargs["headers"] = headers
 
+                print(f"\n🔑 Trying RapidAPI Key: {key[:6]}****")
+
+                r = requests.request(method, url, timeout=20, **kwargs)
+
+                print(f"➡️ Status Code: {r.status_code}")
+
+                # SUCCESS
+                if r.status_code == 200:
+                    data = r.json()
+
+                    job_count = len(data.get("data", []))
+                    print(f"✅ RapidAPI Jobs Received: {job_count}")
+
+                    return data
+
+                # RATE LIMIT
+                if r.status_code in (403, 429):
+                    print("⚠️ Key exhausted → trying next key")
+                    continue
+
+                # OTHER ERROR
+                print("❌ API Error:", r.text[:200])
+                return {}
+
+            print("🚨 ALL RapidAPI keys exhausted!")
+            return {}
+
+        # -------------------------------
+        # NON RAPIDAPI CALLS
+        # -------------------------------
         r = requests.request(method, url, timeout=20, **kwargs)
 
         if r.status_code != 200:
-            print("API ERROR:", url, r.status_code)
+            print("❌ API ERROR:", url, r.status_code)
             return {}
 
         return r.json()
 
     except Exception as e:
-        print("REQUEST FAILED:", url, e)
+        print("❌ REQUEST FAILED:", url, e)
         return {}
+
 
 
 # =========================================================
@@ -237,6 +273,8 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
                 "num_pages": 1
             }
         )
+
+        print(f"JSearch returned {len(data.get('data', []))} jobs for skill {skill}")
 
         for j in data.get("data", []):
             dt = normalize_date(j.get("job_posted_at_datetime_utc"))
