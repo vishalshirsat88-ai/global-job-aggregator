@@ -81,13 +81,14 @@ def calculate_job_score(job, skills, levels, countries):
     if job.get("_date"):
         score += 10
 
-    # --- Source priority boost (⭐ IMPORTANT FIX)
-    if source == "jsearch":
-        score += 40   # Strong boost for RapidAPI
-    elif source == "adzuna":
-        score += 15
-    elif source == "usajobs":
-        score += 10
+    # --- Source priority boost (FIXED)
+    if "jsearch" in source:
+        score += 50   # strong boost
+    elif "adzuna" in source:
+        score += 30
+    elif "usajobs" in source:
+        score += 20
+
 
 
     # --- Penalize junk
@@ -144,8 +145,9 @@ def filter_and_rank_jobs(rows, skills, levels, countries, top_n=50):
     scored.sort(key=lambda x: x["_score"], reverse=True)
 
     # Step 4 — Return top N
-    jsearch_jobs = [j for j in scored if j.get("Source") == "JSearch"]
-    other_jobs = [j for j in scored if j.get("Source") != "JSearch"]
+    jsearch_jobs = [j for j in scored if "jsearch" in str(j.get("Source")).lower()]
+    other_jobs = [j for j in scored if "jsearch" not in str(j.get("Source")).lower()]
+
     
     min_jsearch = 5
     selected = jsearch_jobs[:min_jsearch] + other_jobs
