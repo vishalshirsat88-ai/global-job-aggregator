@@ -58,6 +58,7 @@ def calculate_job_score(job, skills, levels, countries):
     source = str(job.get("Source") or "").lower()
     api = str(job.get("API") or "").lower()
 
+
     # --- Skill match in title (MOST IMPORTANT)
     for skill in skills:
         if skill.lower() in title:
