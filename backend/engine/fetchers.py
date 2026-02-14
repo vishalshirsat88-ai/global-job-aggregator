@@ -181,7 +181,8 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
             kept += 1
 
             rows.append({
-                "Source": j.get("job_publisher", "JSearch"),
+                "Source": j.get("job_publisher","Unknown"),
+                "API": "JSearch",
                 "Skill": skill,
                 "Title": j.get("job_title"),
                 "Company": j.get("employer_name"),
@@ -216,6 +217,7 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
 
             rows.append({
                 "Source":"Adzuna","Skill":", ".join(skills),
+                "API": "Adzuna",
                 "Title":j.get("title"),"Company":j.get("company",{}).get("display_name"),
                 "Location":j.get("location",{}).get("display_name"),
                 "Country":c,"Apply":j.get("redirect_url"),
@@ -232,6 +234,7 @@ def fetch_jooble(skills, levels, countries, location):
         for j in data.get("jobs",[]):
             rows.append({
                 "Source":"Jooble","Skill":", ".join(skills),
+                "API": "Jooble",
                 "Title":j.get("title"),"Company":j.get("company"),
                 "Location":j.get("location"),"Apply":j.get("link"),
                 "_excel":excel_link(j.get("link"))
