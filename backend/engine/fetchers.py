@@ -92,6 +92,7 @@ def fetch_remote_jobs(skills, level, posted_days):
 
             rows.append({
                 "Source": j.get("job_publisher"),
+                "API": "JSearch",   # ← THIS IS MISSING NOW
                 "Skill": skill,
                 "Title": j.get("job_title"),
                 "Company": j.get("employer_name"),
@@ -181,8 +182,8 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
             kept += 1
 
             rows.append({
-                "Source": j.get("job_publisher","Unknown"),
-                "API": "JSearch",
+                "Source": j.get("job_publisher",""),
+                "API": "JSearch",   # ← THIS IS MISSING NOW
                 "Skill": skill,
                 "Title": j.get("job_title"),
                 "Company": j.get("employer_name"),
