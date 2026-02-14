@@ -27,7 +27,15 @@ COUNTRIES = {
     "Netherlands": "nl",
     "Ireland": "ie",
     "Spain": "es",
-    "Italy": "it"
+    "Italy": "it",
+    "Singapore": "sg",
+    "Brazil": "br",
+    "South Africa": "za",
+    "Mexico": "mx",
+    "Poland": "pl",
+    "Belgium": "be",
+    "Austria": "at",
+    "Switzerland": "ch"
 }
 
 from backend.utils.helpers import (
