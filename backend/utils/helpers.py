@@ -138,7 +138,7 @@ def filter_and_rank_jobs(rows, skills, levels, countries, top_n=50):
     for job in rows:
         score = calculate_job_score(job, skills, levels, countries)
 
-        if score >= 40:   # Quality threshold
+        if score >= 30:   # Quality threshold
             job["_score"] = score
             scored.append(job)
 
@@ -146,12 +146,5 @@ def filter_and_rank_jobs(rows, skills, levels, countries, top_n=50):
     scored.sort(key=lambda x: x["_score"], reverse=True)
 
     # Step 4 — Return top N
-    jsearch_jobs = [j for j in scored if "jsearch" in str(j.get("Source")).lower()]
-    other_jobs = [j for j in scored if "jsearch" not in str(j.get("Source")).lower()]
-
-    
-    min_jsearch = 5
-    selected = jsearch_jobs[:min_jsearch] + other_jobs
-    
-    return selected[:top_n]
+    return scored[:top_n]
 
