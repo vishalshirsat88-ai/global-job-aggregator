@@ -41,7 +41,7 @@ def init_db():
     conn.close()
 
 
-# Run init automatically on import
+# Run init automatically
 init_db()
 
 
@@ -63,7 +63,6 @@ def save_payment(email, order_id):
     conn.close()
 
     return token
-    print("RECEIVED TOKEN:", repr(token))
 
 
 # ===============================
@@ -83,10 +82,11 @@ def cleanup_expired_sessions(cursor):
 # ===============================
 def verify_and_register_session(token, session_id):
     token = token.strip()
+
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
-    # Check token exists
+    # ✅ Check token exists
     cursor.execute(
         "SELECT id FROM payments WHERE access_token=?",
         (token,)
@@ -95,10 +95,10 @@ def verify_and_register_session(token, session_id):
         conn.close()
         return False, "Invalid token"
 
-    # Cleanup old sessions
+    # ✅ Cleanup expired sessions
     cleanup_expired_sessions(cursor)
 
-    # Check if session already active
+    # ✅ Check if session already active
     cursor.execute(
         "SELECT id FROM active_sessions WHERE session_id=?",
         (session_id,)
@@ -114,7 +114,7 @@ def verify_and_register_session(token, session_id):
         conn.close()
         return True, "Session refreshed"
 
-    # Count active users for this token
+    # ✅ Count active sessions
     cursor.execute(
         "SELECT COUNT(*) FROM active_sessions WHERE access_token=?",
         (token,)
@@ -123,27 +123,25 @@ def verify_and_register_session(token, session_id):
 
     session_replaced = False
 
-if active_count >= MAX_CONCURRENT_USERS:
-    # Remove oldest session
-    cursor.execute("""
-        SELECT id FROM active_sessions
-        WHERE access_token=?
-        ORDER BY last_active ASC
-        LIMIT 1
-    """, (token,))
+    # ✅ If limit reached → remove oldest session
+    if active_count >= MAX_CONCURRENT_USERS:
+        cursor.execute("""
+            SELECT id FROM active_sessions
+            WHERE access_token=?
+            ORDER BY last_active ASC
+            LIMIT 1
+        """, (token,))
 
-    oldest = cursor.fetchone()
+        oldest = cursor.fetchone()
 
-    if oldest:
-        cursor.execute(
-            "DELETE FROM active_sessions WHERE id=?",
-            (oldest[0],)
-        )
-        session_replaced = True
+        if oldest:
+            cursor.execute(
+                "DELETE FROM active_sessions WHERE id=?",
+                (oldest[0],)
+            )
+            session_replaced = True
 
-
-
-    # Register new session
+    # ✅ Register new session
     cursor.execute(
         "INSERT INTO active_sessions (access_token, session_id, last_active) VALUES (?, ?, ?)",
         (token, session_id, datetime.utcnow().isoformat())
@@ -154,6 +152,5 @@ if active_count >= MAX_CONCURRENT_USERS:
 
     if session_replaced:
         return True, "Session replaced"
-    
-    return True, "Session registered"
 
+    return True, "Session registered"
