@@ -89,11 +89,23 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     # -----------------------------
     allowed_country_names = {c.upper() for c in countries}
 
-    df = df[
-        df["Country"].isna() |
-        (df["Country"].str.upper() == "REMOTE") |
-        df["Country"].str.upper().isin(allowed_country_names)
-    ]
+    def country_match(row_country):
+        if not row_country:
+            return True
+    
+        rc = row_country.upper()
+    
+        if rc == "REMOTE":
+            return True
+    
+        for allowed in allowed_country_names:
+            if allowed in rc or rc in allowed:
+                return True
+    
+        return False
+    
+    df = df[df["Country"].apply(country_match)]
+
 
     if df.empty:
         return pd.DataFrame(), True
