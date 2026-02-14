@@ -95,6 +95,7 @@ def calculate_job_score(job, skills, levels, countries):
     if "sponsored" in title or "promoted" in title:
         score -= 40
 
+    print(f"DEBUG SCORE → {job.get('Title')} | Source={source} | Score={score}")
     return score
 
 
