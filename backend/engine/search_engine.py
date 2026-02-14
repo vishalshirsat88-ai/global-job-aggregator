@@ -58,17 +58,36 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     print("Jooble rows:", jooble_count)
     print("==============================")
 
+
+
     # =====================================================
-    # ⭐ NEW — APPLY SCORING ENGINE HERE
+    # ⭐ STEP 1 — APPLY COUNTRY FILTER FIRST (CORRECT ORDER)
+    # =====================================================
+    df = pd.DataFrame(all_rows)
+    
+    allowed_country_names = {c.upper() for c in countries}
+    
+    df = df[
+        df["Country"].isna() |
+        (df["Country"].str.upper() == "REMOTE") |
+        df["Country"].str.upper().isin(allowed_country_names)
+    ]
+    
+    if df.empty:
+        return pd.DataFrame(), True
+    
+    
+    # =====================================================
+    # ⭐ STEP 2 — APPLY SCORING AFTER FILTERING
     # =====================================================
     ranked_rows = filter_and_rank_jobs(
-        all_rows,
+        df.to_dict("records"),   # ✅ FIXED
         skills,
         levels,
         countries,
-        top_n=50   # ← CHANGE THIS IF YOU WANT MORE RESULTS
+        top_n=50
     )
-
+    
     print("\n==============================")
     print("🔎 ENGINE DEBUG — AFTER SCORING")
     print("Rows after ranking:", len(ranked_rows))
@@ -76,41 +95,14 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     jsearch_after = sum(1 for r in ranked_rows if r.get("Source") == "JSearch")
     print("JSearch rows after scoring:", jsearch_after)
     print("==============================")
-
     
     if not ranked_rows:
         return pd.DataFrame(), True
-
-    # Convert AFTER ranking
+    
+    # ✅ IMPORTANT — convert ranked output to df
     df = pd.DataFrame(ranked_rows)
 
-    # -----------------------------
-    # COUNTRY FILTER (KEEP EXISTING)
-    # -----------------------------
-    allowed_country_names = {c.upper() for c in countries}
-
-    def country_match(row_country):
-
-        # Handle NaN / None safely
-        if pd.isna(row_country):
-            return True
     
-        rc = str(row_country).upper()
-    
-        if rc == "REMOTE":
-            return True
-    
-        for allowed in allowed_country_names:
-            if allowed in rc or rc in allowed:
-                return True
-    
-        return False
-    
-    df = df[df["Country"].apply(country_match)]
-
-
-    if df.empty:
-        return pd.DataFrame(), True
     print("\n🔎 FINAL ORDER DEBUG:")
     
     for i, r in enumerate(ranked_rows[:30], 1):
