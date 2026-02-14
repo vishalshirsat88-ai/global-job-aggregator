@@ -49,7 +49,7 @@ init_db()
 # SAVE PAYMENT + GENERATE TOKEN
 # ===============================
 def save_payment(email, order_id):
-    token = str(uuid.uuid4())
+    token = str(uuid.uuid4()).strip()
 
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
@@ -63,6 +63,7 @@ def save_payment(email, order_id):
     conn.close()
 
     return token
+    print("RECEIVED TOKEN:", repr(token))
 
 
 # ===============================
@@ -81,6 +82,7 @@ def cleanup_expired_sessions(cursor):
 # VERIFY TOKEN + MANAGE SESSION
 # ===============================
 def verify_and_register_session(token, session_id):
+    token = token.strip()
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
 
