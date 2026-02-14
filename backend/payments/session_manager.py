@@ -25,6 +25,9 @@ def verify_and_register_session(token_value, session_id):
     for s in token.sessions:
         if now - s.last_seen < timeout:
             active_sessions.append(s)
+        else:
+            db.delete(s)
+
 
     # Check existing session
     existing = next((s for s in active_sessions if s.session_id == session_id), None)
