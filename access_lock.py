@@ -50,6 +50,13 @@ def verify_access():
         if not data.get("valid"):
             st.error(f"🚫 {data.get('message', 'Access denied')}")
             st.stop()
+        
+        if data["valid"]:
+            if data["message"] == "Session replaced":
+                st.toast(
+                    "⚠️ You opened JobHunt++ on another device. "
+                    "An older session was automatically logged out."
+                )
 
         # ===============================
         # STEP 4: SHOW WELCOME MESSAGE ONCE
