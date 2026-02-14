@@ -56,6 +56,7 @@ def calculate_job_score(job, skills, levels, countries):
     country_val = job.get("Country")
     location = str(job.get("Country") or "").lower()
     source = str(job.get("Source") or "").lower()
+    api = str(job.get("API") or "").lower()
 
     # --- Skill match in title (MOST IMPORTANT)
     for skill in skills:
@@ -82,12 +83,13 @@ def calculate_job_score(job, skills, levels, countries):
         score += 10
 
     # --- Source priority boost (FIXED)
-    if "jsearch" in source:
-        score += 50   # strong boost
-    elif "adzuna" in source:
+    if api == "jsearch":
+        score += 50   # ← THIS FIXES EVERYTHING
+    elif api == "adzuna":
         score += 30
-    elif "usajobs" in source:
-        score += 20
+    elif api == "jooble":
+        score += 10
+
 
 
 
