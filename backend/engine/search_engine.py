@@ -45,6 +45,18 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
 
     if not all_rows:
         return pd.DataFrame(), True
+    print("\n==============================")
+    print("🔎 ENGINE DEBUG — BEFORE SCORING")
+    print("Total rows collected:", len(all_rows))
+    
+    jsearch_count = sum(1 for r in all_rows if r.get("Source") == "JSearch")
+    adzuna_count = sum(1 for r in all_rows if r.get("Source") == "Adzuna")
+    jooble_count = sum(1 for r in all_rows if r.get("Source") == "Jooble")
+    
+    print("JSearch rows:", jsearch_count)
+    print("Adzuna rows:", adzuna_count)
+    print("Jooble rows:", jooble_count)
+    print("==============================")
 
     # =====================================================
     # ⭐ NEW — APPLY SCORING ENGINE HERE
@@ -57,6 +69,15 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
         top_n=50   # ← CHANGE THIS IF YOU WANT MORE RESULTS
     )
 
+    print("\n==============================")
+    print("🔎 ENGINE DEBUG — AFTER SCORING")
+    print("Rows after ranking:", len(ranked_rows))
+    
+    jsearch_after = sum(1 for r in ranked_rows if r.get("Source") == "JSearch")
+    print("JSearch rows after scoring:", jsearch_after)
+    print("==============================")
+
+    
     if not ranked_rows:
         return pd.DataFrame(), True
 
