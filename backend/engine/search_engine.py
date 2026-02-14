@@ -49,7 +49,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     print("🔎 ENGINE DEBUG — BEFORE SCORING")
     print("Total rows collected:", len(all_rows))
     
-    jsearch_count = sum(1 for r in all_rows if r.get("Source") == "JSearch")
+    jsearch_count = sum(1 for r in all_rows if r.get("API") == "JSearch")
     adzuna_count = sum(1 for r in all_rows if r.get("Source") == "Adzuna")
     jooble_count = sum(1 for r in all_rows if r.get("Source") == "Jooble")
     
@@ -121,7 +121,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     print("🔎 ENGINE DEBUG — AFTER SCORING")
     print("Rows after ranking:", len(ranked_rows))
     
-    jsearch_after = sum(1 for r in ranked_rows if r.get("Source") == "JSearch")
+    jsearch_after = sum(1 for r in ranked_rows if r.get("API") == "JSearch")
     print("JSearch rows after scoring:", jsearch_after)
     print("==============================")
     
