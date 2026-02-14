@@ -181,7 +181,7 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
             kept += 1
 
             rows.append({
-                "Source": "JSearch",
+                "Source": j.get("job_publisher", "JSearch"),
                 "Skill": skill,
                 "Title": j.get("job_title"),
                 "Company": j.get("employer_name"),
