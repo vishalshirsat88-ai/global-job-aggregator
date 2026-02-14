@@ -42,14 +42,84 @@ def rotate_key():
 # 🧠 SMART QUERY EXPANSION
 # =========================================================
 def expand_skill(skill):
-    skill = skill.lower()
+    skill = skill.lower().strip()
 
-    expansions = {
-        "python": ["python developer", "django developer", "fastapi engineer"],
-        "java": ["java developer", "spring boot developer"],
-        "react": ["react developer", "frontend react"],
-        "data": ["data analyst", "data scientist", "data engineer"]
+    if skill in SKILL_EXPANSION_MAP:
+        return [skill] + SKILL_EXPANSION_MAP[skill]
+
+    # If not found → use original skill
+    return [skill]
+
+
+    # =========================================================
+    # 🌍 GLOBAL SKILL EXPANSION MAP (PRODUCTION READY)
+    # =========================================================
+    
+    SKILL_EXPANSION_MAP = {
+    
+        # --- YOUR CUSTOM SKILLS ---
+        "developer": ["Full Stack Engineer", "Backend Developer", "Software Architect", "Systems Programmer"],
+        "frontend": ["React Developer", "Vue.js Engineer", "Frontend Architect", "Tailwind CSS Specialist"],
+        "backend": ["Node.js Developer", "Go Developer", "Java Spring Boot", "Python API Engineer"],
+    
+        "tester": ["QA Automation Engineer", "SDET", "Selenium Engineer", "Performance Tester"],
+        "manual testing": ["Quality Assurance Analyst", "UAT Coordinator", "Regression Tester"],
+        "qa": ["SDET Manager", "Test Architect", "Mobile App Tester", "Security QA"],
+    
+        "wfm": ["Workforce Planner", "Resource Scheduler", "Intraday Analyst", "Capacity Planning Manager"],
+        "workforce": ["Real Time Management Specialist", "WFM Strategist", "Forecasting Analyst"],
+    
+        "mis": ["MIS Executive", "Data Operations Manager", "Information Systems Manager", "ERP Specialist"],
+        "reporting": ["SQL Reporting Analyst", "Power BI Developer", "Automation Specialist", "VBA Expert"],
+    
+        "banking": ["Investment Banker", "Retail Banking Manager", "Relationship Manager", "Corporate Finance"],
+        "fintech": ["Payments Architect", "Compliance Officer", "Risk Management Analyst", "KYC Specialist"],
+        "investment": ["Portfolio Manager", "Equity Research Analyst", "Asset Management", "Quant Analyst"],
+        "compliance": ["AML Analyst", "Financial Crime Investigator", "Regulatory Affairs Manager"],
+    
+    
+        # --- TOP GLOBAL TECH SKILLS ---
+        "python": ["Python Developer", "Django Developer", "FastAPI Engineer", "Data Scientist"],
+        "java": ["Java Developer", "Spring Boot Engineer", "Backend Java Developer"],
+        "javascript": ["JS Developer", "Frontend Developer", "Full Stack JavaScript"],
+        "react": ["React Developer", "Frontend React Engineer"],
+        "node": ["Node.js Developer", "Backend Node Engineer"],
+        "angular": ["Angular Developer", "Frontend Angular Engineer"],
+    
+        "devops": ["DevOps Engineer", "Cloud DevOps", "Site Reliability Engineer"],
+        "cloud": ["Cloud Engineer", "AWS Specialist", "Azure Engineer", "GCP Engineer"],
+    
+        "aws": ["AWS Engineer", "Cloud Architect", "DevOps AWS"],
+        "azure": ["Azure Engineer", "Cloud Azure Architect"],
+        "gcp": ["Google Cloud Engineer", "GCP Architect"],
+    
+        "docker": ["Container Engineer", "Docker Specialist"],
+        "kubernetes": ["K8s Engineer", "Cloud Native Engineer"],
+    
+        "sql": ["Database Developer", "SQL Analyst", "Data Engineer"],
+        "data": ["Data Analyst", "Data Scientist", "Business Intelligence"],
+        "machine learning": ["ML Engineer", "AI Engineer", "Deep Learning Engineer"],
+        "ai": ["Artificial Intelligence Engineer", "LLM Engineer", "AI Researcher"],
+    
+        "cybersecurity": ["Security Engineer", "SOC Analyst", "Penetration Tester"],
+        "blockchain": ["Blockchain Developer", "Smart Contract Engineer", "Web3 Developer"],
+    
+    
+        # --- BUSINESS & MANAGEMENT SKILLS ---
+        "project management": ["Project Manager", "Scrum Master", "Agile Coach"],
+        "product": ["Product Manager", "Product Owner", "Growth Product Manager"],
+        "marketing": ["Digital Marketing Manager", "SEO Specialist", "Performance Marketer"],
+        "sales": ["Sales Manager", "Business Development Executive", "Account Manager"],
+    
+        "hr": ["HR Manager", "Talent Acquisition Specialist", "HR Business Partner"],
+        "operations": ["Operations Manager", "Process Improvement Specialist"],
+    
+        "finance": ["Financial Analyst", "FP&A Manager", "Corporate Finance"],
+        "accounting": ["Accountant", "Audit Specialist", "Tax Consultant"],
+    
+        "supply chain": ["Logistics Manager", "Procurement Specialist", "Inventory Analyst"]
     }
+
 
     return expansions.get(skill, [skill])
 
