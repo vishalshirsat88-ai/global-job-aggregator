@@ -151,24 +151,52 @@ def fetch_arbeitnow(skills):
 # MAIN FETCHERS
 # =========================================================
 def fetch_jsearch(skills, levels, countries, posted_days, location):
+
     rows = []
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
     for skill in skills:
-        data = safe_json_request("GET","https://jsearch.p.rapidapi.com/search",
-                                 params={"query":f"{skill} job {location}","num_pages":1})
+        print(f"\n🚀 JSEARCH DEBUG — Skill: {skill}")
 
-        for j in data.get("data",[]):
+        data = safe_json_request(
+            "GET",
+            "https://jsearch.p.rapidapi.com/search",
+            params={"query": f"{skill} job {location}", "num_pages": 1}
+        )
+
+        raw_jobs = data.get("data", [])
+        print(f"📦 Raw jobs fetched: {len(raw_jobs)}")
+
+        kept = 0
+        dropped_date = 0
+
+        for j in raw_jobs:
+
             dt = normalize_date(j.get("job_posted_at_datetime_utc"))
-            if dt and dt < cutoff: continue
+
+            if dt and dt < cutoff:
+                dropped_date += 1
+                continue
+
+            kept += 1
 
             rows.append({
-                "Source":"JSearch","Skill":skill,"Title":j.get("job_title"),
-                "Company":j.get("employer_name"),"Location":j.get("job_city"),
-                "Country":j.get("job_country"),"Apply":j.get("job_apply_link"),
-                "_excel":excel_link(j.get("job_apply_link")),"_date":dt
+                "Source": "JSearch",
+                "Skill": skill,
+                "Title": j.get("job_title"),
+                "Company": j.get("employer_name"),
+                "Location": j.get("job_city"),
+                "Country": j.get("job_country"),
+                "Apply": j.get("job_apply_link"),
+                "_excel": excel_link(j.get("job_apply_link")),
+                "_date": dt
             })
+
+        print(f"🗑 Dropped by date filter: {dropped_date}")
+        print(f"✅ Jobs kept after filtering: {kept}")
+
     return rows
+
 
 def fetch_adzuna(skills, levels, countries, posted_days, location):
     rows = []
