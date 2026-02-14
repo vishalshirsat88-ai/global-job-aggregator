@@ -27,6 +27,9 @@ def verify_and_register_session(token_value, session_id):
             active_sessions.append(s)
         else:
             db.delete(s)
+    
+    db.commit()
+
 
 
     # Check existing session
