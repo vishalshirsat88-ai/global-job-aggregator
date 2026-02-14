@@ -8,6 +8,9 @@ import pandas as pd
 import re
 from datetime import datetime, timedelta
 
+if "search_triggered" not in st.session_state:
+    st.session_state["search_triggered"] = False
+
 
 # Keep your specific backend URL
 BACKEND_URL ="https://global-job-aggregator-production.up.railway.app"
@@ -147,8 +150,13 @@ def call_backend_search(payload):
     resp.raise_for_status()
     return resp.json()
 
+# ⭐ PREVENT MULTIPLE API CALLS
 if run_btn:
+    st.session_state["search_triggered"] = True
+
+if st.session_state.get("search_triggered", False):
     with st.spinner("Fetching jobs..."):
+
         payload = {
             "skills": skills,
             "levels": levels,
@@ -232,4 +240,7 @@ if run_btn:
         with col_dl:
             st.markdown('<div class="download-btn">', unsafe_allow_html=True)
             dl_placeholder.download_button("⬇️ Download CSV", df.to_csv(index=False), "job_results.csv")
+            st.session_state["search_triggered"] = False
+
             st.markdown('</div>', unsafe_allow_html=True)
+            
