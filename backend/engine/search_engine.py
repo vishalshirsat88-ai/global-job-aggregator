@@ -97,6 +97,10 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
 
     if df.empty:
         return pd.DataFrame(), True
+    print("\n🔎 FINAL ORDER DEBUG:")
+    
+    for i, r in enumerate(ranked_rows[:30], 1):
+        print(i, r.get("Source"), "-", r.get("Title"))
 
     return df, False
 
