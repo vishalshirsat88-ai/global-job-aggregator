@@ -122,8 +122,17 @@ def verify_and_register_session(token, session_id):
     active_count = cursor.fetchone()[0]
 
     if active_count >= MAX_CONCURRENT_USERS:
-        conn.close()
-        return False, "Max users reached"
+        # Remove oldest session
+        cursor.execute("""
+            DELETE FROM active_sessions
+            WHERE id = (
+                SELECT id FROM active_sessions
+                WHERE access_token=?
+                ORDER BY last_active ASC
+                LIMIT 1
+            )
+        """, (token,))
+
 
     # Register new session
     cursor.execute(
