@@ -114,14 +114,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------- INPUT AREA ----------
-skills = [s.strip() for s in st.text_input("Skills", "WFM").split(",") if s.strip()]
-levels = [l.strip() for l in st.text_input("Levels", "Manager").split(",") if l.strip()]
+skills = [s.strip() for s in st.text_input("Skills", "Software").split(",") if s.strip()]
+levels = [l.strip() for l in st.text_input("Levels", "Engineer").split(",") if l.strip()]
 location_input = st.text_input("Location (city or Remote)", "")
 
 is_remote = location_input.strip().lower() == "remote"
 countries = st.multiselect(
     "Country", 
-    options=["India", "United States", "United Kingdom", "United Arab Emirates", "Canada", "Australia"], 
+    options=["India", "United States", "United Kingdom", "United Arab Emirates", "Canada", "Australia","Germany", "France", "Netherlands", "Spain", "Italy", "Philippines"], 
     default=["India"], 
     disabled=is_remote
 )
