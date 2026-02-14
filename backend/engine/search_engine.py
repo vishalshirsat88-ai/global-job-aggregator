@@ -1,4 +1,5 @@
 import pandas as pd
+
 from backend.engine.fetchers import (
     fetch_remote_jobs,
     fetch_weworkremotely,
@@ -9,6 +10,7 @@ from backend.engine.fetchers import (
     fetch_usajobs
 )
 
+from backend.utils.helpers import filter_and_rank_jobs
 
 
 # =========================================================
@@ -16,23 +18,27 @@ from backend.engine.fetchers import (
 # =========================================================
 def run_engine(skills, levels, locations, countries, posted_days, include_country_safe=True):
 
-    # 🔑 CRITICAL FIX
     if not locations:
         locations = [""]
+
     all_rows = []
 
+    # -----------------------------
+    # FETCH FROM ALL SOURCES
+    # -----------------------------
     for loc in locations:
         for skill in skills:
             all_rows += fetch_jsearch([skill], levels, countries, posted_days, loc)
             all_rows += fetch_adzuna([skill], levels, countries, posted_days, loc)
             all_rows += fetch_jooble([skill], levels, countries, loc)
-    # ---------------------------------
-    # COUNTRY-SAFE SOURCES (ONCE ONLY)
-    # ---------------------------------
+
+    # -----------------------------
+    # COUNTRY SAFE SOURCES
+    # -----------------------------
     if include_country_safe:
         if "United States" in countries:
             all_rows += fetch_usajobs(skills, posted_days)
-    
+
         eu_list = {"Germany","France","Netherlands","Ireland","Spain","Italy"}
         if any(c in eu_list for c in countries):
             all_rows += fetch_arbeitnow(skills)
@@ -40,36 +46,43 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     if not all_rows:
         return pd.DataFrame(), True
 
-    df = pd.DataFrame(all_rows)
+    # =====================================================
+    # ⭐ NEW — APPLY SCORING ENGINE HERE
+    # =====================================================
+    ranked_rows = filter_and_rank_jobs(
+        all_rows,
+        skills,
+        levels,
+        countries,
+        top_n=50   # ← CHANGE THIS IF YOU WANT MORE RESULTS
+    )
 
-    
+    if not ranked_rows:
+        return pd.DataFrame(), True
+
+    # Convert AFTER ranking
+    df = pd.DataFrame(ranked_rows)
+
     # -----------------------------
-    # FIXED COUNTRY FILTER
+    # COUNTRY FILTER (KEEP EXISTING)
     # -----------------------------
     allowed_country_names = {c.upper() for c in countries}
-    
+
     df = df[
-        df["Country"].isna() | 
+        df["Country"].isna() |
         (df["Country"].str.upper() == "REMOTE") |
         df["Country"].str.upper().isin(allowed_country_names)
     ]
 
-
-
-
-    if df.empty:
-        return pd.DataFrame(), True
-
-    # Deduplicate across locations
-    df = df.drop_duplicates(
-        subset=["Title", "Company", "Location", "Source"]
-    )
-    # 🔒 FINAL GUARANTEED RETURN
     if df.empty:
         return pd.DataFrame(), True
 
     return df, False
 
+
+# =========================================================
+# UNIFIED ENTRY POINT
+# =========================================================
 def run_job_search(
     skills,
     levels,
@@ -78,16 +91,17 @@ def run_job_search(
     posted_days,
     is_remote
 ):
-    """
-    Unified entry point for both Streamlit & FastAPI
-    """
 
     if is_remote:
         rows = []
         rows += fetch_remote_jobs(skills, levels[0] if levels else "", posted_days)
         rows += fetch_arbeitnow(skills)
         rows += fetch_weworkremotely(skills)
-        return rows, False
+
+        # Apply scoring for remote also
+        ranked = filter_and_rank_jobs(rows, skills, levels, countries, top_n=50)
+
+        return ranked, False
 
     # Non-remote flow
     df, fallback = run_engine(
@@ -100,4 +114,3 @@ def run_job_search(
     )
 
     return df, fallback
-
