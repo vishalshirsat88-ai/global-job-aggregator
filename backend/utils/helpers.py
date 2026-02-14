@@ -80,9 +80,14 @@ def calculate_job_score(job, skills, levels, countries):
     if job.get("_date"):
         score += 10
 
-    # --- Trusted source boost
-    if source in ["jsearch", "adzuna", "usajobs"]:
+    # --- Source priority boost (⭐ IMPORTANT FIX)
+    if source == "jsearch":
+        score += 40   # Strong boost for RapidAPI
+    elif source == "adzuna":
+        score += 15
+    elif source == "usajobs":
         score += 10
+
 
     # --- Penalize junk
     if "sponsored" in title or "promoted" in title:
