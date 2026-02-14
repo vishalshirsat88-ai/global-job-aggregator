@@ -121,17 +121,26 @@ def verify_and_register_session(token, session_id):
     )
     active_count = cursor.fetchone()[0]
 
-    if active_count >= MAX_CONCURRENT_USERS:
-        # Remove oldest session
-        cursor.execute("""
-            DELETE FROM active_sessions
-            WHERE id = (
-                SELECT id FROM active_sessions
-                WHERE access_token=?
-                ORDER BY last_active ASC
-                LIMIT 1
-            )
-        """, (token,))
+    session_replaced = False
+
+if active_count >= MAX_CONCURRENT_USERS:
+    # Remove oldest session
+    cursor.execute("""
+        SELECT id FROM active_sessions
+        WHERE access_token=?
+        ORDER BY last_active ASC
+        LIMIT 1
+    """, (token,))
+
+    oldest = cursor.fetchone()
+
+    if oldest:
+        cursor.execute(
+            "DELETE FROM active_sessions WHERE id=?",
+            (oldest[0],)
+        )
+        session_replaced = True
+
 
 
     # Register new session
@@ -143,4 +152,8 @@ def verify_and_register_session(token, session_id):
     conn.commit()
     conn.close()
 
+    if session_replaced:
+        return True, "Session replaced"
+    
     return True, "Session registered"
+
