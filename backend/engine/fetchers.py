@@ -185,7 +185,8 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
                 "Source": j.get("job_publisher",""),
                 "API": "JSearch",   # ← THIS IS MISSING NOW
                 "Skill": skill,
-                "Title": j.get("job_title"),
+                "Title": j.get("job_title") or j.get("job_description","")[:80],
+                "Description": j.get("job_description",""),
                 "Company": j.get("employer_name"),
                 "Location": j.get("job_city"),
                 "Country": j.get("job_country"),
