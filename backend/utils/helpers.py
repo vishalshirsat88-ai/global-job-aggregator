@@ -51,10 +51,11 @@ def city_match(row_location, search_locations):
 def calculate_job_score(job, skills, levels, countries):
     score = 0
 
-    title = (job.get("Title") or "").lower()
-    desc = (job.get("Description") or "").lower()
-    location = (job.get("Country") or "").lower()
-    source = (job.get("Source") or "").lower()
+    title = str(job.get("Title") or "").lower()
+    desc = str(job.get("Description") or "").lower()
+    country_val = job.get("Country")
+    location = str(job.get("Country") or "").lower()
+    source = str(job.get("Source") or "").lower()
 
     # --- Skill match in title (MOST IMPORTANT)
     for skill in skills:
