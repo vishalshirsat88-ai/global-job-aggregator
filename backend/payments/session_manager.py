@@ -22,13 +22,19 @@ def verify_and_register_session(token_value, session_id):
 
     # Remove expired sessions
     active_sessions = []
+
     for s in token.sessions:
         if now - s.last_seen < timeout:
             active_sessions.append(s)
         else:
             db.delete(s)
     
+    # 🔥 IMPORTANT — ensure deletes are applied immediately
+    db.flush()
+    
+    # then commit changes
     db.commit()
+
 
 
 
