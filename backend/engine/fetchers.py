@@ -3,9 +3,6 @@ import requests
 import feedparser
 from datetime import datetime, timedelta
 
-# =========================
-# ENV VARIABLES
-# =========================
 RAPIDAPI_KEYS = os.getenv("RAPIDAPI_KEYS", "").split(",")
 JOOBLE_KEY = os.getenv("JOOBLE_KEY")
 ADZUNA_APP_ID = os.getenv("ADZUNA_APP_ID")
@@ -16,58 +13,32 @@ USAJOBS_API_KEY = os.getenv("USAJOBS_API_KEY")
 REMOTIVE_API = "https://remotive.com/api/remote-jobs"
 
 # =========================
-# STICKY KEY ROTATION MEMORY
+# STICKY KEY MEMORY
 # =========================
 current_key_index = 0
 
-# =========================
-# COUNTRY MAP
-# =========================
 COUNTRIES = {
-    "India": "in",
-    "United States": "us",
-    "United Kingdom": "gb",
-    "United Arab Emirates": "ae",
-    "Canada": "ca",
-    "Australia": "au",
-    "Germany": "de",
-    "France": "fr",
-    "Netherlands": "nl",
-    "Ireland": "ie",
-    "Spain": "es",
-    "Italy": "it",
-    "Singapore": "sg",
-    "Brazil": "br",
-    "South Africa": "za",
-    "Mexico": "mx",
-    "Poland": "pl",
-    "Belgium": "be",
-    "Austria": "at",
-    "Switzerland": "ch"
+    "India": "in","United States": "us","United Kingdom": "gb",
+    "United Arab Emirates": "ae","Canada": "ca","Australia": "au",
+    "Germany": "de","France": "fr","Netherlands": "nl","Ireland": "ie",
+    "Spain": "es","Italy": "it","Singapore": "sg","Brazil": "br",
+    "South Africa": "za","Mexico": "mx","Poland": "pl","Belgium": "be",
+    "Austria": "at","Switzerland": "ch"
 }
 
-from backend.utils.helpers import (
-    normalize_date,
-    parse_date,
-    skill_match,
-    work_mode,
-    excel_link
-)
+from backend.utils.helpers import normalize_date, parse_date, skill_match, work_mode, excel_link
 
 # =========================================================
-# SAFE REQUEST HELPER WITH STICKY FAILOVER
+# SAFE REQUEST WITH STICKY ROTATION
 # =========================================================
 def safe_json_request(method, url, **kwargs):
     global current_key_index
 
     try:
-        # RAPIDAPI ROTATION
         if "rapidapi" in url and RAPIDAPI_KEYS and RAPIDAPI_KEYS != [""]:
-
             total = len(RAPIDAPI_KEYS)
 
             for i in range(total):
-
                 idx = (current_key_index + i) % total
                 key = RAPIDAPI_KEYS[idx]
 
@@ -80,45 +51,30 @@ def safe_json_request(method, url, **kwargs):
 
                 r = requests.request(method, url, timeout=20, **kwargs)
 
-                print(f"➡️ Status Code: {r.status_code}")
+                print("➡️ Status:", r.status_code)
 
-                # SUCCESS
                 if r.status_code == 200:
-                    data = r.json()
-                    count = len(data.get("data", []))
-
-                    print(f"✅ RapidAPI Jobs Received: {count}")
-
-                    # SAVE WORKING KEY
                     current_key_index = idx
-
+                    data = r.json()
+                    print("✅ Jobs:", len(data.get("data", [])))
                     return data
 
-                # RATE LIMIT → try next key
                 if r.status_code in (403, 429):
-                    print("⚠️ Key exhausted → trying next")
+                    print("⚠️ Key exhausted")
                     continue
 
-                print("❌ API ERROR:", r.text[:200])
-
-            print("🚨 ALL RAPIDAPI KEYS EXHAUSTED")
+            print("🚨 All RapidAPI keys exhausted")
             return {}
 
-        # NON RAPIDAPI CALL
         r = requests.request(method, url, timeout=20, **kwargs)
-
-        if r.status_code != 200:
-            print("❌ API ERROR:", url, r.status_code)
-            return {}
-
-        return r.json()
+        return r.json() if r.status_code == 200 else {}
 
     except Exception as e:
-        print("❌ REQUEST FAILED:", url, e)
+        print("❌ Request Failed:", e)
         return {}
 
 # =========================================================
-# REMOTE JOBS
+# REMOTE FETCHERS
 # =========================================================
 def fetch_remote_jobs(skills, level, posted_days):
     rows = []
@@ -126,108 +82,69 @@ def fetch_remote_jobs(skills, level, posted_days):
 
     for skill in skills:
         data = safe_json_request(
-            "GET",
-            "https://jsearch.p.rapidapi.com/search",
-            params={"query": f"{skill} {level} remote job", "num_pages": 1}
+            "GET","https://jsearch.p.rapidapi.com/search",
+            params={"query": f"{skill} {level} remote job","num_pages": 1}
         )
 
         for j in data.get("data", []):
-            blob = f"{j.get('job_title','')} {j.get('job_description','')}"
-
-            if not skill_match(blob, skill):
-                continue
-
-            dt = parse_date(j.get("job_posted_at_datetime_utc",""))
-            if dt and dt < cutoff:
-                continue
+            dt = parse_date(j.get("job_posted_at_datetime_utc"))
+            if dt and dt < cutoff: continue
 
             rows.append({
-                "Source": j.get("job_publisher",""),
+                "Source": j.get("job_publisher"),
                 "Skill": skill,
                 "Title": j.get("job_title"),
                 "Company": j.get("employer_name"),
                 "Location": "Remote",
                 "Country": "Remote",
                 "Work Mode": "Remote",
-                "Posted": j.get("job_posted_at_datetime_utc",""),
                 "Apply": j.get("job_apply_link"),
                 "_excel": excel_link(j.get("job_apply_link")),
                 "_date": dt
             })
 
     remotive = safe_json_request("GET", REMOTIVE_API)
-
     for skill in skills:
         for j in remotive.get("jobs", []):
-            if not skill_match(j.get("title",""), skill):
-                continue
-
-            rows.append({
-                "Source": "Remotive",
-                "Skill": skill,
-                "Title": j.get("title"),
-                "Company": j.get("company_name"),
-                "Location": "Remote",
-                "Country": "Remote",
-                "Work Mode": "Remote",
-                "Posted": "",
-                "Apply": j.get("url"),
-                "_excel": excel_link(j.get("url")),
-                "_date": None
-            })
-
+            if skill_match(j.get("title",""), skill):
+                rows.append({
+                    "Source": "Remotive","Skill": skill,"Title": j.get("title"),
+                    "Company": j.get("company_name"),"Location": "Remote",
+                    "Country": "Remote","Work Mode": "Remote",
+                    "Apply": j.get("url"),"_excel": excel_link(j.get("url")),"_date": None
+                })
     return rows
 
 # =========================================================
-# RSS FETCHERS
+# RSS
 # =========================================================
 def fetch_weworkremotely(skills):
     rows = []
-    feeds = [
-        "https://weworkremotely.com/categories/remote-programming-jobs.rss",
-        "https://weworkremotely.com/categories/remote-management-jobs.rss"
-    ]
+    feeds = ["https://weworkremotely.com/categories/remote-programming-jobs.rss"]
 
     for f in feeds:
         feed = feedparser.parse(f)
-
         for e in feed.entries:
             for skill in skills:
-                if e.title and skill.lower() in e.title.lower():
+                if skill.lower() in e.title.lower():
                     rows.append({
-                        "Source": "WeWorkRemotely",
-                        "Skill": skill,
-                        "Title": e.title,
-                        "Company": "",
-                        "Location": "Remote",
-                        "Country": "Remote",
-                        "Work Mode": "Remote",
-                        "Apply": e.link,
-                        "_excel": excel_link(e.link),
-                        "_date": None
+                        "Source":"WeWorkRemotely","Skill":skill,"Title":e.title,
+                        "Location":"Remote","Country":"Remote","Apply":e.link,
+                        "_excel":excel_link(e.link)
                     })
     return rows
 
 def fetch_arbeitnow(skills):
     rows = []
-    data = safe_json_request("GET", "https://www.arbeitnow.com/api/job-board-api")
-
-    for j in data.get("data", []):
+    data = safe_json_request("GET","https://www.arbeitnow.com/api/job-board-api")
+    for j in data.get("data",[]):
         for skill in skills:
-            if not skill_match(j.get("title",""), skill):
-                continue
-
-            rows.append({
-                "Source": "Arbeitnow",
-                "Skill": skill,
-                "Title": j.get("title"),
-                "Company": j.get("company_name"),
-                "Location": j.get("location"),
-                "Work Mode": "Remote" if j.get("remote") else "On-site",
-                "Apply": j.get("url"),
-                "_excel": excel_link(j.get("url")),
-                "_date": None
-            })
+            if skill_match(j.get("title"),skill):
+                rows.append({
+                    "Source":"Arbeitnow","Skill":skill,"Title":j.get("title"),
+                    "Company":j.get("company_name"),"Location":j.get("location"),
+                    "Apply":j.get("url"),"_excel":excel_link(j.get("url"))
+                })
     return rows
 
 # =========================================================
@@ -238,31 +155,79 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
     for skill in skills:
-        data = safe_json_request(
-            "GET",
-            "https://jsearch.p.rapidapi.com/search",
-            params={"query": f"{skill} job {location}".strip(), "num_pages": 1}
-        )
+        data = safe_json_request("GET","https://jsearch.p.rapidapi.com/search",
+                                 params={"query":f"{skill} job {location}","num_pages":1})
 
-        print(f"JSearch returned {len(data.get('data', []))} jobs")
-
-        for j in data.get("data", []):
+        for j in data.get("data",[]):
             dt = normalize_date(j.get("job_posted_at_datetime_utc"))
-
-            if dt and dt < cutoff:
-                continue
+            if dt and dt < cutoff: continue
 
             rows.append({
-                "Source": "JSearch",
-                "Skill": skill,
-                "Title": j.get("job_title"),
-                "Company": j.get("employer_name"),
-                "Location": j.get("job_city"),
-                "Country": j.get("job_country"),
-                "Work Mode": j.get("job_employment_type"),
-                "Apply": j.get("job_apply_link"),
-                "_excel": excel_link(j.get("job_apply_link")),
-                "_date": dt
+                "Source":"JSearch","Skill":skill,"Title":j.get("job_title"),
+                "Company":j.get("employer_name"),"Location":j.get("job_city"),
+                "Country":j.get("job_country"),"Apply":j.get("job_apply_link"),
+                "_excel":excel_link(j.get("job_apply_link")),"_date":dt
             })
+    return rows
 
+def fetch_adzuna(skills, levels, countries, posted_days, location):
+    rows = []
+    cutoff = datetime.utcnow() - timedelta(days=posted_days)
+
+    for c in countries:
+        if c not in COUNTRIES: continue
+
+        data = safe_json_request("GET",
+            f"https://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/1",
+            params={"app_id":ADZUNA_APP_ID,"app_key":ADZUNA_API_KEY,
+                    "what":" OR ".join(skills),"where":location,"results_per_page":20})
+
+        for j in data.get("results",[]):
+            dt = normalize_date(j.get("created"))
+            if dt and dt < cutoff: continue
+
+            rows.append({
+                "Source":"Adzuna","Skill":", ".join(skills),
+                "Title":j.get("title"),"Company":j.get("company",{}).get("display_name"),
+                "Location":j.get("location",{}).get("display_name"),
+                "Country":c,"Apply":j.get("redirect_url"),
+                "_excel":excel_link(j.get("redirect_url")),"_date":dt
+            })
+    return rows
+
+def fetch_jooble(skills, levels, countries, location):
+    rows = []
+    for c in countries:
+        data = safe_json_request("POST",f"https://jooble.org/api/{JOOBLE_KEY}",
+                                 json={"keywords":" ".join(skills),"location":location or c})
+
+        for j in data.get("jobs",[]):
+            rows.append({
+                "Source":"Jooble","Skill":", ".join(skills),
+                "Title":j.get("title"),"Company":j.get("company"),
+                "Location":j.get("location"),"Apply":j.get("link"),
+                "_excel":excel_link(j.get("link"))
+            })
+    return rows
+
+def fetch_usajobs(skills, posted_days):
+    rows = []
+    cutoff = datetime.utcnow() - timedelta(days=posted_days)
+
+    for skill in skills:
+        data = safe_json_request("GET","https://data.usajobs.gov/api/search",
+            headers={"User-Agent":USAJOBS_EMAIL,"Authorization-Key":USAJOBS_API_KEY},
+            params={"Keyword":skill})
+
+        for j in data.get("SearchResult",{}).get("SearchResultItems",[]):
+            d = j["MatchedObjectDescriptor"]
+            dt = normalize_date(d.get("PublicationStartDate"))
+            if dt and dt < cutoff: continue
+
+            rows.append({
+                "Source":"USAJobs","Skill":skill,"Title":d["PositionTitle"],
+                "Company":d["OrganizationName"],
+                "Location":", ".join(l["LocationName"] for l in d["PositionLocation"]),
+                "Apply":d["PositionURI"],"_excel":excel_link(d["PositionURI"]),"_date":dt
+            })
     return rows
