@@ -136,7 +136,7 @@ def filter_and_rank_jobs(rows, skills, levels, countries, top_n=50):
     for job in rows:
         score = calculate_job_score(job, skills, levels, countries)
 
-        if score >= 60:   # Quality threshold
+        if score >= 40:   # Quality threshold
             job["_score"] = score
             scored.append(job)
 
