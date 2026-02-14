@@ -4,7 +4,7 @@ import os
 # REQUIRED ENV VARS (names only)
 # =========================================================
 REQUIRED_ENV_VARS = [
-    "RAPIDAPI_KEY",
+    "RAPIDAPI_KEYS",
     "JOOBLE_KEY",
     "ADZUNA_APP_ID",
     "ADZUNA_API_KEY",
