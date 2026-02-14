@@ -90,10 +90,12 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     allowed_country_names = {c.upper() for c in countries}
 
     def country_match(row_country):
-        if not row_country:
+
+        # Handle NaN / None safely
+        if pd.isna(row_country):
             return True
     
-        rc = row_country.upper()
+        rc = str(row_country).upper()
     
         if rc == "REMOTE":
             return True
