@@ -183,6 +183,8 @@ section[data-testid="stSidebar"] * {
     font-weight: 600;
     color: #1F2937;
     margin-bottom: 4px;
+    letter-spacing: 0.2px;
+
 }
 
 </style>
@@ -217,26 +219,34 @@ skills = [s.strip() for s in skills_input.split(",") if s.strip()]
 
 
 # LEVELS (OPTIONAL)
+st.markdown('<div class="form-label">🎯 Levels (Optional)</div>', unsafe_allow_html=True)
+
 levels_input = st.text_input(
-    "🎯 Levels (Optional)",
+    "Levels",
     "",
-    key="levels_input"
+    key="levels_input",
+    label_visibility="collapsed"
 )
 
 st.caption("Mention levels (comma separated). Eg: Associate, Senior Developer, Manager")
+
 
 
 levels = [l.strip() for l in levels_input.split(",") if l.strip()]
 
 
 # LOCATION
+st.markdown('<div class="form-label">📍 Location (City or Remote)</div>', unsafe_allow_html=True)
+
 location_input = st.text_input(
-    "📍 Location (City or Remote)",
+    "Location",
     "",
-    key="location_input"
+    key="location_input",
+    label_visibility="collapsed"
 )
 
 st.caption("Multiple cities supported. If cities are from different countries, select those countries below. Type 'Remote' to search remote jobs.")
+
 
 
 
