@@ -234,7 +234,12 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
         for s in skills:
             expanded.extend(expand_skill(s))
         
+        expanded = []
+        for s in skills:
+            expanded.extend(expand_skill(s))
+        
         query = " OR ".join(set(expanded))
+
 
 
         print("\n===== ADZUNA DEBUG =====")
