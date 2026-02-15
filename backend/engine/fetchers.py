@@ -219,19 +219,32 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
 
 
 def fetch_adzuna(skills, levels, countries, posted_days, location):
-    print("ADZUNA FINAL QUERY:", query)
-    print("ADZUNA LOCATION:", location)
-
+    
     rows = []
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
     for c in countries:
         if c not in COUNTRIES: continue
 
+        query = " OR ".join(skills)
+
+        print("\n===== ADZUNA DEBUG =====")
+        print("Query:", query)
+        print("Location:", location)
+        print("Country:", c)
+        print("========================\n")
+        
         data = safe_json_request("GET",
             f"https://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/1",
-            params={"app_id":ADZUNA_APP_ID,"app_key":ADZUNA_API_KEY,
-                    "what":" OR ".join(skills),"where":location,"results_per_page":20})
+            params={
+                "app_id": ADZUNA_APP_ID,
+                "app_key": ADZUNA_API_KEY,
+                "what": query,
+                "where": f"{location} {c}" if location else c,
+                "results_per_page": 20
+            }
+        )
+
 
         for j in data.get("results",[]):
             dt = normalize_date(j.get("created"))
@@ -248,13 +261,28 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
     return rows
 
 def fetch_jooble(skills, levels, countries, location):
-    print("JOOBLE FINAL QUERY:", query)
-    print("JOOBLE LOCATION:", location)
 
     rows = []
+
     for c in countries:
-        data = safe_json_request("POST",f"https://jooble.org/api/{JOOBLE_KEY}",
-                                 json={"keywords":" ".join(skills),"location":location or c})
+
+        keywords = " ".join(skills)
+        loc = location or c
+
+        print("\n===== JOOBLE DEBUG =====")
+        print("Keywords:", keywords)
+        print("Location:", loc)
+        print("========================\n")
+
+        data = safe_json_request(
+            "POST",
+            f"https://jooble.org/api/{JOOBLE_KEY}",
+            json={
+                "keywords": keywords,
+                "location": loc
+            }
+        )
+
 
         for j in data.get("jobs",[]):
             rows.append({
