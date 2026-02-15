@@ -38,7 +38,7 @@ def safe_json_request(method, url, **kwargs):
         if "rapidapi" in url and RAPIDAPI_KEYS and RAPIDAPI_KEYS != [""]:
             total = len(RAPIDAPI_KEYS)
 
-            for i in range(total):
+            for i in range(1):
                 idx = (current_key_index + i) % total
                 key = RAPIDAPI_KEYS[idx]
 
