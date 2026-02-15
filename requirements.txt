@@ -6,3 +6,4 @@ feedparser
 uvicorn
 python-dotenv
 # railway-rebuild
+openpyxl
