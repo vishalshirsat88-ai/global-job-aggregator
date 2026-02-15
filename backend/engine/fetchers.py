@@ -63,10 +63,14 @@ def safe_json_request(method, url, **kwargs):
 
                 print("➡️ Status:", r.status_code)
 
-                if r.status_code == 200:
+                if 200 <= r.status_code < 300:
                     current_key_index = idx  # remember working key
                     data = r.json()
-                    print("✅ Jobs:", len(data.get("data", [])))
+                    if "data" in data:
+                        print("✅ Jobs:", len(data.get("data", [])))
+                    elif "results" in data:
+                        print("✅ Jobs:", len(data.get("results", [])))
+
                     return data
 
                 if r.status_code in (403, 429):
@@ -81,7 +85,7 @@ def safe_json_request(method, url, **kwargs):
 
         # Non-RapidAPI requests
         r = requests.request(method, url, timeout=20, **kwargs)
-        return r.json() if r.status_code == 200 else {}
+        return r.json() if 200 <= r.status_code < 300 else {}
 
     except Exception as e:
         print("❌ Request Failed:", e)
@@ -234,9 +238,6 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
         for s in skills:
             expanded.extend(expand_skill(s))
         
-        expanded = []
-        for s in skills:
-            expanded.extend(expand_skill(s))
         
         query = " OR ".join(set(expanded))
 
