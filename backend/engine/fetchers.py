@@ -38,23 +38,29 @@ def safe_json_request(method, url, **kwargs):
         if "rapidapi" in url and RAPIDAPI_KEYS and RAPIDAPI_KEYS != [""]:
             total = len(RAPIDAPI_KEYS)
 
-            for i in range(1):
+            for i in range(total):
                 idx = (current_key_index + i) % total
                 key = RAPIDAPI_KEYS[idx]
 
-                headers = kwargs.get("headers", {})
+                # ✅ IMPORTANT — copy headers safely
+                headers = kwargs.get("headers", {}).copy()
                 headers["x-rapidapi-key"] = key
                 headers["x-rapidapi-host"] = "jsearch.p.rapidapi.com"
-                kwargs["headers"] = headers
 
                 print(f"\n🔑 Trying RapidAPI Key: {key[:6]}****")
 
-                r = requests.request(method, url, timeout=20, **kwargs)
+                r = requests.request(
+                    method,
+                    url,
+                    timeout=20,
+                    headers=headers,
+                    **{k: v for k, v in kwargs.items() if k != "headers"}
+                )
 
                 print("➡️ Status:", r.status_code)
 
                 if r.status_code == 200:
-                    current_key_index = idx
+                    current_key_index = idx  # remember working key
                     data = r.json()
                     print("✅ Jobs:", len(data.get("data", [])))
                     return data
@@ -63,15 +69,20 @@ def safe_json_request(method, url, **kwargs):
                     print("⚠️ Key exhausted")
                     continue
 
+                # other errors → stop rotation
+                break
+
             print("🚨 All RapidAPI keys exhausted")
             return {}
 
+        # Non-RapidAPI requests
         r = requests.request(method, url, timeout=20, **kwargs)
         return r.json() if r.status_code == 200 else {}
 
     except Exception as e:
         print("❌ Request Failed:", e)
         return {}
+
 
 # =========================================================
 # REMOTE FETCHERS
