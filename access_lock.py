@@ -8,6 +8,16 @@ BACKEND_URL = "https://global-job-aggregator-production.up.railway.app"
 def verify_access():
     params = st.query_params
 
+    
+    # ===============================
+    # 🟢 DEV MODE BYPASS
+    # ===============================
+    if params.get("dev") == "true":
+        st.session_state["access_token"] = "DEV_MODE"
+        st.session_state["session_id"] = "DEV_SESSION"
+        st.toast("🛠️ Dev Mode Active — Access Bypassed")
+        return
+
     # ===============================
     # STEP 1: GET TOKEN FROM URL OR SESSION
     # ===============================
@@ -65,7 +75,7 @@ def verify_access():
             st.session_state.welcome_shown = True
 
             st.success("🎉 Payment Successful! Welcome to JobHunt++ Premium Access!")
-            st.info("🚀 You now have lifetime access. Enjoy exploring global job opportunities!")
+            #st.info("🚀 You now have lifetime access. Enjoy exploring global job opportunities!")
 
         # ===============================
         # STEP 5: CLEAN URL (AFTER SAVING TOKEN)
