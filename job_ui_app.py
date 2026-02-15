@@ -19,11 +19,27 @@ from openpyxl.utils import get_column_letter
 def export_to_excel(df):
     df_export = df.copy()
 
-    # Drop unwanted columns for export
-    for col in ["Source", "API", "_excel", "_date"]:
+    # ---------- REMOVE SOURCE COLUMN ----------
+    if "Source" in df_export.columns:
+        df_export = df_export.drop(columns=["Source"])
+
+    # ---------- HANDLE APPLY COLUMNS ----------
+    if "Apply" in df_export.columns:
+
+        # Rename existing Apply to Source Link
+        df_export = df_export.rename(columns={"Apply": "Source Link"})
+
+        # Create new Apply column with Excel hyperlink formula
+        df_export["Apply"] = df_export["Source Link"].apply(
+            lambda x: f'=HYPERLINK("{x}","Apply")' if pd.notna(x) else ""
+        )
+
+    # Remove internal columns if present
+    for col in ["API", "_excel", "_date"]:
         if col in df_export.columns:
             df_export = df_export.drop(columns=[col])
 
+    from io import BytesIO
     output = BytesIO()
 
     with pd.ExcelWriter(output, engine="openpyxl") as writer:
@@ -31,22 +47,23 @@ def export_to_excel(df):
 
         ws = writer.sheets["Jobs"]
 
-        # ---------- HEADER STYLING ----------
+        from openpyxl.styles import Font, PatternFill, Alignment
+        from openpyxl.utils import get_column_letter
+
+        # ---------- HEADER STYLE ----------
         header_fill = PatternFill(start_color="4F6CF7", end_color="4F6CF7", fill_type="solid")
         header_font = Font(color="FFFFFF", bold=True, size=12)
 
         for cell in ws[1]:
             cell.fill = header_fill
             cell.font = header_font
-            cell.alignment = Alignment(horizontal="center", vertical="center")
+            cell.alignment = Alignment(horizontal="center")
 
-        # ---------- FREEZE HEADER ----------
+        # ---------- FREEZE + FILTER ----------
         ws.freeze_panes = "A2"
-
-        # ---------- ENABLE FILTERS ----------
         ws.auto_filter.ref = ws.dimensions
 
-        # ---------- ALTERNATING ROW COLORS ----------
+        # ---------- ALT ROW SHADING ----------
         alt_fill = PatternFill(start_color="F4F6FF", end_color="F4F6FF", fill_type="solid")
 
         for row in range(2, ws.max_row + 1):
@@ -54,21 +71,24 @@ def export_to_excel(df):
                 for col in range(1, ws.max_column + 1):
                     ws.cell(row=row, column=col).fill = alt_fill
 
-        # ---------- AUTO-SIZE COLUMNS ----------
+        # ---------- AUTO SIZE ----------
         for col in ws.columns:
-            max_length = 0
             col_letter = get_column_letter(col[0].column)
+            max_length = 0
 
             for cell in col:
-                try:
-                    if cell.value:
-                        max_length = max(max_length, len(str(cell.value)))
-                except:
-                    pass
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
 
             ws.column_dimensions[col_letter].width = max_length + 4
 
+        # ---------- FORCE SMALL WIDTH FOR SOURCE LINK ----------
+        for i, col in enumerate(df_export.columns, 1):
+            if col == "Source Link":
+                ws.column_dimensions[get_column_letter(i)].width = 5
+
     return output.getvalue()
+
 
 
 # Keep your specific backend URL
