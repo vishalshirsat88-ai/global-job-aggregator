@@ -161,40 +161,49 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
 
     for skill in skills:
 
-        query = f"{skill} {levels[0] if levels else ''} {location}".strip()
+        query_parts = [skill]
+
+        if levels:
+            query_parts.append(" ".join(levels))
+
+        if location:
+            query_parts.append(location)
+
+        query = " ".join(query_parts)
+
+        print(f"\n🚀 JSEARCH QUERY → {query}")
 
         data = safe_json_request(
             "GET",
             "https://jsearch.p.rapidapi.com/search",
             params={
                 "query": query,
-                "num_pages": 2,
-                "date_posted": "month"
+                "num_pages": 2
             }
         )
 
-        raw_jobs = data.get("data", [])
+        for j in data.get("data", []):
 
-        for j in raw_jobs:
             dt = normalize_date(j.get("job_posted_at_datetime_utc"))
 
             if dt and dt < cutoff:
                 continue
 
             rows.append({
-                "Source": j.get("job_publisher",""),
+                "Source": j.get("job_publisher", ""),
                 "API": "JSearch",
                 "Skill": skill,
                 "Title": j.get("job_title"),
                 "Company": j.get("employer_name"),
-                "Location": j.get("job_city"),
-                "Country": j.get("job_country"),
+                "Location": j.get("job_city") or j.get("job_state") or "",
+                "Country": (j.get("job_country") or "").upper(),
                 "Apply": j.get("job_apply_link"),
                 "_excel": excel_link(j.get("job_apply_link")),
                 "_date": dt
             })
 
     return rows
+
 
 
 
