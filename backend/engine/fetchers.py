@@ -160,48 +160,51 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
     for skill in skills:
+        for country in countries:
 
-        query = f"{skill} {levels[0] if levels else ''} {location}".strip()
+            query_parts = [skill]
 
-        data = safe_json_request(
-            "GET",
-            "https://jsearch.p.rapidapi.com/search",
-            params={
-                "query": query,
-                "num_pages": 2,
-                "date_posted": "month"
-            }
-        )
+            if levels:
+                query_parts.append(" ".join(levels))
 
-        raw_jobs = data.get("data", [])
+            if location:
+                query_parts.append(location)
+            else:
+                query_parts.append(country)   # ← KEY LINE
 
-        for j in raw_jobs:
-            dt = normalize_date(j.get("job_posted_at_datetime_utc"))
+            query = " ".join(query_parts)
 
-            if dt and dt < cutoff:
-                continue
+            print(f"\n🚀 JSEARCH QUERY → {query}")
 
-            rows.append({
-                "Source": j.get("job_publisher",""),
-                "API": "JSearch",
-                "Skill": skill,
-                "Title": j.get("job_title"),
-                "Company": j.get("employer_name"),
-                "Location": j.get("job_city"),
-                "Country": j.get("job_country"),
-                "Apply": j.get("job_apply_link"),
-                "_excel": excel_link(j.get("job_apply_link")),
-                "_date": dt
-            })
+            data = safe_json_request(
+                "GET",
+                "https://jsearch.p.rapidapi.com/search",
+                params={
+                    "query": query,
+                    "num_pages": 2
+                }
+            )
+
+            for j in data.get("data", []):
+                dt = normalize_date(j.get("job_posted_at_datetime_utc"))
+
+                if dt and dt < cutoff:
+                    continue
+
+                rows.append({
+                    "Source": j.get("job_publisher", ""),
+                    "API": "JSearch",
+                    "Skill": skill,
+                    "Title": j.get("job_title"),
+                    "Company": j.get("employer_name"),
+                    "Location": j.get("job_city") or "",
+                    "Country": (j.get("job_country") or "").upper(),
+                    "Apply": j.get("job_apply_link"),
+                    "_excel": excel_link(j.get("job_apply_link")),
+                    "_date": dt
+                })
 
     return rows
-
-
-
-
-
-
-
 
 
 def fetch_adzuna(skills, levels, countries, posted_days, location):
