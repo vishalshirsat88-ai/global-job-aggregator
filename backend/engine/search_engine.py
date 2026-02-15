@@ -104,6 +104,9 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     # ⭐ STEP 1 — APPLY COUNTRY FILTER FIRST (CORRECT ORDER)
     # =====================================================
     df = pd.DataFrame(all_rows)
+    # Ensure required columns exist
+    if "Country" not in df.columns:
+        df["Country"] = None
 
     print("\n===== DEBUG STAGE 1 — RAW DF =====")
     print("Total rows in DF:", len(df))
