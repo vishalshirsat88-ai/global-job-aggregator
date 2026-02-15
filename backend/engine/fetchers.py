@@ -167,7 +167,7 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
             query_parts = [skill]
 
             if levels:
-            query_parts.append(" ".join(levels))
+                query_parts.append(" ".join(levels))
         
             # If city selected → include it
             if location:
