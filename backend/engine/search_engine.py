@@ -130,7 +130,6 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     
     # ✅ IMPORTANT — convert ranked output to df
     df = pd.DataFrame(ranked_rows)
-    df = df.fillna("")
 
 
     
