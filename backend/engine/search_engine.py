@@ -18,27 +18,30 @@ from backend.utils.helpers import filter_and_rank_jobs
 # =========================================================
 def run_engine(skills, levels, locations, countries, posted_days, include_country_safe=True):
 
-    # -----------------------------
-    # SAFETY: PRESERVE ORIGINAL INPUT
-    # -----------------------------
     raw_locations = locations.copy() if locations else [""]
-
-    # Cleaned locations for loops
     locations = [l.strip() for l in raw_locations if l and l.strip()]
 
     all_rows = []
 
-    # -----------------------------
-    # FETCH FROM ALL SOURCES
-    # -----------------------------
-
-    # JSearch uses COMBINED location (fast optimization)
     search_location = " ".join(raw_locations).strip()
 
+    print("\n==============================")
+    print("ENGINE INPUT DEBUG")
+    print("Skills:", skills)
+    print("Levels:", levels)
+    print("Locations:", raw_locations)
+    print("Countries:", countries)
+    print("Posted Days:", posted_days)
+    print("==============================\n")
+
     # -----------------------------
-    # FAST — JSearch once per skill
+    # JSEARCH DEBUG
     # -----------------------------
     for skill in skills:
+        print(f"\n🚀 JSEARCH CALL")
+        print("Query:", skill)
+        print("Location:", search_location)
+
         all_rows += fetch_jsearch(
             [skill],
             levels,
@@ -48,14 +51,17 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
         )
 
     # -----------------------------
-    # SAFE — Adzuna & Jooble
-    # NEVER SKIP EVEN IF EMPTY
+    # ADZUNA + JOOBLE DEBUG
     # -----------------------------
     loop_locations = locations if locations else [""]
 
     for loc in loop_locations:
         for skill in skills:
-            print(f"Calling Adzuna for: {loc}")
+
+            print(f"\n🟡 ADZUNA CALL")
+            print("Query:", skill)
+            print("Location:", loc)
+
             all_rows += fetch_adzuna(
                 [skill],
                 levels,
@@ -64,7 +70,10 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
                 loc
             )
 
-            print(f"Calling Jooble for: {loc}")
+            print(f"\n🔵 JOOBLE CALL")
+            print("Query:", skill)
+            print("Location:", loc)
+
             all_rows += fetch_jooble(
                 [skill],
                 levels,
@@ -72,28 +81,11 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
                 loc
             )
 
-    # -----------------------------
-    # COUNTRY SAFE SOURCES
-    # -----------------------------
-    if include_country_safe:
-
-        if "United States" in countries:
-            print("Calling USAJobs...")
-            all_rows += fetch_usajobs(skills, posted_days)
-
-        eu_list = {"Germany", "France", "Netherlands", "Ireland", "Spain", "Italy"}
-
-        if any(c in eu_list for c in countries):
-            print("Calling ArbeitNow...")
-            all_rows += fetch_arbeitnow(skills)
-
-    # -----------------------------
-    # RETURN RESULT
-    # -----------------------------
     if not all_rows:
         return pd.DataFrame(), True
 
     return pd.DataFrame(all_rows), False
+
 
     print("\n==============================")
     print("🔎 ENGINE DEBUG — BEFORE SCORING")
