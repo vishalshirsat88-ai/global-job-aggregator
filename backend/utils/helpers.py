@@ -51,19 +51,21 @@ def city_match(row_location, search_locations):
 def calculate_job_score(job, skills, levels, countries):
     score = 0
     if job.get("API") == "JSearch":
-    print("\n---- SCORING JSEARCH JOB ----")
-    print("Title:", job.get("Title"))
-    print("Country:", job.get("Country"))
-    print("Date:", job.get("_date"))
+        print("\n---- SCORING JSEARCH JOB ----")
+        print("Title:", job.get("Title"))
+        print("Country:", job.get("Country"))
+        print("Date:", job.get("_date"))
 
     
     title = str(job.get("Title") or "").lower()
     desc = str(job.get("Description") or "").lower()
     country_val = job.get("Country")
-    if country_val is None or str(country_val).lower() == "nan":
+
+    if not country_val:
         location = ""
     else:
         location = str(country_val).lower()
+
     source = str(job.get("Source") or "").lower()
     api = str(job.get("API") or "").lower()
 
@@ -159,13 +161,13 @@ def filter_and_rank_jobs(rows, skills, levels, countries, top_n=50):
         score = calculate_job_score(job, skills, levels, countries)
 
         if score >= 30:   # Quality threshold
-            else:
-                if job.get("API") == "JSearch":
-                    print("❌ DROPPED BY THRESHOLD:", job.get("Title"), "Score:", score)
-
             job["_score"] = score
             scored.append(job)
+        else:
+            if job.get("API") == "JSearch":
+                    print("❌ DROPPED BY THRESHOLD:", job.get("Title"), "Score:", score)
 
+            
     # Step 3 — Sort by score
     scored.sort(key=lambda x: x["_score"], reverse=True)
 
