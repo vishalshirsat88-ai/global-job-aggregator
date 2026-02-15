@@ -208,17 +208,17 @@ def search_jobs(req: SearchRequest):
     raw_jobs = df_or_rows if req.is_remote else df_or_rows.to_dict("records")
     normalized_jobs = [normalize_job_row(j) for j in raw_jobs]
 
-    # SORT
-    df = pd.DataFrame(all_rows)
-
-    df = df.sort_values(
-        by="_date",
-        ascending=False,
-        na_position="last"
-    )
+    # SORT SAFELY (same behavior as old system)
+    df = pd.DataFrame(normalized_jobs)
+    
+    if not df.empty and "_date" in df.columns:
+        df = df.sort_values(
+            by="_date",
+            ascending=False,
+            na_position="last"
+        )
     
     normalized_jobs = df.to_dict(orient="records")
-
 
     for job in normalized_jobs:
         job.pop("_date", None)
