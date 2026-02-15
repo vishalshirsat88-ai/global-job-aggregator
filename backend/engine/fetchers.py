@@ -26,7 +26,11 @@ COUNTRIES = {
     "Austria": "at","Switzerland": "ch"
 }
 
-from backend.utils.helpers import normalize_date, parse_date, skill_match, work_mode, excel_link
+from backend.utils.helpers import (
+    normalize_date, parse_date, skill_match,
+    work_mode, excel_link, expand_skill
+)
+
 
 # =========================================================
 # SAFE REQUEST WITH STICKY ROTATION
@@ -226,7 +230,12 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
     for c in countries:
         if c not in COUNTRIES: continue
 
-        query = " OR ".join(skills)
+        expanded = []
+        for s in skills:
+            expanded.extend(expand_skill(s))
+        
+        query = " OR ".join(set(expanded))
+
 
         print("\n===== ADZUNA DEBUG =====")
         print("Query:", query)
@@ -266,7 +275,12 @@ def fetch_jooble(skills, levels, countries, location):
 
     for c in countries:
 
-        keywords = " ".join(skills)
+        expanded = []
+        for s in skills:
+            expanded.extend(expand_skill(s))
+        
+        keywords = " ".join(set(expanded))
+
         loc = f"{location}, {c}" if location else c
 
         print("\n===== JOOBLE DEBUG =====")
