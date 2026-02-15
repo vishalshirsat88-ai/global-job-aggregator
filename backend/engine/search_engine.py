@@ -27,12 +27,17 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     # FETCH FROM ALL SOURCES
     # -----------------------------
     
+    search_location = " ".join(locations).strip()
+
+    # FAST — JSearch once per skill
+    for skill in skills:
+        all_rows += fetch_jsearch([skill], levels, countries, posted_days, search_location)
+    
+    # SAFE — Adzuna & Jooble per location
     for loc in locations:
         for skill in skills:
-            all_rows += fetch_jsearch([skill], levels, countries, posted_days, loc)
             all_rows += fetch_adzuna([skill], levels, countries, posted_days, loc)
             all_rows += fetch_jooble([skill], levels, countries, loc)
-
 
 
     # -----------------------------
