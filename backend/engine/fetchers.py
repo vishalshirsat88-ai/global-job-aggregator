@@ -156,49 +156,73 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
     rows = []
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
+    COUNTRY_CODE_MAP = {
+        "India": "in",
+        "United States": "us",
+        "United Kingdom": "gb",
+        "United Arab Emirates": "ae",
+        "Canada": "ca",
+        "Australia": "au",
+        "Germany": "de",
+        "France": "fr",
+        "Netherlands": "nl",
+        "Ireland": "ie",
+        "Spain": "es",
+        "Italy": "it",
+        "Singapore": "sg",
+        "Brazil": "br",
+        "South Africa": "za",
+        "Mexico": "mx",
+        "Poland": "pl",
+        "Belgium": "be",
+        "Austria": "at",
+        "Switzerland": "ch"
+    }
+
     for skill in skills:
-        print(f"\n🚀 JSEARCH DEBUG — Skill: {skill}")
+        for country in countries:
 
-        data = safe_json_request(
-            "GET",
-            "https://jsearch.p.rapidapi.com/search",
-            params={"query": f"{skill} job {location}", "num_pages": 1}
-        )
-
-        raw_jobs = data.get("data", [])
-        print(f"📦 Raw jobs fetched: {len(raw_jobs)}")
-
-        kept = 0
-        dropped_date = 0
-
-        for j in raw_jobs:
-
-            dt = normalize_date(j.get("job_posted_at_datetime_utc"))
-
-            if dt and dt < cutoff:
-                dropped_date += 1
+            country_code = COUNTRY_CODE_MAP.get(country)
+            if not country_code:
                 continue
 
-            kept += 1
+            print(f"\n🚀 JSEARCH DEBUG — {skill} | Country: {country}")
 
-            rows.append({
-                "Source": j.get("job_publisher",""),
-                "API": "JSearch",   # ← THIS IS MISSING NOW
-                "Skill": skill,
-                "Title": j.get("job_title") or j.get("job_description","")[:80],
-                "Description": j.get("job_description",""),
-                "Company": j.get("employer_name"),
-                "Location": j.get("job_city"),
-                "Country": j.get("job_country"),
-                "Apply": j.get("job_apply_link"),
-                "_excel": excel_link(j.get("job_apply_link")),
-                "_date": dt
-            })
+            data = safe_json_request(
+                "GET",
+                "https://jsearch.p.rapidapi.com/search",
+                params={
+                    "query": f"{skill} {levels[0] if levels else ''}".strip(),
+                    "country": country_code,
+                    "num_pages": 2,
+                    "date_posted": "month"
+                }
+            )
 
-        print(f"🗑 Dropped by date filter: {dropped_date}")
-        print(f"✅ Jobs kept after filtering: {kept}")
+            raw_jobs = data.get("data", [])
+            print("📦 Raw jobs fetched:", len(raw_jobs))
+
+            for j in raw_jobs:
+                dt = normalize_date(j.get("job_posted_at_datetime_utc"))
+
+                if dt and dt < cutoff:
+                    continue
+
+                rows.append({
+                    "Source": j.get("job_publisher",""),
+                    "API": "JSearch",
+                    "Skill": skill,
+                    "Title": j.get("job_title"),
+                    "Company": j.get("employer_name"),
+                    "Location": j.get("job_city"),
+                    "Country": j.get("job_country"),
+                    "Apply": j.get("job_apply_link"),
+                    "_excel": excel_link(j.get("job_apply_link")),
+                    "_date": dt
+                })
 
     return rows
+
 
 
 def fetch_adzuna(skills, levels, countries, posted_days, location):
