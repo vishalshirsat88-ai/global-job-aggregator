@@ -195,7 +195,12 @@ st.markdown("""
 st.markdown("### 🛠 Skills *")
 st.caption("Update skills (comma separated). Eg: Software, Python, Java, Testing, WFM")
 
-skills_input = st.text_input("", "")
+skills_input = st.text_input(
+    "Skills",
+    "",
+    key="skills_input",
+    label_visibility="collapsed"
+)
 
 skills = [s.strip() for s in skills_input.split(",") if s.strip()]
 
@@ -204,7 +209,12 @@ skills = [s.strip() for s in skills_input.split(",") if s.strip()]
 st.markdown("### 🎯 Levels (Optional)")
 st.caption("Mention levels (comma separated). Eg: Associate, Senior Developer, Manager")
 
-levels_input = st.text_input("", "")
+levels_input = st.text_input(
+    "Levels",
+    "",
+    key="levels_input",
+    label_visibility="collapsed"
+)
 
 levels = [l.strip() for l in levels_input.split(",") if l.strip()]
 
@@ -213,7 +223,12 @@ levels = [l.strip() for l in levels_input.split(",") if l.strip()]
 st.markdown("### 📍 Location (City or Remote)")
 st.caption("Multiple cities supported. If cities are from different countries, select those countries below. Type 'Remote' to search remote jobs.")
 
-location_input = st.text_input("", "")
+location_input = st.text_input(
+    "Location",
+    "",
+    key="location_input",
+    label_visibility="collapsed"
+)
 
 
 is_remote = location_input.strip().lower() == "remote"
