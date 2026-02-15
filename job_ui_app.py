@@ -203,6 +203,7 @@ st.markdown("""
 
 # SKILLS (MANDATORY)
 st.markdown('<div class="form-label">🛠 Skills *</div>', unsafe_allow_html=True)
+st.caption("Update skills (comma separated). Eg: Software, Python, Java, Testing, WFM")
 
 skills_input = st.text_input(
     "Skills",
@@ -211,7 +212,6 @@ skills_input = st.text_input(
     label_visibility="collapsed"
 )
 
-st.caption("Update skills (comma separated). Eg: Software, Python, Java, Testing, WFM")
 
 
 
