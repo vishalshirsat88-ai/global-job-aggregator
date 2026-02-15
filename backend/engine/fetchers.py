@@ -160,64 +160,50 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
     for skill in skills:
-        
-            # ---------------------------------
-            # BUILD SEARCH QUERY (SMART LOGIC)
-            # ---------------------------------
-            query_parts = [skill]
 
-            if levels:
-                query_parts.append(" ".join(levels))
-        
-            # If city selected → include it
-            if location:
-                query_parts.append(location)
-           
-            query = " ".join(query_parts)
+        query_parts = [skill]
 
-            print(f"\n🚀 JSEARCH DEBUG → Query: {query}")
+        if levels:
+            query_parts.append(" ".join(levels))
 
+        if location:
+            query_parts.append(location)
 
-            # ---------------------------------
-            # API CALL
-            # ---------------------------------
-            data = safe_json_request(
-                "GET",
-                "https://jsearch.p.rapidapi.com/search",
-                params={
-                    "query": query,
-                    "num_pages": 2,
-                    "date_posted": "month"
-                }
-            )
+        query = " ".join(query_parts)
 
-            #raw_jobs = data.get("data", [])
-            print("📦 Raw jobs fetched:", len(raw_jobs))
+        print(f"\n🚀 JSEARCH QUERY → {query}")
 
-            # ---------------------------------
-            # PARSE JOBS
-            # ---------------------------------
-            for j in data.get("data", []):
+        data = safe_json_request(
+            "GET",
+            "https://jsearch.p.rapidapi.com/search",
+            params={
+                "query": query,
+                "num_pages": 2
+            }
+        )
 
-                dt = normalize_date(j.get("job_posted_at_datetime_utc"))
+        for j in data.get("data", []):
 
-                if dt and dt < cutoff:
-                    continue
+            dt = normalize_date(j.get("job_posted_at_datetime_utc"))
 
-                rows.append({
-                    "Source": j.get("job_publisher", ""),
-                    "API": "JSearch",
-                    "Skill": skill,
-                    "Title": j.get("job_title"),
-                    "Company": j.get("employer_name"),
-                    "Location": j.get("job_city") or j.get("job_state") or "",
-                    "Country": (j.get("job_country") or "").upper(),
-                    "Apply": j.get("job_apply_link"),
-                    "_excel": excel_link(j.get("job_apply_link")),
-                    "_date": dt
-                })
+            if dt and dt < cutoff:
+                continue
+
+            rows.append({
+                "Source": j.get("job_publisher", ""),
+                "API": "JSearch",
+                "Skill": skill,
+                "Title": j.get("job_title"),
+                "Company": j.get("employer_name"),
+                "Location": j.get("job_city") or j.get("job_state") or "",
+                "Country": (j.get("job_country") or "").upper(),
+                "Apply": j.get("job_apply_link"),
+                "_excel": excel_link(j.get("job_apply_link")),
+                "_date": dt
+            })
 
     return rows
+
 
 
 
