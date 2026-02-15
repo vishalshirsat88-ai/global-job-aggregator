@@ -177,6 +177,14 @@ section[data-testid="stSidebar"] * {
     font-weight: 700 !important;
     border: none !important;
 }
+
+.form-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1F2937;
+    margin-bottom: 4px;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -192,13 +200,17 @@ st.markdown("""
 # ---------- INPUT AREA ----------
 
 # SKILLS (MANDATORY)
+st.markdown('<div class="form-label">🛠 Skills *</div>', unsafe_allow_html=True)
+
 skills_input = st.text_input(
-    "🛠 Skills *",
+    "Skills",
     "",
-    key="skills_input"
+    key="skills_input",
+    label_visibility="collapsed"
 )
 
 st.caption("Update skills (comma separated). Eg: Software, Python, Java, Testing, WFM")
+
 
 
 skills = [s.strip() for s in skills_input.split(",") if s.strip()]
