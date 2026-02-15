@@ -11,6 +11,65 @@ from datetime import datetime, timedelta
 if "search_triggered" not in st.session_state:
     st.session_state["search_triggered"] = False
 
+from io import BytesIO
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.utils import get_column_letter
+
+def export_to_excel(df):
+    df_export = df.copy()
+
+    # Drop unwanted columns for export
+    for col in ["Source", "API", "_excel", "_date"]:
+        if col in df_export.columns:
+            df_export = df_export.drop(columns=[col])
+
+    output = BytesIO()
+
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        df_export.to_excel(writer, index=False, sheet_name="Jobs")
+
+        ws = writer.sheets["Jobs"]
+
+        # ---------- HEADER STYLING ----------
+        header_fill = PatternFill(start_color="4F6CF7", end_color="4F6CF7", fill_type="solid")
+        header_font = Font(color="FFFFFF", bold=True, size=12)
+
+        for cell in ws[1]:
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+
+        # ---------- FREEZE HEADER ----------
+        ws.freeze_panes = "A2"
+
+        # ---------- ENABLE FILTERS ----------
+        ws.auto_filter.ref = ws.dimensions
+
+        # ---------- ALTERNATING ROW COLORS ----------
+        alt_fill = PatternFill(start_color="F4F6FF", end_color="F4F6FF", fill_type="solid")
+
+        for row in range(2, ws.max_row + 1):
+            if row % 2 == 0:
+                for col in range(1, ws.max_column + 1):
+                    ws.cell(row=row, column=col).fill = alt_fill
+
+        # ---------- AUTO-SIZE COLUMNS ----------
+        for col in ws.columns:
+            max_length = 0
+            col_letter = get_column_letter(col[0].column)
+
+            for cell in col:
+                try:
+                    if cell.value:
+                        max_length = max(max_length, len(str(cell.value)))
+                except:
+                    pass
+
+            ws.column_dimensions[col_letter].width = max_length + 4
+
+    return output.getvalue()
+
 
 # Keep your specific backend URL
 BACKEND_URL ="https://global-job-aggregator-production.up.railway.app"
@@ -181,11 +240,25 @@ if st.session_state.get("search_triggered", False):
         st.warning("No jobs found.")
     else:
         # Standardize Columns
-        if "url" in df.columns: df = df.rename(columns={"url": "Apply"})
-        if "skill" not in df.columns: df["skill"] = ", ".join(skills)
+       
+        if "url" in df.columns:
+            df = df.rename(columns={"url": "Apply"})
+        
+        # REMOVE skill column ONLY from UI
+        if "skill" in df.columns:
+            df = df.drop(columns=["skill"], errors="ignore")
+        if "Skill" in df.columns:
+            df = df.drop(columns=["Skill"], errors="ignore")
+        
+        # Sort by date if available
         if "posted_date" in df.columns:
             df["posted_date"] = pd.to_datetime(df["posted_date"], errors="coerce")
             df = df.sort_values(by="posted_date", ascending=False)
+
+        # Fix index numbering for display
+        df = df.reset_index(drop=True)
+        df.index = df.index + 1
+        df.index.name = "Sr No"
 
         st.success(f"✅ Found {len(df)} jobs")
 
@@ -239,7 +312,15 @@ if st.session_state.get("search_triggered", False):
         # DOWNLOAD BUTTON
         with col_dl:
             st.markdown('<div class="download-btn">', unsafe_allow_html=True)
-            dl_placeholder.download_button("⬇️ Download CSV", df.to_csv(index=False), "job_results.csv")
+            excel_data = export_to_excel(df)
+
+            dl_placeholder.download_button(
+                "⬇️ Download Excel",
+                excel_data,
+                "job_results.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
             st.session_state["search_triggered"] = False
 
             st.markdown('</div>', unsafe_allow_html=True)
