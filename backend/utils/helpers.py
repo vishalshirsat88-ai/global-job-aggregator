@@ -114,7 +114,9 @@ def deduplicate_jobs(rows):
         key = (
             (job.get("Title") or "").lower(),
             (job.get("Company") or "").lower(),
+            (job.get("API") or "").lower(),   # ⭐ CRITICAL FIX
         )
+
 
         if key not in seen:
             seen.add(key)
