@@ -174,3 +174,56 @@ def filter_and_rank_jobs(rows, skills, levels, countries, top_n=50):
     # Step 4 — Return top N
     return scored[:top_n]
 
+# =========================================================
+# ⭐ NEW — GLOBAL SKILL EXPANSION ENGINE
+# =========================================================
+
+SKILL_EXPANSION_MAP = {
+
+    # --- YOUR CUSTOM SKILLS ---
+    "developer": ["Full Stack Engineer", "Backend Developer", "Software Architect"],
+    "frontend": ["React Developer", "Vue.js Engineer"],
+    "backend": ["Node.js Developer", "Java Spring Boot", "Python API Engineer"],
+
+    "tester": ["QA Automation Engineer", "SDET", "Selenium Engineer"],
+    "qa": ["Test Architect", "Mobile App Tester"],
+
+    "wfm": ["Workforce Management", "Workforce Planner", "Resource Scheduler", "Intraday Analyst", "Real Time Analyst", "RTA Specialist"],
+    "rta": ["Real Time Analyst", "RTA Specialist"],
+
+    "mis": ["MIS Executive", "ERP Specialist"],
+    "reporting": ["Power BI Developer", "SQL Reporting Analyst"],
+
+    "banking": ["Investment Banker", "Relationship Manager"],
+    "fintech": ["Risk Management Analyst", "Compliance Officer"],
+
+    # --- GLOBAL TECH SKILLS ---
+    "python": ["Python Developer", "Django Developer", "Data Scientist"],
+    "java": ["Java Developer", "Spring Boot Engineer"],
+    "react": ["React Developer", "Frontend Engineer"],
+    "node": ["Node.js Developer", "Backend Engineer"],
+    "devops": ["DevOps Engineer", "Site Reliability Engineer"],
+    "cloud": ["Cloud Engineer", "AWS Engineer", "Azure Engineer"],
+
+    "data": ["Data Analyst", "Data Scientist", "Business Intelligence"],
+    "ai": ["AI Engineer", "Machine Learning Engineer"],
+}
+
+
+def expand_skill(skill: str):
+    """
+    Expands a single skill into multiple related keywords.
+    If not found, returns original skill only.
+    """
+
+    if not skill:
+        return []
+
+    key = skill.lower().strip()
+
+    if key in SKILL_EXPANSION_MAP:
+        return [skill] + SKILL_EXPANSION_MAP[key]
+
+    return [skill]
+
+
