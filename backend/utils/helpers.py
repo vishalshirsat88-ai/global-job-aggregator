@@ -163,8 +163,13 @@ def filter_and_rank_jobs(rows, skills, levels, countries, top_n=50):
     # Step 2 — Score each job
     for job in rows:
         score = calculate_job_score(job, skills, levels, countries)
+    
+        api = str(job.get("API") or "").lower()
+    
+        # Jooble stricter threshold
+        threshold = 50 if api == "jooble" else 30
 
-        if score >= 30:   # Quality threshold
+        if score >= threshold:   # Quality threshold
             print("✅ KEPT:", job.get("Title"), "Score:", score)
             job["_score"] = score
             scored.append(job)
