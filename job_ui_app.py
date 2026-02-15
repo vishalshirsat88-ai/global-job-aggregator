@@ -176,17 +176,42 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ---------- INPUT AREA ----------
-skills = [s.strip() for s in st.text_input("Skills", "Software").split(",") if s.strip()]
-levels = [l.strip() for l in st.text_input("Levels", "Engineer").split(",") if l.strip()]
-location_input = st.text_input("Location (city or Remote)", "")
+# ---------- INPUT AREA ----------
+
+# SKILLS (MANDATORY)
+st.markdown("### 🛠 Skills *")
+st.caption("Update skills (comma separated). Eg: Software, Python, Java, Testing, WFM")
+
+skills_input = st.text_input("", "")
+
+skills = [s.strip() for s in skills_input.split(",") if s.strip()]
+
+
+# LEVELS (OPTIONAL)
+st.markdown("### 🎯 Levels (Optional)")
+st.caption("Mention levels (comma separated). Eg: Associate, Senior Developer, Manager")
+
+levels_input = st.text_input("", "")
+
+levels = [l.strip() for l in levels_input.split(",") if l.strip()]
+
+
+# LOCATION
+st.markdown("### 📍 Location (City or Remote)")
+st.caption("Multiple cities supported. If cities are from different countries, select those countries below. Type 'Remote' to search remote jobs.")
+
+location_input = st.text_input("", "")
+
 
 is_remote = location_input.strip().lower() == "remote"
 countries = st.multiselect(
-    "Country", 
+    "🌍 Select Country",
     options=["India", "United States", "United Kingdom", "United Arab Emirates", "Canada", "Australia","Germany", "France", "Netherlands", "Spain", "Italy", "Philippines"], 
     default=["India"], 
     disabled=is_remote
 )
+if is_remote:
+    st.info("Country selection disabled because 'Remote' location is selected.")
 
 if not is_remote and not countries:
     st.error("Country is mandatory unless location is Remote.")
@@ -211,7 +236,11 @@ def call_backend_search(payload):
 
 # ⭐ PREVENT MULTIPLE API CALLS
 if run_btn:
-    st.session_state["search_triggered"] = True
+    if not skills:
+        st.error("⚠️ At least one skill is required to run the search.")
+    else:
+        st.session_state["search_triggered"] = True
+
 
 if st.session_state.get("search_triggered", False):
     with st.spinner("Fetching jobs..."):
