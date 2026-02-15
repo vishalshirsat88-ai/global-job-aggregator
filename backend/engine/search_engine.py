@@ -17,6 +17,13 @@ from backend.utils.helpers import filter_and_rank_jobs
 # ENGINE (MULTI-SKILL + MULTI-CITY LOGIC)
 # =========================================================
 def run_engine(skills, levels, locations, countries, posted_days, include_country_safe=True):
+    # -----------------------------
+    # SAFETY: PRESERVE ORIGINAL INPUT
+    # -----------------------------
+    raw_locations = locations.copy() if locations else [""]
+    
+    # Cleaned locations for loops
+    locations = [l.strip() for l in raw_locations if l and l.strip()]
 
     if not locations:
         locations = [""]
