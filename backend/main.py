@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, HTTPException
 from pydantic import BaseModel, Field
+import pandas as pd
 from typing import List, Optional
 from dotenv import load_dotenv
 from fastapi.responses import HTMLResponse
