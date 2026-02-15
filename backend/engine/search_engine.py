@@ -84,8 +84,6 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     if not all_rows:
         return pd.DataFrame(), True
 
-    return pd.DataFrame(all_rows), False
-
 
     print("\n==============================")
     print("🔎 ENGINE DEBUG — BEFORE SCORING")
