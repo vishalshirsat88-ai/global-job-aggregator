@@ -219,6 +219,9 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
 
 
 def fetch_adzuna(skills, levels, countries, posted_days, location):
+    print("ADZUNA FINAL QUERY:", query)
+    print("ADZUNA LOCATION:", location)
+
     rows = []
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
@@ -245,6 +248,9 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
     return rows
 
 def fetch_jooble(skills, levels, countries, location):
+    print("JOOBLE FINAL QUERY:", query)
+    print("JOOBLE LOCATION:", location)
+
     rows = []
     for c in countries:
         data = safe_json_request("POST",f"https://jooble.org/api/{JOOBLE_KEY}",
