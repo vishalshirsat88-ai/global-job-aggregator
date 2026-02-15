@@ -54,7 +54,10 @@ def calculate_job_score(job, skills, levels, countries):
     title = str(job.get("Title") or "").lower()
     desc = str(job.get("Description") or "").lower()
     country_val = job.get("Country")
-    location = str(job.get("Country") or "").lower()
+    if country_val is None or str(country_val).lower() == "nan":
+        location = ""
+    else:
+        location = str(country_val).lower()
     source = str(job.get("Source") or "").lower()
     api = str(job.get("API") or "").lower()
 
