@@ -240,7 +240,7 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
                 "app_id": ADZUNA_APP_ID,
                 "app_key": ADZUNA_API_KEY,
                 "what": query,
-                "where": f"{location} {c}" if location else c,
+                "where": location if location else c,
                 "results_per_page": 20
             }
         )
@@ -267,7 +267,7 @@ def fetch_jooble(skills, levels, countries, location):
     for c in countries:
 
         keywords = " ".join(skills)
-        loc = location or c
+        loc = f"{location}, {c}" if location else c
 
         print("\n===== JOOBLE DEBUG =====")
         print("Keywords:", keywords)
