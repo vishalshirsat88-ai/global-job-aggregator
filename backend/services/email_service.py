@@ -1,26 +1,21 @@
 import os
-import requests
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
-RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 TOOL_URL = os.getenv("TOOL_URL")
+SMTP_EMAIL = os.getenv("SMTP_EMAIL")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 
 
 def send_access_email(email: str, token: str):
     """
-    Sends lifetime access email to user
+    Sends lifetime access email to user via Gmail SMTP
     """
-
-    if not RESEND_API_KEY:
-        print("⚠️ Resend API key missing")
-        return
 
     access_link = f"{TOOL_URL}?token={token}"
 
-    payload = {
-        "from": "JobHunt++ <onboarding@resend.dev>",
-        "to": [email],
-        "subject": "🎉 Your JobHunt++ Access is Ready!",
-        "html": f"""
+    html_content = f"""
         <h2>Hi there 👋</h2>
 
         <p>Your payment was successful.</p>
@@ -43,21 +38,32 @@ def send_access_email(email: str, token: str):
         </ul>
 
         <p>Thanks for choosing JobHunt++ 🚀</p>
-        """
-    }
+    """
 
+    send_email_gmail(
+        to_email=email,
+        subject="🎉 Your JobHunt++ Access is Ready!",
+        html_content=html_content
+    )
+
+
+def send_email_gmail(to_email: str, subject: str, html_content: str):
+    """
+    Generic Gmail SMTP sender
+    """
     try:
-        r = requests.post(
-            "https://api.resend.com/emails",
-            headers={
-                "Authorization": f"Bearer {RESEND_API_KEY}",
-                "Content-Type": "application/json"
-            },
-            json=payload,
-            timeout=15
-        )
+        msg = MIMEMultipart()
+        msg["From"] = f"NextGen Labs <{SMTP_EMAIL}>"
+        msg["To"] = to_email
+        msg["Subject"] = subject
 
-        print("📧 Email sent:", r.status_code, r.text)
+        msg.attach(MIMEText(html_content, "html"))
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(SMTP_EMAIL, SMTP_PASSWORD)
+            server.send_message(msg)
+
+        print("✅ Gmail email sent successfully")
 
     except Exception as e:
-        print("❌ Email sending failed:", e)
+        print("❌ Gmail email failed:", str(e))
