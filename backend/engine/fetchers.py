@@ -151,48 +151,48 @@ def fetch_arbeitnow(skills):
 # =========================================================
 # MAIN FETCHERS
 # =========================================================
+# =========================================================
+# JSEARCH FETCHER — FINAL CLEAN VERSION
+# =========================================================
 def fetch_jsearch(skills, levels, countries, posted_days, location):
 
     rows = []
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
-    COUNTRY_CODE_MAP = {
-        "India": "in",
-        "United States": "us",
-        "United Kingdom": "gb",
-        "United Arab Emirates": "ae",
-        "Canada": "ca",
-        "Australia": "au",
-        "Germany": "de",
-        "France": "fr",
-        "Netherlands": "nl",
-        "Ireland": "ie",
-        "Spain": "es",
-        "Italy": "it",
-        "Singapore": "sg",
-        "Brazil": "br",
-        "South Africa": "za",
-        "Mexico": "mx",
-        "Poland": "pl",
-        "Belgium": "be",
-        "Austria": "at",
-        "Switzerland": "ch"
-    }
-
     for skill in skills:
         for country in countries:
 
-            country_code = COUNTRY_CODE_MAP.get(country)
+            country_code = COUNTRIES.get(country)
             if not country_code:
                 continue
 
-            print(f"\n🚀 JSEARCH DEBUG — {skill} | Country: {country}")
+            # ---------------------------------
+            # BUILD SEARCH QUERY (SMART LOGIC)
+            # ---------------------------------
+            query_parts = [skill]
 
+            if levels:
+                query_parts.append(levels[0])
+
+            # If city selected → include it
+            if location:
+                query_parts.append(location)
+            else:
+                # If no city → include country name
+                query_parts.append(country)
+
+            query = " ".join(query_parts)
+
+            print(f"\n🚀 JSEARCH DEBUG → Query: {query} | Country: {country_code}")
+
+            # ---------------------------------
+            # API CALL
+            # ---------------------------------
             data = safe_json_request(
                 "GET",
                 "https://jsearch.p.rapidapi.com/search",
                 params={
-                    "query": f"{skill} {levels[0] if levels else ''}".strip(),
+                    "query": query,
                     "country": country_code,
                     "num_pages": 2,
                     "date_posted": "month"
@@ -202,14 +202,18 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
             raw_jobs = data.get("data", [])
             print("📦 Raw jobs fetched:", len(raw_jobs))
 
+            # ---------------------------------
+            # PARSE JOBS
+            # ---------------------------------
             for j in raw_jobs:
+
                 dt = normalize_date(j.get("job_posted_at_datetime_utc"))
 
                 if dt and dt < cutoff:
                     continue
 
                 rows.append({
-                    "Source": j.get("job_publisher",""),
+                    "Source": j.get("job_publisher", ""),
                     "API": "JSearch",
                     "Skill": skill,
                     "Title": j.get("job_title"),
@@ -222,6 +226,7 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
                 })
 
     return rows
+
 
 
 
