@@ -50,11 +50,14 @@ def city_match(row_location, search_locations):
 
 def calculate_job_score(job, skills, levels, countries):
     score = 0
-    if job.get("API") == "JSearch":
-        print("\n---- SCORING JSEARCH JOB ----")
-        print("Title:", job.get("Title"))
-        print("Country:", job.get("Country"))
-        print("Date:", job.get("_date"))
+    print("\n==============================")
+    print("SCORING JOB")
+    print("API:", job.get("API"))
+    print("Title:", job.get("Title"))
+    print("Country:", job.get("Country"))
+    print("Date:", job.get("_date"))
+    print("==============================")
+
 
     
     title = str(job.get("Title") or "").lower()
@@ -109,7 +112,8 @@ def calculate_job_score(job, skills, levels, countries):
     if "sponsored" in title or "promoted" in title:
         score -= 40
 
-    print(f"DEBUG SCORE → {job.get('Title')} | Source={source} | Score={score}")
+    print(f"FINAL SCORE → {job.get('Title')} | API={api} | Score={score}")
+
 
     if job.get("API") == "JSearch":
         print("FINAL SCORE:", score)
@@ -161,6 +165,7 @@ def filter_and_rank_jobs(rows, skills, levels, countries, top_n=50):
         score = calculate_job_score(job, skills, levels, countries)
 
         if score >= 30:   # Quality threshold
+            print("✅ KEPT:", job.get("Title"), "Score:", score)
             job["_score"] = score
             scored.append(job)
         else:
