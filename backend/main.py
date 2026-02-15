@@ -208,11 +208,16 @@ def search_jobs(req: SearchRequest):
     normalized_jobs = [normalize_job_row(j) for j in raw_jobs]
 
     # SORT
-    normalized_jobs = sorted(
-        normalized_jobs,
-        key=lambda j: j.get("_date") or 0,
-        reverse=True
+    df = pd.DataFrame(all_rows)
+
+    df = df.sort_values(
+        by="_date",
+        ascending=False,
+        na_position="last"
     )
+    
+    normalized_jobs = df.to_dict(orient="records")
+
 
     for job in normalized_jobs:
         job.pop("_date", None)
