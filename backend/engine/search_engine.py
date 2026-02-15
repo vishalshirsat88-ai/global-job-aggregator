@@ -64,6 +64,13 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     # ⭐ STEP 1 — APPLY COUNTRY FILTER FIRST (CORRECT ORDER)
     # =====================================================
     df = pd.DataFrame(all_rows)
+
+    print("\n===== DEBUG STAGE 1 — RAW DF =====")
+    print("Total rows in DF:", len(df))
+    print("JSearch rows in DF:", len(df[df["API"] == "JSearch"]))
+    print(df[df["API"] == "JSearch"][["Title","Country"]].head(10))
+    print("===================================")
+
     
     allowed_country_names = {c.upper() for c in countries}
     
@@ -94,6 +101,12 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
         return COUNTRY_CODE_MAP.get(val, val)
     
     df["Country"] = df["Country"].apply(normalize_country)
+
+    print("\n===== DEBUG STAGE 2 — AFTER COUNTRY NORMALIZATION =====")
+    print("JSearch rows:", len(df[df["API"] == "JSearch"]))
+    print(df[df["API"] == "JSearch"][["Title","Country"]].head(10))
+    print("=======================================================")
+
     
     df = df[
         df["Country"].isna() |
@@ -101,7 +114,12 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
         df["Country"].isin(allowed_country_names)
     ]
 
-    
+    print("\n===== DEBUG STAGE 3 — AFTER COUNTRY FILTER =====")
+    print("Total rows:", len(df))
+    print("JSearch rows:", len(df[df["API"] == "JSearch"]))
+    print(df[df["API"] == "JSearch"][["Title","Country"]].head(10))
+    print("================================================")
+
     if df.empty:
         return pd.DataFrame(), True
     
@@ -109,6 +127,13 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     # =====================================================
     # ⭐ STEP 2 — APPLY SCORING AFTER FILTERING
     # =====================================================
+    print("\n===== DEBUG STAGE 4 — BEFORE SCORING =====")
+    j_df = df[df["API"] == "JSearch"]
+    print("JSearch rows entering scoring:", len(j_df))
+    print(j_df[["Title","Country","_date"]].head(10))
+    print("===========================================")
+
+    
     ranked_rows = filter_and_rank_jobs(
         df.to_dict("records"),   # ✅ FIXED
         skills,
