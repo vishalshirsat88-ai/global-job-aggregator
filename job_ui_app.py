@@ -178,14 +178,17 @@ section[data-testid="stSidebar"] * {
     border: none !important;
 }
 
+
 .form-label {
     font-size: 16px;
     font-weight: 600;
-    color: #1F2937;
     margin-bottom: 4px;
-    letter-spacing: 0.2px;
 
+    background: linear-gradient(90deg, #4F6CF7 0%, #7A6FF0 50%, #E8A06A 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
+
 
 </style>
 """, unsafe_allow_html=True)
@@ -251,12 +254,21 @@ location_input = st.text_input(
 
 
 is_remote = location_input.strip().lower() == "remote"
+st.markdown('<div class="form-label">🌍 Select Country</div>', unsafe_allow_html=True)
+
 countries = st.multiselect(
-    "🌍 Select Country",
-    options=["India", "United States", "United Kingdom", "United Arab Emirates", "Canada", "Australia","Germany", "France", "Netherlands", "Spain", "Italy", "Philippines"], 
-    default=["India"], 
-    disabled=is_remote
+    "Country",
+    options=[
+        "India", "United States", "United Kingdom", "United Arab Emirates",
+        "Canada", "Australia", "Germany", "France", "Netherlands", "Ireland", "Singapore", "Brazil",
+        "South Africa","Mexico","Poland","Belgium", "Austria","Switzerland",
+        "Spain", "Italy", "Philippines"
+    ],
+    default=["India"],
+    disabled=is_remote,
+    label_visibility="collapsed"
 )
+
 if is_remote:
     st.info("Country selection disabled because 'Remote' location is selected.")
 
