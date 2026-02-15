@@ -27,7 +27,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     # FETCH FROM ALL SOURCES
     # -----------------------------
     
-    search_location = " ".join(locations).strip()
+    search_location = locations[0] if locations else ""
 
     # FAST — JSearch once per skill
     for skill in skills:
