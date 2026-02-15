@@ -28,10 +28,10 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     # -----------------------------
     
     for loc in locations:
-    for skill in skills:
-        all_rows += fetch_jsearch([skill], levels, countries, posted_days, loc)
-        all_rows += fetch_adzuna([skill], levels, countries, posted_days, loc)
-        all_rows += fetch_jooble([skill], levels, countries, loc)
+        for skill in skills:
+            all_rows += fetch_jsearch([skill], levels, countries, posted_days, loc)
+            all_rows += fetch_adzuna([skill], levels, countries, posted_days, loc)
+            all_rows += fetch_jooble([skill], levels, countries, loc)
 
 
 
