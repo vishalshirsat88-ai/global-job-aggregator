@@ -159,72 +159,43 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
     rows = []
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
-    COUNTRY_CODE_MAP = {
-        "India": "in",
-        "United States": "us",
-        "United Kingdom": "gb",
-        "United Arab Emirates": "ae",
-        "Canada": "ca",
-        "Australia": "au",
-        "Germany": "de",
-        "France": "fr",
-        "Netherlands": "nl",
-        "Ireland": "ie",
-        "Spain": "es",
-        "Italy": "it",
-        "Singapore": "sg",
-        "Brazil": "br",
-        "South Africa": "za",
-        "Mexico": "mx",
-        "Poland": "pl",
-        "Belgium": "be",
-        "Austria": "at",
-        "Switzerland": "ch"
-    }
-
     for skill in skills:
-        for country in countries:
 
-            country_code = COUNTRY_CODE_MAP.get(country)
-            if not country_code:
+        query = f"{skill} {levels[0] if levels else ''} {location}".strip()
+
+        data = safe_json_request(
+            "GET",
+            "https://jsearch.p.rapidapi.com/search",
+            params={
+                "query": query,
+                "num_pages": 2,
+                "date_posted": "month"
+            }
+        )
+
+        raw_jobs = data.get("data", [])
+
+        for j in raw_jobs:
+            dt = normalize_date(j.get("job_posted_at_datetime_utc"))
+
+            if dt and dt < cutoff:
                 continue
 
-            print(f"\n🚀 JSEARCH DEBUG — {skill} | Country: {country}")
-
-            data = safe_json_request(
-                "GET",
-                "https://jsearch.p.rapidapi.com/search",
-                params={
-                    "query": f"{skill} {levels[0] if levels else ''}".strip(),
-                    "country": country_code,
-                    "num_pages": 2,
-                    "date_posted": "month"
-                }
-            )
-
-            raw_jobs = data.get("data", [])
-            print("📦 Raw jobs fetched:", len(raw_jobs))
-
-            for j in raw_jobs:
-                dt = normalize_date(j.get("job_posted_at_datetime_utc"))
-
-                if dt and dt < cutoff:
-                    continue
-
-                rows.append({
-                    "Source": j.get("job_publisher",""),
-                    "API": "JSearch",
-                    "Skill": skill,
-                    "Title": j.get("job_title"),
-                    "Company": j.get("employer_name"),
-                    "Location": j.get("job_city"),
-                    "Country": j.get("job_country"),
-                    "Apply": j.get("job_apply_link"),
-                    "_excel": excel_link(j.get("job_apply_link")),
-                    "_date": dt
-                })
+            rows.append({
+                "Source": j.get("job_publisher",""),
+                "API": "JSearch",
+                "Skill": skill,
+                "Title": j.get("job_title"),
+                "Company": j.get("employer_name"),
+                "Location": j.get("job_city"),
+                "Country": j.get("job_country"),
+                "Apply": j.get("job_apply_link"),
+                "_excel": excel_link(j.get("job_apply_link")),
+                "_date": dt
+            })
 
     return rows
+
 
 
 
