@@ -1,5 +1,6 @@
 import os
 import razorpay
+import threading
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
@@ -95,10 +96,20 @@ def verify_payment(data: RazorpayVerifyRequest):
         access_token = save_payment(data.email, data.razorpay_order_id)
 
         # 🆕 SEND EMAIL (non-blocking safe call)
-        try:
-            send_access_email(data.email, access_token)
-        except Exception as e:
-            print("⚠️ Email send failed:", e)
+    
+
+        def _send_email_bg(email, token):
+            try:
+                send_access_email(email, token)
+            except Exception as e:
+                print("⚠️ Email send failed:", e)
+        
+        threading.Thread(
+            target=_send_email_bg,
+            args=(data.email, access_token),
+            daemon=True
+        ).start()
+
 
         redirect_url = f"{TOOL_URL}?token={access_token}"
 
