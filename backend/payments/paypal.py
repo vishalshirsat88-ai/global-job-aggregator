@@ -11,10 +11,11 @@ from backend.payments.db import save_payment, verify_and_register_session
 router = APIRouter(prefix="/paypal", tags=["Payments"])
 
 def _send_email_bg(email, token):
-            try:
-                send_access_email(email, token)
-            except Exception as e:
-                print("⚠️ Email send failed:", e)
+    try:
+        send_access_email(email, token)
+    except Exception as e:
+        print("⚠️ Email send failed:", e)
+
 
 # ===============================
 # ENV CONFIG
@@ -169,7 +170,8 @@ def paypal_success(token: str = None):
         # ✅ Generate & Save Access Token
         access_token_value = save_payment(email, order_id)
     
-        
+        print("📧 Sending access email asynchronously to:", email)
+
         threading.Thread(
             target=_send_email_bg,
             args=(email, access_token_value),
