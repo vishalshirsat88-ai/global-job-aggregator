@@ -4,18 +4,18 @@ import threading
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-def _send_email_bg(email, token):
-    try:
-        send_access_email(email, token)
-    except Exception as e:
-        print("⚠️ Email send failed:", e)
-
-
 # DB imports
 from backend.payments.db import save_payment
 
 # 🆕 Email service import
 from backend.services.email_service import send_access_email
+
+
+def _send_email_bg(email, token):
+    try:
+        send_access_email(email, token)
+    except Exception as e:
+        print("⚠️ Email send failed:", e)
 
 router = APIRouter(prefix="/razorpay", tags=["Razorpay Payments"])
 
