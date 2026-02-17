@@ -138,8 +138,7 @@ def safe_json_request(method, url, **kwargs):
 
     except Exception as e:
         print("❌ Request Failed:", e)
-        return {"data": [], "results": []}
-
+        return {}
 
 # REMOTE FETCHERS
 # =========================================================
@@ -248,55 +247,49 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
     for skill in skills:
         for country in countries:
 
-            # Split multi-locations safely
+            query_parts = [skill]
+
+            if levels:
+                query_parts.append(" ".join(levels))
+
             if location:
-                cities = [c.strip() for c in location.split(",")]
+                query_parts.append(location)
             else:
-                cities = [country]
+                query_parts.append(country)   # ← KEY LINE
 
-            for city in cities:
+            query = " ".join(query_parts)
 
-                query_parts = [skill]
+            print(f"\n🚀 JSEARCH QUERY → {query}")
 
-                if levels:
-                    query_parts.append(" ".join(levels))
+            data = safe_json_request(
+                "GET",
+                "https://jsearch.p.rapidapi.com/search",
+                params={
+                    "query": query,
+                    "num_pages": 2
+                }
+            )
 
-                query_parts.append(city)
+            for j in data.get("data", []):
+                dt = normalize_date(j.get("job_posted_at_datetime_utc"))
 
-                query = " ".join(query_parts)
+                if dt and dt < cutoff:
+                    continue
 
-                print(f"\n🚀 JSEARCH QUERY → {query}")
-
-                data = safe_json_request(
-                    "GET",
-                    "https://jsearch.p.rapidapi.com/search",
-                    params={
-                        "query": query,
-                        "num_pages": 2
-                    }
-                )
-
-                for j in data.get("data", []):
-                    dt = normalize_date(j.get("job_posted_at_datetime_utc"))
-
-                    if dt and dt < cutoff:
-                        continue
-
-                    rows.append({
-                        "Source": j.get("job_publisher", ""),
-                        "API": "JSearch",
-                        "Skill": skill,
-                        "Title": j.get("job_title"),
-                        "Company": j.get("employer_name"),
-                        "Location": j.get("job_city") or "",
-                        "Country": (j.get("job_country") or "").upper(),
-                        "Apply": j.get("job_apply_link"),
-                        "_excel": excel_link(j.get("job_apply_link")),
-                        "_date": dt
-                    })
+                rows.append({
+                    "Source": j.get("job_publisher", ""),
+                    "API": "JSearch",
+                    "Skill": skill,
+                    "Title": j.get("job_title"),
+                    "Company": j.get("employer_name"),
+                    "Location": j.get("job_city") or "",
+                    "Country": (j.get("job_country") or "").upper(),
+                    "Apply": j.get("job_apply_link"),
+                    "_excel": excel_link(j.get("job_apply_link")),
+                    "_date": dt
+                })
 
     return rows
-
 
 
 def fetch_adzuna(skills, levels, countries, posted_days, location):
@@ -410,4 +403,4 @@ def fetch_usajobs(skills, posted_days):
     return rows
     
 # 🔥 PRELOAD WORKING RAPIDAPI KEY AT STARTUP
-#initialize_active_key()
+initialize_active_key()
