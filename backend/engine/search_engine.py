@@ -126,9 +126,12 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     # ⭐ STEP 1 — APPLY COUNTRY FILTER FIRST (CORRECT ORDER)
     # =====================================================
     df = pd.DataFrame(all_rows)
-    # Ensure required columns exist
-    if "Country" not in df.columns:
-        df["Country"] = None
+
+    # Ensure required columns exist (parallel-safe)
+    for col in ["Country", "_date", "API"]:
+        if col not in df.columns:
+            df[col] = None
+
 
     print("\n===== DEBUG STAGE 1 — RAW DF =====")
     print("Total rows in DF:", len(df))
@@ -194,9 +197,14 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     # =====================================================
     print("\n===== DEBUG STAGE 4 — BEFORE SCORING =====")
     j_df = df[df["API"] == "JSearch"]
+
+    # Ensure _date column exists (parallel fetch safety)
+    if "_date" not in df.columns:
+        df["_date"] = None
+    
     print("JSearch rows entering scoring:", len(j_df))
     print(j_df[["Title","Country","_date"]].head(10))
-    print("===========================================")
+
 
     
     ranked_rows = filter_and_rank_jobs(
