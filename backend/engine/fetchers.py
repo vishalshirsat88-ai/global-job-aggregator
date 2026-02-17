@@ -1,3 +1,16 @@
+check the indentation for below code in fetcher.py:
+ if 200 <= r.status_code < 300:
+                data = r.json()
+                if "data" in data:
+                    print("✅ Jobs:", len(data.get("data", [])))
+                elif "results" in data:
+                    print("✅ Jobs:", len(data.get("results", [])))
+                return data   # ← MISSING LINE
+            else:
+                print("⚠️ Cached key expired → rotating")
+                active_rapidapi_key = None
+
+fetchers.py code:
 import os
 import requests
 import feedparser
@@ -53,8 +66,8 @@ def initialize_active_key():
                     "x-rapidapi-key": key,
                     "x-rapidapi-host": "jsearch.p.rapidapi.com"
                 },
-                params={"query": "test", "num_pages": 2},
-                timeout=20
+                params={"query": "test", "num_pages": 1},
+                timeout=10
             )
             if r.status_code == 200:
                 active_rapidapi_key = key
@@ -150,7 +163,7 @@ def fetch_remote_jobs(skills, level, posted_days):
         data = safe_json_request(
             "GET",
             "https://jsearch.p.rapidapi.com/search",
-            params={"query": f"{skill} {level} remote job", "num_pages": 2}
+            params={"query": f"{skill} {level} remote job", "num_pages": 1}
         )
 
         for j in data.get("data", []):
