@@ -1,16 +1,3 @@
-check the indentation for below code in fetcher.py:
- if 200 <= r.status_code < 300:
-                data = r.json()
-                if "data" in data:
-                    print("✅ Jobs:", len(data.get("data", [])))
-                elif "results" in data:
-                    print("✅ Jobs:", len(data.get("results", [])))
-                return data   # ← MISSING LINE
-            else:
-                print("⚠️ Cached key expired → rotating")
-                active_rapidapi_key = None
-
-fetchers.py code:
 import os
 import requests
 import feedparser
