@@ -1,4 +1,5 @@
 import pandas as pd
+from concurrent.futures import ThreadPoolExecutor
 
 from backend.engine.fetchers import (
     fetch_remote_jobs,
@@ -34,25 +35,32 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     print("Posted Days:", posted_days)
     print("==============================\n")
 
-    # -----------------------------
-    # JSEARCH DEBUG
-    # -----------------------------
+    # =====================================================
+# 🚀 PARALLEL API FETCHING (MAJOR SPEED BOOST)
+# =====================================================
+
+futures = []
+
+with ThreadPoolExecutor(max_workers=5) as executor:
+
+    # JSEARCH tasks
     for skill in skills:
         print(f"\n🚀 JSEARCH CALL")
         print("Query:", skill)
         print("Location:", search_location)
 
-        all_rows += fetch_jsearch(
-            [skill],
-            levels,
-            countries,
-            posted_days,
-            search_location
+        futures.append(
+            executor.submit(
+                fetch_jsearch,
+                [skill],
+                levels,
+                countries,
+                posted_days,
+                search_location
+            )
         )
 
-    # -----------------------------
-    # ADZUNA + JOOBLE DEBUG
-    # -----------------------------
+    # ADZUNA + JOOBLE tasks
     loop_locations = locations if locations else [""]
 
     for loc in loop_locations:
@@ -62,24 +70,38 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
             print("Query:", skill)
             print("Location:", loc)
 
-            all_rows += fetch_adzuna(
-                [skill],
-                levels,
-                countries,
-                posted_days,
-                loc
+            futures.append(
+                executor.submit(
+                    fetch_adzuna,
+                    [skill],
+                    levels,
+                    countries,
+                    posted_days,
+                    loc
+                )
             )
 
             print(f"\n🔵 JOOBLE CALL")
             print("Query:", skill)
             print("Location:", loc)
 
-            all_rows += fetch_jooble(
-                [skill],
-                levels,
-                countries,
-                loc
+            futures.append(
+                executor.submit(
+                    fetch_jooble,
+                    [skill],
+                    levels,
+                    countries,
+                    loc
+                )
             )
+
+    # Collect results
+    for f in futures:
+        try:
+            all_rows += f.result()
+        except Exception as e:
+            print("Fetcher error:", e)
+
 
     if not all_rows:
         return pd.DataFrame(), True
