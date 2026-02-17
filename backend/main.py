@@ -111,6 +111,8 @@ def health():
 from backend.engine.search_engine import run_job_search
 from backend.config import validate_env
 validate_env()
+from backend.engine.fetchers import initialize_active_key
+initialize_active_key()
 
 # ===============================
 # REQUEST SCHEMAS
