@@ -3,19 +3,11 @@ import requests
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import RedirectResponse
 from backend.services.email_service import send_access_email
-import threading
 
 # DB imports
 from backend.payments.db import save_payment, verify_and_register_session
 
 router = APIRouter(prefix="/paypal", tags=["Payments"])
-
-def _send_email_bg(email, token):
-    try:
-        send_access_email(email, token)
-    except Exception as e:
-        print("⚠️ Email send failed:", e)
-
 
 # ===============================
 # ENV CONFIG
@@ -169,14 +161,11 @@ def paypal_success(token: str = None):
 
         # ✅ Generate & Save Access Token
         access_token_value = save_payment(email, order_id)
-    
-        print("📧 Sending access email asynchronously to:", email)
-
-        threading.Thread(
-            target=_send_email_bg,
-            args=(email, access_token_value),
-            daemon=True
-        ).start()
+        
+        try:
+            send_access_email(email, access_token_value)
+        except Exception as e:
+            print("⚠️ Email send failed:", e)
         print("🎉 Payment successful!")
         print("🔑 Generated Access Token:", access_token_value)
 
