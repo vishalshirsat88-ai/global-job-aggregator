@@ -83,16 +83,16 @@ def safe_json_request(method, url, **kwargs):
                 r = requests.request(method, url, timeout=20, headers=headers,
                                      **{k: v for k, v in kwargs.items() if k != "headers"})
 
-                if 200 <= r.status_code < 300:
-                    data = r.json()
-                    if "data" in data:
-                        print("✅ Jobs:", len(data.get("data", [])))
-                    elif "results" in data:
-                        print("✅ Jobs:", len(data.get("results", [])))
-                    return data   # ← MISSING LINE
-                else:
-                    print("⚠️ Cached key expired → rotating")
-                    active_rapidapi_key = None
+            if 200 <= r.status_code < 300:
+                data = r.json()
+                if "data" in data:
+                    print("✅ Jobs:", len(data.get("data", [])))
+                elif "results" in data:
+                    print("✅ Jobs:", len(data.get("results", [])))
+                return data   # ← MISSING LINE
+            else:
+                print("⚠️ Cached key expired → rotating")
+                active_rapidapi_key = None
 
             # 🔁 PROPER ROTATION
             total = len(RAPIDAPI_KEYS)
