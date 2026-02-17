@@ -80,7 +80,7 @@ def safe_json_request(method, url, **kwargs):
 
                 print("⚡ Using cached RapidAPI key")
 
-                r = requests.request(method, url, timeout=20, headers=headers,
+                r = requests.request(method, url, timeout=10, headers=headers,
                                      **{k: v for k, v in kwargs.items() if k != "headers"})
 
                 if 200 <= r.status_code < 300:
@@ -107,7 +107,7 @@ def safe_json_request(method, url, **kwargs):
 
                 print(f"\n🔑 Trying RapidAPI Key: {key[:6]}****")
 
-                r = requests.request(method, url, timeout=20, headers=headers,
+                r = requests.request(method, url, timeout=10, headers=headers,
                                      **{k: v for k, v in kwargs.items() if k != "headers"})
 
                 print("➡️ Status:", r.status_code)
@@ -133,7 +133,7 @@ def safe_json_request(method, url, **kwargs):
             return {}
 
         # NON RAPIDAPI
-        r = requests.request(method, url, timeout=20, **kwargs)
+        r = requests.request(method, url, timeout=10, **kwargs)
         return r.json() if 200 <= r.status_code < 300 else {}
 
     except Exception as e:
@@ -266,7 +266,7 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
                 "https://jsearch.p.rapidapi.com/search",
                 params={
                     "query": query,
-                    "num_pages": 2
+                    "num_pages": 1
                 }
             )
 
@@ -403,4 +403,4 @@ def fetch_usajobs(skills, posted_days):
     return rows
     
 # 🔥 PRELOAD WORKING RAPIDAPI KEY AT STARTUP
-initialize_active_key()
+#initialize_active_key()
