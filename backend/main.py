@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from backend.engine.fetchers import initialize_active_key
 
 import os
 import uuid
