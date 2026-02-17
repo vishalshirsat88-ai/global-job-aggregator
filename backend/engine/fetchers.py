@@ -16,6 +16,7 @@ REMOTIVE_API = "https://remotive.com/api/remote-jobs"
 # STICKY KEY MEMORY
 # =========================
 current_key_index = 0
+active_rapidapi_key = None
 
 COUNTRIES = {
     "India": "in","United States": "us","United Kingdom": "gb",
@@ -36,17 +37,44 @@ from backend.utils.helpers import (
 # SAFE REQUEST WITH STICKY ROTATION
 # =========================================================
 def safe_json_request(method, url, **kwargs):
-    global current_key_index
+    global current_key_index, active_rapidapi_key
 
     try:
+        # =========================
+        # RAPIDAPI REQUESTS
+        # =========================
         if "rapidapi" in url and RAPIDAPI_KEYS and RAPIDAPI_KEYS != [""]:
+
+            # 🔥 STEP 1 — USE CACHED KEY FIRST
+            if active_rapidapi_key:
+                headers = kwargs.get("headers", {}).copy()
+                headers["x-rapidapi-key"] = active_rapidapi_key
+                headers["x-rapidapi-host"] = "jsearch.p.rapidapi.com"
+
+                print("⚡ Using cached RapidAPI key")
+
+                r = requests.request(
+                    method,
+                    url,
+                    timeout=20,
+                    headers=headers,
+                    **{k: v for k, v in kwargs.items() if k != "headers"}
+                )
+
+                if 200 <= r.status_code < 300:
+                    return r.json()
+
+                # cached key expired → reset cache
+                print("⚠️ Cached key expired, rotating again")
+                active_rapidapi_key = None
+
+            # 🔁 STEP 2 — ROTATION ONLY IF NEEDED
             total = len(RAPIDAPI_KEYS)
 
             for i in range(total):
                 idx = (current_key_index + i) % total
                 key = RAPIDAPI_KEYS[idx]
 
-                # ✅ IMPORTANT — copy headers safely
                 headers = kwargs.get("headers", {}).copy()
                 headers["x-rapidapi-key"] = key
                 headers["x-rapidapi-host"] = "jsearch.p.rapidapi.com"
@@ -64,7 +92,9 @@ def safe_json_request(method, url, **kwargs):
                 print("➡️ Status:", r.status_code)
 
                 if 200 <= r.status_code < 300:
-                    current_key_index = idx  # remember working key
+                    current_key_index = idx
+                    active_rapidapi_key = key   # ⭐ CACHE THE WORKING KEY
+
                     data = r.json()
                     if "data" in data:
                         print("✅ Jobs:", len(data.get("data", [])))
@@ -77,11 +107,21 @@ def safe_json_request(method, url, **kwargs):
                     print("⚠️ Key exhausted")
                     continue
 
-                # other errors → stop rotation
                 break
 
             print("🚨 All RapidAPI keys exhausted")
             return {}
+
+        # =========================
+        # NON-RAPIDAPI REQUESTS
+        # =========================
+        r = requests.request(method, url, timeout=20, **kwargs)
+        return r.json() if 200 <= r.status_code < 300 else {}
+
+    except Exception as e:
+        print("❌ Request Failed:", e)
+        return {}
+
 
         # Non-RapidAPI requests
         r = requests.request(method, url, timeout=20, **kwargs)
