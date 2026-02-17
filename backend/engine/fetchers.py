@@ -3,7 +3,7 @@ import requests
 import feedparser
 from datetime import datetime, timedelta
 
-RAPIDAPI_KEYS = os.getenv("RAPIDAPI_KEYS", "").split(",")
+RAPIDAPI_KEYS = [k.strip() for k in os.getenv("RAPIDAPI_KEYS", "").split(",") if k.strip()]
 JOOBLE_KEY = os.getenv("JOOBLE_KEY")
 ADZUNA_APP_ID = os.getenv("ADZUNA_APP_ID")
 ADZUNA_API_KEY = os.getenv("ADZUNA_API_KEY")
@@ -12,11 +12,10 @@ USAJOBS_API_KEY = os.getenv("USAJOBS_API_KEY")
 
 REMOTIVE_API = "https://remotive.com/api/remote-jobs"
 
-# =========================
-# STICKY KEY MEMORY
-# =========================
 current_key_index = 0
+
 active_rapidapi_key = None
+
 
 COUNTRIES = {
     "India": "in","United States": "us","United Kingdom": "gb",
@@ -32,20 +31,48 @@ from backend.utils.helpers import (
     work_mode, excel_link, expand_skill
 )
 
+# =========================================================
+# KEY INITIALIZER
+# =========================================================
+if not RAPIDAPI_KEYS:
+    print("⚠️ No RapidAPI keys configured")
+    
+def initialize_active_key():
+    global active_rapidapi_key
+
+    if active_rapidapi_key:
+        return
+
+    print("\n🔥 Initializing RapidAPI key cache...")
+
+    for key in RAPIDAPI_KEYS:
+        try:
+            r = requests.get(
+                "https://jsearch.p.rapidapi.com/search",
+                headers={
+                    "x-rapidapi-key": key,
+                    "x-rapidapi-host": "jsearch.p.rapidapi.com"
+                },
+                params={"query": "test", "num_pages": 1},
+                timeout=10
+            )
+            if r.status_code == 200:
+                active_rapidapi_key = key
+                print("✅ Cached working RapidAPI key:", key[:6] + "****")
+                return
+        except:
+            continue
 
 # =========================================================
-# SAFE REQUEST WITH STICKY ROTATION
+# SAFE REQUEST ENGINE
 # =========================================================
 def safe_json_request(method, url, **kwargs):
     global current_key_index, active_rapidapi_key
 
     try:
-        # =========================
-        # RAPIDAPI REQUESTS
-        # =========================
-        if "rapidapi" in url and RAPIDAPI_KEYS and RAPIDAPI_KEYS != [""]:
+        if "rapidapi" in url and RAPIDAPI_KEYS:
 
-            # 🔥 STEP 1 — USE CACHED KEY FIRST
+            # USE CACHED KEY FIRST
             if active_rapidapi_key:
                 headers = kwargs.get("headers", {}).copy()
                 headers["x-rapidapi-key"] = active_rapidapi_key
@@ -53,22 +80,21 @@ def safe_json_request(method, url, **kwargs):
 
                 print("⚡ Using cached RapidAPI key")
 
-                r = requests.request(
-                    method,
-                    url,
-                    timeout=20,
-                    headers=headers,
-                    **{k: v for k, v in kwargs.items() if k != "headers"}
-                )
+                r = requests.request(method, url, timeout=20, headers=headers,
+                                     **{k: v for k, v in kwargs.items() if k != "headers"})
 
                 if 200 <= r.status_code < 300:
-                    return r.json()
+                    data = r.json()
+                    if "data" in data:
+                        print("✅ Jobs:", len(data.get("data", [])))
+                    elif "results" in data:
+                        print("✅ Jobs:", len(data.get("results", [])))
+                    return data   # ← MISSING LINE
+                else:
+                    print("⚠️ Cached key expired → rotating")
+                    active_rapidapi_key = None
 
-                # cached key expired → reset cache
-                print("⚠️ Cached key expired, rotating again")
-                active_rapidapi_key = None
-
-            # 🔁 STEP 2 — ROTATION ONLY IF NEEDED
+            # 🔁 PROPER ROTATION
             total = len(RAPIDAPI_KEYS)
 
             for i in range(total):
@@ -81,19 +107,14 @@ def safe_json_request(method, url, **kwargs):
 
                 print(f"\n🔑 Trying RapidAPI Key: {key[:6]}****")
 
-                r = requests.request(
-                    method,
-                    url,
-                    timeout=20,
-                    headers=headers,
-                    **{k: v for k, v in kwargs.items() if k != "headers"}
-                )
+                r = requests.request(method, url, timeout=20, headers=headers,
+                                     **{k: v for k, v in kwargs.items() if k != "headers"})
 
                 print("➡️ Status:", r.status_code)
 
                 if 200 <= r.status_code < 300:
                     current_key_index = idx
-                    active_rapidapi_key = key   # ⭐ CACHE THE WORKING KEY
+                    active_rapidapi_key = key
 
                     data = r.json()
                     if "data" in data:
@@ -104,7 +125,6 @@ def safe_json_request(method, url, **kwargs):
                     return data
 
                 if r.status_code in (403, 429):
-                    print("⚠️ Key exhausted")
                     continue
 
                 break
@@ -112,9 +132,7 @@ def safe_json_request(method, url, **kwargs):
             print("🚨 All RapidAPI keys exhausted")
             return {}
 
-        # =========================
-        # NON-RAPIDAPI REQUESTS
-        # =========================
+        # NON RAPIDAPI
         r = requests.request(method, url, timeout=20, **kwargs)
         return r.json() if 200 <= r.status_code < 300 else {}
 
@@ -122,17 +140,6 @@ def safe_json_request(method, url, **kwargs):
         print("❌ Request Failed:", e)
         return {}
 
-
-        # Non-RapidAPI requests
-        r = requests.request(method, url, timeout=20, **kwargs)
-        return r.json() if 200 <= r.status_code < 300 else {}
-
-    except Exception as e:
-        print("❌ Request Failed:", e)
-        return {}
-
-
-# =========================================================
 # REMOTE FETCHERS
 # =========================================================
 def fetch_remote_jobs(skills, level, posted_days):
@@ -141,17 +148,19 @@ def fetch_remote_jobs(skills, level, posted_days):
 
     for skill in skills:
         data = safe_json_request(
-            "GET","https://jsearch.p.rapidapi.com/search",
-            params={"query": f"{skill} {level} remote job","num_pages": 1}
+            "GET",
+            "https://jsearch.p.rapidapi.com/search",
+            params={"query": f"{skill} {level} remote job", "num_pages": 1}
         )
 
         for j in data.get("data", []):
             dt = parse_date(j.get("job_posted_at_datetime_utc"))
-            if dt and dt < cutoff: continue
+            if dt and dt < cutoff:
+                continue
 
             rows.append({
                 "Source": j.get("job_publisher"),
-                "API": "JSearch",   # ← THIS IS MISSING NOW
+                "API": "JSearch",
                 "Skill": skill,
                 "Title": j.get("job_title"),
                 "Company": j.get("employer_name"),
@@ -164,23 +173,34 @@ def fetch_remote_jobs(skills, level, posted_days):
             })
 
     remotive = safe_json_request("GET", REMOTIVE_API)
+
     for skill in skills:
         for j in remotive.get("jobs", []):
-            if skill_match(j.get("title",""), skill):
+            if skill_match(j.get("title"), skill):
                 rows.append({
-                    "Source": "Remotive","Skill": skill,"Title": j.get("title"),
-                    "Company": j.get("company_name"),"Location": "Remote",
-                    "Country": "Remote","Work Mode": "Remote",
-                    "Apply": j.get("url"),"_excel": excel_link(j.get("url")),"_date": None
+                    "Source": "Remotive",
+                    "Skill": skill,
+                    "Title": j.get("title"),
+                    "Company": j.get("company_name"),
+                    "Location": "Remote",
+                    "Country": "Remote",
+                    "Work Mode": "Remote",
+                    "Apply": j.get("url"),
+                    "_excel": excel_link(j.get("url")),
+                    "_date": None
                 })
+
     return rows
 
 # =========================================================
-# RSS
+# RSS FETCHERS
 # =========================================================
 def fetch_weworkremotely(skills):
     rows = []
-    feeds = ["https://weworkremotely.com/categories/remote-programming-jobs.rss"]
+    feeds = [
+        "https://weworkremotely.com/categories/remote-programming-jobs.rss",
+        "https://weworkremotely.com/categories/remote-management-jobs.rss"
+    ]
 
     for f in feeds:
         feed = feedparser.parse(f)
@@ -192,27 +212,33 @@ def fetch_weworkremotely(skills):
                         "Location":"Remote","Country":"Remote","Apply":e.link,
                         "_excel":excel_link(e.link)
                     })
+
     return rows
 
 def fetch_arbeitnow(skills):
     rows = []
-    data = safe_json_request("GET","https://www.arbeitnow.com/api/job-board-api")
-    for j in data.get("data",[]):
+    data = safe_json_request("GET", "https://www.arbeitnow.com/api/job-board-api")
+
+    for j in data.get("data", []):
         for skill in skills:
-            if skill_match(j.get("title"),skill):
+            if skill_match(j.get("title"), skill):
                 rows.append({
-                    "Source":"Arbeitnow","Skill":skill,"Title":j.get("title"),
-                    "Company":j.get("company_name"),"Location":j.get("location"),
-                    "Apply":j.get("url"),"_excel":excel_link(j.get("url"))
+                    "Source": "Arbeitnow",
+                    "Skill": skill,
+                    "Title": j.get("title"),
+                    "Company": j.get("company_name"),
+                    "Location": j.get("location"),
+                    "Apply": j.get("url"),
+                    "_excel": excel_link(j.get("url"))
                 })
+
+
     return rows
 
 # =========================================================
-# MAIN FETCHERS
+#  STARTUP CALL
 # =========================================================
-# =========================================================
-# JSEARCH FETCHER — FINAL CLEAN VERSION
-# =========================================================
+
 def fetch_jsearch(skills, levels, countries, posted_days, location):
 
     rows = []
@@ -375,3 +401,6 @@ def fetch_usajobs(skills, posted_days):
                 "Apply":d["PositionURI"],"_excel":excel_link(d["PositionURI"]),"_date":dt
             })
     return rows
+    
+# 🔥 PRELOAD WORKING RAPIDAPI KEY AT STARTUP
+initialize_active_key()
