@@ -7,6 +7,8 @@ import requests
 import pandas as pd
 import re
 from datetime import datetime, timedelta
+from info_panel import show_getting_started_panel
+
 
 if "search_triggered" not in st.session_state:
     st.session_state["search_triggered"] = False
@@ -90,6 +92,13 @@ BACKEND_URL ="https://global-job-aggregator-production.up.railway.app"
 st.set_page_config(page_title="Global Job Aggregator", layout="wide")
 
 # ---------- RESTORED FRONT-END VISUALS ----------
+
+st.sidebar.markdown("### ⭐ Help & Info")
+
+if st.sidebar.button("Getting Started / Refer"):
+    show_getting_started_panel()
+
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap');
@@ -192,6 +201,30 @@ section[data-testid="stSidebar"] * {
 
 </style>
 """, unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+/* Floating Help Button */
+.floating-help-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    z-index: 9999;
+}
+
+.floating-help-btn button {
+    background: linear-gradient(135deg, #4F6CF7, #7A6FF0);
+    color: white;
+    border-radius: 50px;
+    padding: 14px 22px;
+    font-weight: 600;
+    border: none;
+    box-shadow: 0 10px 25px rgba(79,108,247,0.4);
+    font-size: 16px;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 # ---------- HERO SECTION ----------
 st.markdown("""
@@ -412,4 +445,23 @@ if st.session_state.get("search_triggered", False):
             st.session_state["search_triggered"] = False
 
             st.markdown('</div>', unsafe_allow_html=True)
-            
+        
+# ================================
+# FLOATING HELP BUTTON (GLOBAL)
+# ================================
+
+# Floating button container
+st.markdown('<div class="floating-help-btn">', unsafe_allow_html=True)
+
+if st.button("❓ Help"):
+    st.session_state["show_help_panel"] = True
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Show help panel
+if st.session_state.get("show_help_panel", False):
+    with st.expander("⭐ Getting Started & Refer", expanded=True):
+        show_getting_started_panel()
+
+    # auto reset after showing once
+    st.session_state["show_help_panel"] = False
