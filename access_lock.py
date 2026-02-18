@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import uuid
+from info_panel import show_getting_started_panel
 
 BACKEND_URL = "https://global-job-aggregator-production.up.railway.app"
 
@@ -73,8 +74,10 @@ def verify_access():
         # ===============================
         if "welcome_shown" not in st.session_state:
             st.session_state.welcome_shown = True
+        
+            with st.expander("⭐ Important — Please Read First", expanded=True):
+                show_getting_started_panel()
 
-            st.success("🎉 Payment Successful! Welcome to JobHunt++ Premium Access!")
             #st.info("🚀 You now have lifetime access. Enjoy exploring global job opportunities!")
 
         # ===============================
