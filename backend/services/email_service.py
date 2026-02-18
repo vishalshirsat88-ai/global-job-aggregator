@@ -17,7 +17,7 @@ def send_access_email(email: str, token: str):
     access_link = f"{TOOL_URL}?token={token}"
 
     payload = {
-        "from": "JobHunt++ <onboarding@resend.dev>",
+        "from": "JobHunt++ Team <noreply@avantara.co.in>",
         "to": [email],
         "subject": "🎉 Your JobHunt++ Access is Ready!",
         "html": f"""
