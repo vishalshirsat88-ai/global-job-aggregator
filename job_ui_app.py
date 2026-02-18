@@ -457,11 +457,3 @@ if st.button("❓ Help"):
     st.session_state["show_help_panel"] = True
 
 st.markdown('</div>', unsafe_allow_html=True)
-
-# Show help panel
-if st.session_state.get("show_help_panel", False):
-    with st.expander("⭐ Getting Started & Refer", expanded=True):
-        show_getting_started_panel()
-
-    # auto reset after showing once
-    st.session_state["show_help_panel"] = False
