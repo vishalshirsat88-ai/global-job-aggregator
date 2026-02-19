@@ -1,55 +1,38 @@
 import streamlit as st
 
 
-def show_getting_started_panel():
-    st.markdown("## 🎉 Welcome to JobHunt++ — You’re All Set!")
+def get_help_html():
 
-    st.success("Your lifetime access is now active.")
+    return """
+    <h2>🎉 Welcome to JobHunt++ — You’re All Set!</h2>
 
-    st.markdown("""
-### 📩 Check Your Email (Important)
-Your personal lifetime access link has been sent to your email.
+    <div style="background:#E8F5E9;padding:12px;border-radius:8px;margin-bottom:20px;">
+        Your lifetime access is now active.
+    </div>
 
-Please check:
-- Inbox  
-- Spam / Junk folder
+    <h3>📩 Check Your Email (Important)</h3>
+    <p>Your personal lifetime access link has been sent to your email.</p>
+    <ul>
+        <li>Bookmark the link immediately</li>
+        <li>If token shows invalid → reopen email link</li>
+        <li>Check Spam/Junk folder</li>
+    </ul>
 
----
+    <h3>🎁 Free Perks Included</h3>
+    <ul>
+        <li>Unlimited job searches</li>
+        <li>Global job coverage</li>
+        <li>Lifetime access</li>
+    </ul>
 
-### ⭐ Bookmark Your Access Link FIRST
-Open the link from your email and **bookmark it immediately.**
+    <h3>🔗 Share With Friends</h3>
+    <p>Send them to: <b>https://avantara.co.in</b></p>
 
-👉 Always use this bookmarked link to open the tool.
 
----
-
-### 🔁 If You Ever See “Invalid Token”
-No worries.
-
-Just:
-- Open your email again  
-- Click your access link  
-- Bookmark again  
-
----
-
-### 🎁 Your Free Perks
-- Lifetime access (one-time payment)  
-- Global job aggregation  
-- Smart skill expansion  
-- Excel export with links  
-
----
-
-### 🔗 Refer Friends
-Share our website:
-
-👉 https://avantara.co.in
-
-Each user receives their own lifetime access link after purchase.
-
----
-
-💡 **Pro Tip:**  
-Always open JobHunt++ using your bookmarked link.
-""")
+    Each user receives their own lifetime access link after purchase.
+    
+    ---
+    
+    💡 **Pro Tip:**  
+    Always open JobHunt++ using your bookmarked link.
+    """)
