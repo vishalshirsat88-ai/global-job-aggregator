@@ -180,53 +180,14 @@ section[data-testid="stSidebar"] * {
     text-decoration: none;
 }
 
-/* DOWNLOAD BUTTON */
-.download-btn button {
-    background: linear-gradient(135deg, #00C9A7, #92FE9D) !important;
-    color: #064E3B !important;
-    border-radius: 14px !important;
-    font-weight: 700 !important;
-    border: none !important;
-}
+<style>
+""", unsafe_allow_html=True)
 
 
 st.markdown("""
 <style>
 
-/* Modern clean form label */
-.form-label {
-    font-size: 16px;
-    #border-left: 3px solid #6D5DF6;
-    #padding-left: 6px;
-    font-weight: 700;
-    color: #4F46E5;   /* modern indigo */
-    margin-bottom: 6px;
-    letter-spacing: 0.2px;
-}
-
-/* Make emoji/icons sharp */
-.form-label span {
-    filter: none !important;
-    opacity: 1 !important;
-}
-
-/* Slight hover glow (optional) */
-.form-label:hover {
-    color: #6D5DF6;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-
-
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-
-/* TARGET THE REAL EXPANDER HEADER */
+/* EXPANDER HEADER STYLE */
 [data-testid="stExpander"] details > summary {
     background: linear-gradient(135deg, #FF5EDF, #FF8A00) !important;
     color: white !important;
@@ -235,23 +196,21 @@ st.markdown("""
     font-weight: 600;
 }
 
-/* Remove default white background layer */
 [data-testid="stExpander"] details > summary div {
     background: transparent !important;
 }
 
-/* Hover effect */
 [data-testid="stExpander"] details > summary:hover {
     background: linear-gradient(135deg, #ff3fcf, #ff7200) !important;
 }
 
-/* Arrow icon color */
 [data-testid="stExpander"] svg {
     fill: white !important;
 }
 
 </style>
 """, unsafe_allow_html=True)
+
 
 
 
@@ -278,6 +237,19 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+.download-btn button {
+    background: linear-gradient(135deg, #00C9A7, #92FE9D) !important;
+    color: #064E3B !important;
+    border-radius: 14px !important;
+    font-weight: 700 !important;
+    border: none !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 
 # ---------- HERO SECTION ----------
