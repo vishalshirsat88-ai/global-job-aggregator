@@ -110,6 +110,108 @@ st.markdown("""
     font-family: 'Inter', sans-serif;
 }
 
+#-------------------------------------------Animations Effects starts----------------------------------------------
+/* ============================= */
+/* PREMIUM STICKY HEADER */
+/* ============================= */
+
+.sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.55);
+    padding: 14px 0 10px 0;
+}
+
+/* ============================= */
+/* ANIMATED GRADIENT TITLE */
+/* ============================= */
+
+.hero-title {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    width: 100%;
+    text-align: center;
+ 
+    font-size: 52px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    text-align: center;
+
+    background: linear-gradient(
+        90deg,
+        #4F6CF7,
+        #7A6FF0,
+        #FF8A00,
+        #4F6CF7
+    );
+
+    background-size: 300% 300%;
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    animation: gradientFlow 12s ease infinite;
+}
+
+/* Gradient animation */
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ============================= */
+/* SHIMMER EFFECT */
+/* ============================= */
+
+.hero-title::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 120%;
+    height: 100%;
+
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.7),
+        transparent
+    );
+
+    animation: shimmer 6s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -120%; }
+    100% { left: 120%; }
+}
+
+/* ============================= */
+/* RESPONSIVE MOBILE SCALING */
+/* ============================= */
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 32px;
+    }
+    .hero-subtitle {
+        font-size: 14px;
+    }
+}
+
+/* ============================= */
+/* SIDEBAR-AWARE CENTERING */
+/* ============================= */
+
+[data-testid="stSidebar"][aria-expanded="true"] ~ div .hero-title {
+    margin-left: 0;
+}
+#-----------------------------Animation effects ends------------------------------------------------
+
 /* REMOVE STREAMLIT DEFAULT TOP GAP */
 .block-container {
     padding-top: 0.5rem !important;
@@ -134,17 +236,7 @@ section[data-testid="stSidebar"] * {
     color: white !important;
 }
 
-/* HERO SECTION STYLING */
-.hero-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 52px;
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -1px;
-    background: linear-gradient(90deg, #4F6CF7 0%, #7A6FF0 50%, #E8A06A 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+
 .hero-subtitle {
     font-family: 'Inter', sans-serif;
     font-size: 18px;
@@ -351,14 +443,28 @@ section[data-testid="stSidebar"] .stExpander {
 
 
 # ---------- HERO SECTION ----------
+# ---------- New animation if doesnt work delete this and enable the old below ----------
 st.markdown("""
-<div style="padding: 10px 0 20px 0; text-align:center;">
+<div class="sticky-header">
     <div class="hero-title">Global Job Aggregator</div>
     <div class="hero-subtitle">Search smarter. Apply faster.</div>
 </div>
 """, unsafe_allow_html=True)
 
-# ---------- INPUT AREA ----------
+
+# ---------- New animation if doesnt work delete this and enable the old below ----------
+
+# ---------- OLD enabel this if animation doesnt work ----------
+
+#st.markdown("""
+#<div style="padding: 10px 0 20px 0; text-align:center;">
+    #<div class="hero-title">Global Job Aggregator</div>
+    #<div class="hero-subtitle">Search smarter. Apply faster.</div>
+#</div>
+#""", unsafe_allow_html=True)
+
+# ---------- OLD enabel this if animation doesnt work ----------
+
 # ---------- INPUT AREA ----------
 
 # SKILLS (MANDATORY)
