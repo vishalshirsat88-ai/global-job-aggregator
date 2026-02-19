@@ -287,11 +287,12 @@ st.markdown("""
 st.markdown("""
 <style>
 
-/* ========================= */
-/* MODERN INPUT BOX STYLING */
-/* ========================= */
+/* ============================= */
+/* REAL MODERN INPUT STYLING */
+/* ============================= */
 
-[data-testid="stTextInput"] > div > div input {
+/* Target Streamlit text inputs correctly */
+div[data-testid="stTextInput"] input {
     background: rgba(255,255,255,0.85) !important;
     border-radius: 18px !important;
     border: 1px solid rgba(255,255,255,0.6) !important;
@@ -302,34 +303,34 @@ st.markdown("""
 }
 
 /* Focus glow */
-[data-testid="stTextInput"] input:focus {
+div[data-testid="stTextInput"] input:focus {
     border: 1px solid #7A6FF0 !important;
-    box-shadow: 0 0 0 3px rgba(122,111,240,0.2) !important;
+    box-shadow: 0 0 0 3px rgba(122,111,240,0.25) !important;
     background: white !important;
 }
 
-/* ========================= */
-/* GLASS SIDEBAR EFFECT */
-/* ========================= */
-
-section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #6A5AE0, #B983FF);
-    backdrop-filter: blur(18px);
+/* Make input container glass */
+div[data-testid="stTextInput"] > div {
+    background: transparent !important;
 }
 
-/* Glass panel inside sidebar */
+/* ============================= */
+/* GLASS SIDEBAR PANEL */
+/* ============================= */
+
 section[data-testid="stSidebar"] .stExpander {
-    background: rgba(255,255,255,0.12);
-    border-radius: 16px;
-    padding: 10px;
-    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.12) !important;
+    border-radius: 16px !important;
+    padding: 12px !important;
+    backdrop-filter: blur(14px);
 }
 
-/* ========================= */
-/* HOVER ANIMATIONS */
-/* ========================= */
+/* ============================= */
+/* SMOOTH HOVER ANIMATIONS */
+/* ============================= */
 
-button, .job-card {
+.stButton>button,
+.job-card {
     transition: all 0.25s ease !important;
 }
 
@@ -340,11 +341,11 @@ button, .job-card {
 
 .stButton>button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 30px rgba(255,94,223,0.5);
 }
 
 </style>
 """, unsafe_allow_html=True)
+
 
 #----------------------------------New added for glass design---------------------------------
 
