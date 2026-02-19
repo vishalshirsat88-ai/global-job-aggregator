@@ -116,13 +116,12 @@ st.markdown("""
 /* ============================= */
 
 .sticky-header {
-    position: sticky;
-    top: 0;
-    z-index: 999;
     backdrop-filter: blur(12px);
     background: rgba(255,255,255,0.55);
-    padding: 8px 0 6px 0;
+    padding: 10px 0 6px 0;
+    margin-top: -10px;
 }
+
 
 /* ============================= */
 /* ANIMATED GRADIENT TITLE */
