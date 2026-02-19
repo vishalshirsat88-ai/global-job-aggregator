@@ -393,25 +393,22 @@ st.markdown("""
 st.markdown("""
 <style>
 
-/* REAL WORKING INPUT STYLE */
+/* === FINAL WORKING INPUT STYLE === */
 
-div[data-testid="stTextInput"] > div > div > input {
-    background: rgba(255,255,255,0.85) !important;
+div[data-testid="stTextInput"] input {
+    background: rgba(255,255,255,0.92) !important;
     border-radius: 18px !important;
-    border: 1px solid rgba(255,255,255,0.6) !important;
-    padding: 14px 16px !important;
+    border: 1px solid #E5E7EB !important;
+    padding: 12px 16px !important;
     font-size: 15px !important;
-    backdrop-filter: blur(10px);
-    transition: all 0.25s ease !important;
+    transition: all 0.2s ease !important;
 }
 
-div[data-testid="stTextInput"] > div > div > input:focus {
+div[data-testid="stTextInput"] input:focus {
     border: 1px solid #7A6FF0 !important;
-    box-shadow: 0 0 0 3px rgba(122,111,240,0.25) !important;
+    box-shadow: 0 0 0 3px rgba(122,111,240,0.2) !important;
     background: white !important;
 }
-
-
 
 
 /* ============================= */
