@@ -19,6 +19,10 @@ if "show_help_sidebar" not in st.session_state:
 if "show_help_panel" not in st.session_state:
     st.session_state["show_help_panel"] = False
 
+if "show_help_card" not in st.session_state:
+    st.session_state["show_help_card"] = False
+
+
 from io import BytesIO
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -119,6 +123,8 @@ if st.session_state.get("show_help_sidebar", False):
 
     # ✅ RESET AFTER SHOWING
     st.session_state["show_help_sidebar"] = False
+
+#------------------------------------------------------------------CSS Block starts here----------------------------------------
 
 st.markdown("""
 <style>
@@ -250,6 +256,57 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ✅ ADD HERE (RIGHT BELOW)
+
+st.markdown("""
+<style>
+
+/* Slide animation keyframes */
+@keyframes slideInHelp {
+    from {
+        transform: translateX(120%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Floating Help Card */
+.help-card {
+    position: fixed;
+    top: 90px;
+    right: 30px;
+    width: 420px;
+    max-height: 70vh;
+    overflow-y: auto;
+    background: white;
+    padding: 22px;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    z-index: 9999;
+
+    /* ✨ Animation */
+    animation: slideInHelp 0.4s ease-out;
+}
+
+/* Close button style */
+.help-close-btn button {
+    background: transparent;
+    color: #666;
+    font-size: 18px;
+    border: none;
+}
+
+.help-close-btn button:hover {
+    color: #111;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+#------------------------------------------------------------------CSS Block ends here----------------------------------------
 
 
 # ---------- HERO SECTION ----------
@@ -260,7 +317,16 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------- INPUT AREA ----------
+# ================================
+# TOP RIGHT HELP BUTTON
+# ================================
+
+top_left, top_right = st.columns([9,1])
+
+with top_right:
+    if st.button("❓ Help", key="help_button"):
+        st.session_state["show_help_card"] = True
+
 # ---------- INPUT AREA ----------
 
 # SKILLS (MANDATORY)
@@ -335,7 +401,41 @@ if not is_remote and not countries:
     st.error("Country is mandatory unless location is Remote.")
     st.stop()
 
-posted_days = st.slider("Posted within last X days", 1, 60, 7)
+# ================================
+# POSTED DAYS — SLIDER + INPUT
+# ================================
+
+st.markdown('<div class="form-label">📅 Posted Within Last (Days)</div>', unsafe_allow_html=True)
+
+col_slider, col_input = st.columns([4,1])
+
+with col_slider:
+    posted_days = st.slider(
+        "Posted within last days",
+        min_value=1,
+        max_value=60,
+        value=st.session_state.get("posted_days", 7),
+        key="posted_slider",
+        label_visibility="collapsed"
+    )
+
+with col_input:
+    posted_days_input = st.number_input(
+        "Days",
+        min_value=1,
+        max_value=60,
+        value=posted_days,
+        key="posted_input",
+        label_visibility="collapsed"
+    )
+
+# 🔄 Sync both controls
+if posted_days_input != posted_days:
+    posted_days = posted_days_input
+    st.session_state["posted_slider"] = posted_days_input
+
+st.session_state["posted_days"] = posted_days
+
 
 # ---------- ACTION BAR ----------
 col_run, col_toggle, col_dl = st.columns([2, 3, 2])
@@ -483,3 +583,26 @@ if st.button("❓ Help"):
     st.session_state["show_help_panel"] = True
 
 st.markdown('</div>', unsafe_allow_html=True)
+
+# ================================
+# FLOATING HELP CARD
+# ================================
+
+if st.session_state["show_help_card"]:
+
+    st.markdown('<div class="help-card">', unsafe_allow_html=True)
+
+    # Close button row
+    close_col1, close_col2 = st.columns([9,1])
+
+    with close_col2:
+        st.markdown('<div class="help-close-btn">', unsafe_allow_html=True)
+        if st.button("✖", key="close_help"):
+            st.session_state["show_help_card"] = False
+        st.markdown('</div>', unsafe_allow_html=True)
+
+
+    # Your help content
+    show_getting_started_panel()
+
+    st.markdown('</div>', unsafe_allow_html=True)
