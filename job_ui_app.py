@@ -295,6 +295,22 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+if st.session_state["show_help_card"]:
+
+    left, center, right = st.columns([1,3,1])
+
+    with center:
+        with st.container(border=True):
+
+            col1, col2 = st.columns([10,1])
+
+            with col2:
+                if st.button("✖", key="close_help"):
+                    st.session_state["show_help_card"] = False
+                    st.rerun()
+
+            st.markdown(get_help_html(), unsafe_allow_html=True)
+
 # ================================
 # TOP RIGHT HELP BUTTON
 # ================================
@@ -555,18 +571,7 @@ if st.session_state.get("search_triggered", False):
 # HELP POPUP — FINAL WORKING VERSION
 # ================================
 
-if st.session_state["show_help_card"]:
 
-    with st.container(border=True):
-
-        col1, col2 = st.columns([10,1])
-
-        with col2:
-            if st.button("✖", key="close_help"):
-                st.session_state["show_help_card"] = False
-                st.rerun()
-
-        st.markdown(get_help_html(), unsafe_allow_html=True)
 
 
 
