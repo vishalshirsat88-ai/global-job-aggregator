@@ -557,16 +557,29 @@ if st.session_state.get("search_triggered", False):
 
 if st.session_state["show_help_card"]:
 
+    # Dark overlay using Streamlit (not HTML)
+    st.markdown(
+        """
+        <style>
+        .block-container {
+            pointer-events: none;
+            opacity: 0.3;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Close button ABOVE modal
+    close_col1, close_col2 = st.columns([9,1])
+    with close_col2:
+        if st.button("✖ Close Help", key="close_help"):
+            st.session_state["show_help_card"] = False
+            st.rerun()
+
     # Render modal
     st.markdown(get_help_html(), unsafe_allow_html=True)
 
-    # Floating close button (real functional one)
-    close_col1, close_col2 = st.columns([9,1])
-
-    with close_col2:
-        if st.button("✖", key="close_help_btn"):
-            st.session_state["show_help_card"] = False
-            st.rerun()
 
 
 
