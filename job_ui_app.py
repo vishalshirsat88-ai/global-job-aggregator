@@ -207,18 +207,23 @@ section[data-testid="stSidebar"] * {
 st.markdown("""
 <style>
 
-/* Expander header default state */
-[data-testid="stExpander"] > div:first-child {
+/* TARGET THE REAL EXPANDER HEADER */
+[data-testid="stExpander"] details > summary {
     background: linear-gradient(135deg, #FF5EDF, #FF8A00) !important;
     color: white !important;
     border-radius: 10px;
-    padding: 8px 12px;
+    padding: 10px 14px;
+    box-shadow: 0 6px 18px rgba(255, 94, 223, 0.35);
     font-weight: 600;
-    border: none;
+}
+
+/* Remove default white background layer */
+[data-testid="stExpander"] details > summary div {
+    background: transparent !important;
 }
 
 /* Hover effect */
-[data-testid="stExpander"] > div:first-child:hover {
+[data-testid="stExpander"] details > summary:hover {
     background: linear-gradient(135deg, #ff3fcf, #ff7200) !important;
 }
 
@@ -229,6 +234,7 @@ st.markdown("""
 
 </style>
 """, unsafe_allow_html=True)
+
 
 
 
