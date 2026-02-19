@@ -287,68 +287,65 @@ st.markdown("""
 st.markdown("""
 <style>
 
-/* ============================= */
+/* ========================= */
 /* MODERN INPUT BOX STYLING */
-/* ============================= */
+/* ========================= */
 
-input, textarea {
-    background: rgba(255,255,255,0.75) !important;
-    border-radius: 16px !important;
-    border: 1px solid rgba(255,255,255,0.4) !important;
+[data-testid="stTextInput"] > div > div input {
+    background: rgba(255,255,255,0.85) !important;
+    border-radius: 18px !important;
+    border: 1px solid rgba(255,255,255,0.6) !important;
     padding: 14px 16px !important;
     font-size: 15px !important;
+    backdrop-filter: blur(10px);
     transition: all 0.25s ease !important;
-    backdrop-filter: blur(8px);
 }
 
-/* Focus effect */
-input:focus {
+/* Focus glow */
+[data-testid="stTextInput"] input:focus {
     border: 1px solid #7A6FF0 !important;
-    box-shadow: 0 0 0 3px rgba(122,111,240,0.15) !important;
+    box-shadow: 0 0 0 3px rgba(122,111,240,0.2) !important;
     background: white !important;
 }
 
-/* ============================= */
+/* ========================= */
 /* GLASS SIDEBAR EFFECT */
-/* ============================= */
+/* ========================= */
 
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #6A5AE0, #B983FF);
-    backdrop-filter: blur(14px);
+    backdrop-filter: blur(18px);
 }
 
-/* Glass card inside sidebar */
+/* Glass panel inside sidebar */
 section[data-testid="stSidebar"] .stExpander {
-    background: rgba(255,255,255,0.15);
-    border-radius: 14px;
-    padding: 8px;
-    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.12);
+    border-radius: 16px;
+    padding: 10px;
+    backdrop-filter: blur(12px);
 }
 
-/* ============================= */
-/* SMOOTH HOVER ANIMATIONS */
-/* ============================= */
+/* ========================= */
+/* HOVER ANIMATIONS */
+/* ========================= */
 
-button, .job-card, .apply-btn {
+button, .job-card {
     transition: all 0.25s ease !important;
 }
 
 .job-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 45px rgba(0,0,0,0.12);
+    transform: translateY(-6px);
+    box-shadow: 0 22px 50px rgba(0,0,0,0.15);
 }
 
 .stButton>button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 28px rgba(255, 94, 223, 0.5);
-}
-
-.apply-btn:hover {
-    transform: scale(1.05);
+    box-shadow: 0 14px 30px rgba(255,94,223,0.5);
 }
 
 </style>
 """, unsafe_allow_html=True)
+
 #----------------------------------New added for glass design---------------------------------
 
 
