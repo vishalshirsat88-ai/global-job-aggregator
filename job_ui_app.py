@@ -180,8 +180,9 @@ section[data-testid="stSidebar"] * {
     text-decoration: none;
 }
 
-<style>
+</style>
 """, unsafe_allow_html=True)
+
 
 
 st.markdown("""
@@ -249,6 +250,24 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+.form-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #4F46E5;
+    margin-bottom: 6px;
+}
+
+/* Fix emoji blur */
+.form-label span {
+    filter: none !important;
+    opacity: 1 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 
 
