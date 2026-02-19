@@ -550,18 +550,41 @@ if st.session_state.get("search_triggered", False):
         
 
 # ================================
-# FLOATING HELP CARD (FIXED VERSION)
+# FLOATING HELP CARD — FINAL FIX
 # ================================
 
 if st.session_state["show_help_card"]:
 
-    # Create floating container
+    # Apply CSS class to container directly
     help_container = st.container()
 
-    # Apply CSS wrapper
-    help_container.markdown('<div class="help-card">', unsafe_allow_html=True)
+    # Inject wrapper styling
+    st.markdown(
+        """
+        <style>
+        div[data-testid="stVerticalBlock"]:has(> div.help-wrapper) {
+            position: fixed;
+            top: 90px;
+            right: 30px;
+            width: 420px;
+            max-height: 70vh;
+            overflow-y: auto;
+            background: white;
+            padding: 22px;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            z-index: 9999;
+            animation: slideInHelp 0.4s ease-out;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    # Close button row
+    # Invisible wrapper marker
+    help_container.markdown('<div class="help-wrapper"></div>', unsafe_allow_html=True)
+
+    # Close button
     col1, col2 = help_container.columns([9,1])
 
     with col2:
@@ -569,10 +592,9 @@ if st.session_state["show_help_card"]:
             st.session_state["show_help_card"] = False
             st.rerun()
 
-    # ⭐ Render help content INSIDE container
+    # Render content
     with help_container:
         show_getting_started_panel()
 
-    help_container.markdown('</div>', unsafe_allow_html=True)
 
 
