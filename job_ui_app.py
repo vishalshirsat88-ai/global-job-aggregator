@@ -105,6 +105,28 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap');
 
+/* ===== REMOVE ALL STREAMLIT TOP SPACERS ===== */
+
+/* Top toolbar strip */
+div[data-testid="stToolbar"] {
+    display: none !important;
+}
+
+/* Header container */
+header[data-testid="stHeader"] {
+    display: none !important;
+}
+
+/* Top decoration spacer */
+div[data-testid="stDecoration"] {
+    display: none !important;
+}
+
+/* Remove leftover padding */
+div[data-testid="stAppViewContainer"] {
+    padding-top: 0 !important;
+}
+
 .stApp {
     background: linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 50%, #fff7ed 100%);
     font-family: 'Inter', sans-serif;
