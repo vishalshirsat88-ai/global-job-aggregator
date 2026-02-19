@@ -558,7 +558,7 @@ if st.session_state.get("search_triggered", False):
 import streamlit.components.v1 as components
 
 if st.session_state["show_help_card"]:
-    components.html(get_help_html(), height=0, scrolling=False)
+    components.html(get_help_html(), height=600, scrolling=False)
 
 
 
