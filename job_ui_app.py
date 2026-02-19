@@ -3,7 +3,7 @@ from access_lock import verify_access
 verify_access()
 
 import streamlit as st
-import streamlit.components.v1 as components
+
 import requests
 import pandas as pd
 import re
@@ -552,13 +552,20 @@ if st.session_state.get("search_triggered", False):
         
 
 # ================================
-# HELP POPUP — WORKING VERSION
+# HELP POPUP — FINAL WORKING VERSION
 # ================================
 
-import streamlit.components.v1 as components
-
 if st.session_state["show_help_card"]:
-    components.html(get_help_html(), height=600, scrolling=False)
+
+    st.markdown(get_help_html(), unsafe_allow_html=True)
+
+    # Invisible close button positioned top-right
+    close_col1, close_col2 = st.columns([9,1])
+    with close_col2:
+        if st.button("✖", key="close_help"):
+            st.session_state["show_help_card"] = False
+            st.rerun()
+
 
 
 
