@@ -96,18 +96,10 @@ st.set_page_config(page_title="Global Job Aggregator", layout="wide")
 st.sidebar.markdown("### ⭐ Help & Info")
 
 # Manual sidebar button
-if st.sidebar.button("Getting Started / Refer"):
-    st.session_state["show_help_sidebar"] = True
+st.sidebar.markdown("### ⭐ Help & Info")
 
-# Floating button trigger
-if st.session_state.get("show_help_panel", False):
-    st.session_state["show_help_sidebar"] = True
-    st.session_state["show_help_panel"] = False
-
-# Show panel inside sidebar
-if st.session_state.get("show_help_sidebar", False):
-    with st.sidebar.expander("⭐ Getting Started & Refer", expanded=True):
-        show_getting_started_panel()
+with st.sidebar.expander("⭐ Getting Started & Refer", expanded=True):
+    show_getting_started_panel()
 
 
 
