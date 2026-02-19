@@ -93,8 +93,6 @@ st.set_page_config(page_title="Global Job Aggregator", layout="wide")
 
 # ---------- RESTORED FRONT-END VISUALS ----------
 
-st.sidebar.markdown("### ⭐ Help & Info")
-
 # Manual sidebar button
 st.sidebar.markdown("### ⭐ Help & Info")
 
@@ -205,6 +203,27 @@ section[data-testid="stSidebar"] * {
 
 </style>
 """, unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+
+/* Expander header styling */
+[data-testid="stExpander"] > div:first-child {
+    background: linear-gradient(135deg, #6A5AE0, #B983FF);
+    color: white !important;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-weight: 600;
+}
+
+/* Hover effect */
+[data-testid="stExpander"] > div:first-child:hover {
+    background: linear-gradient(135deg, #4F6CF7, #7A6FF0);
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 
 st.markdown("""
 <style>
@@ -450,14 +469,3 @@ if st.session_state.get("search_triggered", False):
 
             st.markdown('</div>', unsafe_allow_html=True)
         
-# ================================
-# FLOATING HELP BUTTON (GLOBAL)
-# ================================
-
-# Floating button container
-st.markdown('<div class="floating-help-btn">', unsafe_allow_html=True)
-
-if st.button("❓ Help"):
-    st.session_state["show_help_panel"] = True
-
-st.markdown('</div>', unsafe_allow_html=True)
