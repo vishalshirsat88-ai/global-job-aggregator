@@ -110,6 +110,17 @@ st.markdown("""
     font-family: 'Inter', sans-serif;
 }
 
+/* 🔥 REMOVE STREAMLIT TOP HEADER SPACE */
+header[data-testid="stHeader"] {
+    display: none !important;
+}
+
+/* Remove extra top padding created by it */
+[data-testid="stAppViewContainer"] {
+    padding-top: 0rem !important;
+}
+
+
 #-------------------------------------------Animations Effects starts----------------------------------------------
 /* ============================= */
 /* PREMIUM STICKY HEADER */
