@@ -1,8 +1,13 @@
-import sqlite3
+import psycopg2
+import os
 import uuid
 from datetime import datetime, timedelta
 
-DB_FILE = "payments.db"
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+def get_db():
+    return psycopg2.connect(DATABASE_URL)
+
 
 # ===============================
 # CONFIGURABLE SETTINGS
@@ -15,12 +20,13 @@ SESSION_TIMEOUT_MINUTES = 30
 # INIT DB
 # ===============================
 def init_db():
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db()
     cursor = conn.cursor()
+
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS payments (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             email TEXT,
             order_id TEXT,
             access_token TEXT UNIQUE,
@@ -30,7 +36,7 @@ def init_db():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS active_sessions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             access_token TEXT,
             session_id TEXT UNIQUE,
             last_active TIMESTAMP
@@ -38,29 +44,29 @@ def init_db():
     """)
 
     conn.commit()
+    cursor.close()
     conn.close()
 
-
-# Run init automatically
-init_db()
-
-
+    
 # ===============================
 # SAVE PAYMENT + GENERATE TOKEN
 # ===============================
 def save_payment(email, order_id):
     token = str(uuid.uuid4()).strip()
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db()
     cursor = conn.cursor()
 
+
     cursor.execute(
-        "INSERT INTO payments (email, order_id, access_token) VALUES (?, ?, ?)",
+        "INSERT INTO payments (email, order_id, access_token) VALUES (%s, %s, %s)",
         (email, order_id, token)
     )
 
     conn.commit()
+    cursor.close()
     conn.close()
+
 
     return token
 
@@ -72,7 +78,7 @@ def cleanup_expired_sessions(cursor):
     expiry_time = datetime.utcnow() - timedelta(minutes=SESSION_TIMEOUT_MINUTES)
 
     cursor.execute(
-        "DELETE FROM active_sessions WHERE last_active < ?",
+        "DELETE FROM active_sessions WHERE last_active < %s",
         (expiry_time.isoformat(),)
     )
 
@@ -83,40 +89,45 @@ def cleanup_expired_sessions(cursor):
 def verify_and_register_session(token, session_id):
     token = token.strip()
 
-    conn = sqlite3.connect(DB_FILE)
+    conn = get_db()
     cursor = conn.cursor()
+
 
     # ✅ Check token exists
     cursor.execute(
-        "SELECT id FROM payments WHERE access_token=?",
+        "SELECT id FROM payments WHERE access_token=%s",
         (token,)
     )
     if not cursor.fetchone():
+        cursor.close()
         conn.close()
         return False, "Invalid token"
+
 
     # ✅ Cleanup expired sessions
     cleanup_expired_sessions(cursor)
 
     # ✅ Check if session already active
     cursor.execute(
-        "SELECT id FROM active_sessions WHERE session_id=?",
+        "SELECT id FROM active_sessions WHERE session_id=%s",
         (session_id,)
     )
     existing = cursor.fetchone()
 
     if existing:
         cursor.execute(
-            "UPDATE active_sessions SET last_active=? WHERE session_id=?",
+            "UPDATE active_sessions SET last_active=%s WHERE session_id=%s",
             (datetime.utcnow().isoformat(), session_id)
         )
         conn.commit()
+        cursor.close()
         conn.close()
+
         return True, "Session refreshed"
 
     # ✅ Count active sessions
     cursor.execute(
-        "SELECT COUNT(*) FROM active_sessions WHERE access_token=?",
+        "SELECT COUNT(*) FROM active_sessions WHERE access_token=%s",
         (token,)
     )
     active_count = cursor.fetchone()[0]
@@ -127,7 +138,7 @@ def verify_and_register_session(token, session_id):
     if active_count >= MAX_CONCURRENT_USERS:
         cursor.execute("""
             SELECT id FROM active_sessions
-            WHERE access_token=?
+            WHERE access_token=%s
             ORDER BY last_active ASC
             LIMIT 1
         """, (token,))
@@ -136,18 +147,19 @@ def verify_and_register_session(token, session_id):
 
         if oldest:
             cursor.execute(
-                "DELETE FROM active_sessions WHERE id=?",
+                "DELETE FROM active_sessions WHERE id=%s",
                 (oldest[0],)
             )
             session_replaced = True
 
     # ✅ Register new session
     cursor.execute(
-        "INSERT INTO active_sessions (access_token, session_id, last_active) VALUES (?, ?, ?)",
+        "INSERT INTO active_sessions (access_token, session_id, last_active) VALUES (%s, %s, %s)",
         (token, session_id, datetime.utcnow().isoformat())
     )
 
     conn.commit()
+    cursor.close()
     conn.close()
 
     if session_replaced:
