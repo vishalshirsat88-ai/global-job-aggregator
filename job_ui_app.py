@@ -375,16 +375,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-#--------------------------new added for glass design--------------------
+#--------------------------new added for glass design starts--------------------
 st.markdown("""
 <style>
 
-/* ============================= */
-/* REAL MODERN INPUT STYLING */
-/* ============================= */
+/* REAL WORKING INPUT STYLE */
 
-/* Target Streamlit text inputs correctly */
-div[data-testid="stTextInput"] input {
+div[data-testid="stTextInput"] > div > div > input {
     background: rgba(255,255,255,0.85) !important;
     border-radius: 18px !important;
     border: 1px solid rgba(255,255,255,0.6) !important;
@@ -394,17 +391,14 @@ div[data-testid="stTextInput"] input {
     transition: all 0.25s ease !important;
 }
 
-/* Focus glow */
-div[data-testid="stTextInput"] input:focus {
+div[data-testid="stTextInput"] > div > div > input:focus {
     border: 1px solid #7A6FF0 !important;
     box-shadow: 0 0 0 3px rgba(122,111,240,0.25) !important;
     background: white !important;
 }
 
-/* Make input container glass */
-div[data-testid="stTextInput"] > div {
-    background: transparent !important;
-}
+
+
 
 /* ============================= */
 /* GLASS SIDEBAR PANEL */
@@ -439,7 +433,7 @@ section[data-testid="stSidebar"] .stExpander {
 """, unsafe_allow_html=True)
 
 
-#----------------------------------New added for glass design---------------------------------
+#----------------------------------New added for glass design ends---------------------------------
 
 
 # ---------- HERO SECTION ----------
