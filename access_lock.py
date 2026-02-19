@@ -1,7 +1,8 @@
 import streamlit as st
 import requests
 import uuid
-from info_panel import show_getting_started_panel
+from info_panel import get_help_html
+
 
 BACKEND_URL = "https://global-job-aggregator-production.up.railway.app"
 
