@@ -1,16 +1,6 @@
 def get_help_html():
     return """
 <style>
-.help-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    z-index: 9999;
-}
-
 .help-modal {
     position: fixed;
     top: 50%;
@@ -24,6 +14,7 @@ def get_help_html():
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    z-index: 9999;
 }
 
 @media (max-width: 768px) {
@@ -32,21 +23,9 @@ def get_help_html():
         padding: 20px;
     }
 }
-
-.help-close {
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    font-size: 22px;
-    font-weight: bold;
-}
 </style>
 
-<div class="help-overlay"></div>
-
 <div class="help-modal">
-
-<div style="text-align:right; font-size:22px;">✖</div>
 
 <h2>🎉 Welcome to JobHunt++ — You’re All Set!</h2>
 
