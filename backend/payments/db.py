@@ -166,3 +166,27 @@ def verify_and_register_session(token, session_id):
         return True, "Session replaced"
 
     return True, "Session registered"
+
+def get_all_payments():
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT email, access_token, created_at
+        FROM payments
+        ORDER BY created_at DESC
+    """)
+
+    rows = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return [
+        {
+            "email": r[0],
+            "token": r[1],
+            "created_at": str(r[2])
+        }
+        for r in rows
+    ]
