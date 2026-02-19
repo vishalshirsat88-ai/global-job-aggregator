@@ -54,7 +54,7 @@ app.add_middleware(
 # ===============================
 # DB INIT
 # ===============================
-from backend.payments.db import init_db, verify_and_register_session
+from backend.payments.db import init_db, verify_and_register_session, get_all_payments
 @app.on_event("startup")
 def startup_event():
     init_db()
@@ -107,6 +107,11 @@ async def verify_access(request: Request):
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+@app.get("/admin/payments")
+def view_payments():
+    return get_all_payments()
+
 
 # ===============================
 # SEARCH ENGINE IMPORTS
