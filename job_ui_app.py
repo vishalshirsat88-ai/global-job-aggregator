@@ -557,14 +557,17 @@ if st.session_state.get("search_triggered", False):
 
 if st.session_state["show_help_card"]:
 
+    # Render modal
     st.markdown(get_help_html(), unsafe_allow_html=True)
 
-    # Invisible close button positioned top-right
+    # Floating close button (real functional one)
     close_col1, close_col2 = st.columns([9,1])
+
     with close_col2:
-        if st.button("✖", key="close_help"):
+        if st.button("✖", key="close_help_btn"):
             st.session_state["show_help_card"] = False
             st.rerun()
+
 
 
 
