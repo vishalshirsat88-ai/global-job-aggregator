@@ -207,22 +207,29 @@ section[data-testid="stSidebar"] * {
 st.markdown("""
 <style>
 
-/* Expander header styling */
+/* Expander header default state */
 [data-testid="stExpander"] > div:first-child {
-    background: linear-gradient(135deg, #6A5AE0, #B983FF);
+    background: linear-gradient(135deg, #FF5EDF, #FF8A00) !important;
     color: white !important;
     border-radius: 10px;
     padding: 8px 12px;
     font-weight: 600;
+    border: none;
 }
 
 /* Hover effect */
 [data-testid="stExpander"] > div:first-child:hover {
-    background: linear-gradient(135deg, #4F6CF7, #7A6FF0);
+    background: linear-gradient(135deg, #ff3fcf, #ff7200) !important;
+}
+
+/* Arrow icon color */
+[data-testid="stExpander"] svg {
+    fill: white !important;
 }
 
 </style>
 """, unsafe_allow_html=True)
+
 
 
 st.markdown("""
