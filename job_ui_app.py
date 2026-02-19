@@ -389,84 +389,28 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-#--------------------------new added for glass design starts--------------------
-st.markdown("""
-<style>
-
-/* === FINAL WORKING INPUT STYLE === */
-
-div[data-testid="stTextInput"] input {
-    background: rgba(255,255,255,0.92) !important;
-    border-radius: 18px !important;
-    border: 1px solid #E5E7EB !important;
-    padding: 12px 16px !important;
-    font-size: 15px !important;
-    transition: all 0.2s ease !important;
-}
-
-div[data-testid="stTextInput"] input:focus {
-    border: 1px solid #7A6FF0 !important;
-    box-shadow: 0 0 0 3px rgba(122,111,240,0.2) !important;
-    background: white !important;
-}
-
-
-/* ============================= */
-/* GLASS SIDEBAR PANEL */
-/* ============================= */
-
-section[data-testid="stSidebar"] .stExpander {
-    background: rgba(255,255,255,0.12) !important;
-    border-radius: 16px !important;
-    padding: 12px !important;
-    backdrop-filter: blur(14px);
-}
-
-/* ============================= */
-/* SMOOTH HOVER ANIMATIONS */
-/* ============================= */
-
-.stButton>button,
-.job-card {
-    transition: all 0.25s ease !important;
-}
-
-.job-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 22px 50px rgba(0,0,0,0.15);
-}
-
-.stButton>button:hover {
-    transform: translateY(-2px);
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-
-#----------------------------------New added for glass design ends---------------------------------
 
 
 # ---------- HERO SECTION ----------
 # ---------- New animation if doesnt work delete this and enable the old below ----------
-st.markdown("""
-<div class="sticky-header">
-    <div class="hero-title">Global Job Aggregator</div>
-    <div class="hero-subtitle">Search smarter. Apply faster.</div>
-</div>
-""", unsafe_allow_html=True)
+#st.markdown("""
+#<div class="sticky-header">
+    #<div class="hero-title">Global Job Aggregator</div>
+    #<div class="hero-subtitle">Search smarter. Apply faster.</div>
+#</div>
+#""", unsafe_allow_html=True)
 
 
 # ---------- New animation if doesnt work delete this and enable the old below ----------
 
 # ---------- OLD enabel this if animation doesnt work ----------
 
-#st.markdown("""
-#<div style="padding: 10px 0 20px 0; text-align:center;">
-    #<div class="hero-title">Global Job Aggregator</div>
-    #<div class="hero-subtitle">Search smarter. Apply faster.</div>
-#</div>
-#""", unsafe_allow_html=True)
+st.markdown("""
+<div style="padding: 10px 0 20px 0; text-align:center;">
+    <div class="hero-title">Global Job Aggregator</div>
+    <div class="hero-subtitle">Search smarter. Apply faster.</div>
+</div>
+""", unsafe_allow_html=True)
 
 # ---------- OLD enabel this if animation doesnt work ----------
 
