@@ -15,7 +15,8 @@ if "search_triggered" not in st.session_state:
 
 
 if "show_help_card" not in st.session_state:
-    st.session_state["show_help_card"] = False
+    st.session_state["show_help_card"] = True   # ⭐ auto-open first time
+
 
 
 from io import BytesIO
@@ -550,62 +551,15 @@ if st.session_state.get("search_triggered", False):
         
 
 # ================================
-# HELP POPUP — FINAL STABLE VERSION
+# HELP POPUP — WORKING VERSION
 # ================================
 
 if st.session_state["show_help_card"]:
 
-    help_html = get_help_html()
+    st.markdown(get_help_html(), unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <style>
-    @keyframes slideInHelp {{
-        from {{ transform: translateX(120%); opacity:0; }}
-        to {{ transform: translateX(0); opacity:1; }}
-    }}
 
-    .help-overlay {{
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.45);
-        z-index: 9998;
-    }}
 
-    .help-modal {{
-        position: fixed;
-        top: 80px;
-        right: 40px;
-        width: 450px;
-        max-height: 75vh;
-        overflow-y: auto;
-        background: white;
-        padding: 28px;
-        border-radius: 18px;
-        box-shadow: 0 25px 60px rgba(0,0,0,0.3);
-        z-index: 9999;
-        animation: slideInHelp 0.4s ease-out;
-    }}
-
-    .help-close {{
-        position:absolute;
-        top:10px;
-        right:14px;
-        font-size:20px;
-        cursor:pointer;
-        color:#888;
-    }}
-    </style>
-
-    <div class="help-overlay"></div>
-
-    <div class="help-modal">
-        <div class="help-close">✖</div>
-        {help_html}
-    </div>
-    """, unsafe_allow_html=True)
 
 
 
