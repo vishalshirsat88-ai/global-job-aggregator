@@ -121,7 +121,7 @@ st.markdown("""
     z-index: 999;
     backdrop-filter: blur(12px);
     background: rgba(255,255,255,0.55);
-    padding: 14px 0 10px 0;
+    padding: 8px 0 6px 0;
 }
 
 /* ============================= */
@@ -214,7 +214,7 @@ st.markdown("""
 
 /* REMOVE STREAMLIT DEFAULT TOP GAP */
 .block-container {
-    padding-top: 0.5rem !important;
+    padding-top: 0rem !important;
     padding-bottom: 2rem !important;
 }
 
@@ -223,6 +223,10 @@ section.main > div {
 }
 
 [data-testid="stAppViewContainer"] {
+    padding-top: 0rem !important;
+}
+
+[data-testid="stAppViewContainer"] > .main {
     padding-top: 0rem !important;
 }
 
