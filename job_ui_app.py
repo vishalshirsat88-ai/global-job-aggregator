@@ -190,15 +190,34 @@ section[data-testid="stSidebar"] * {
 }
 
 
+st.markdown("""
+<style>
+
+/* Modern clean form label */
 .form-label {
     font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 4px;
-
-    background: linear-gradient(90deg, #4F6CF7 0%, #7A6FF0 50%, #E8A06A 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    #border-left: 3px solid #6D5DF6;
+    #padding-left: 6px;
+    font-weight: 700;
+    color: #4F46E5;   /* modern indigo */
+    margin-bottom: 6px;
+    letter-spacing: 0.2px;
 }
+
+/* Make emoji/icons sharp */
+.form-label span {
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+/* Slight hover glow (optional) */
+.form-label:hover {
+    color: #6D5DF6;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 
 
 </style>
@@ -213,7 +232,6 @@ st.markdown("""
     color: white !important;
     border-radius: 10px;
     padding: 10px 14px;
-    box-shadow: 0 6px 18px rgba(255, 94, 223, 0.35);
     font-weight: 600;
 }
 
