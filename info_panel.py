@@ -28,11 +28,10 @@ def get_help_html():
     <h3>🔗 Share With Friends</h3>
     <p>Send them to: <b>https://avantara.co.in</b></p>
 
+    <hr>
 
-    Each user receives their own lifetime access link after purchase.
-    
-    ---
-    
-    💡 **Pro Tip:**  
+    <p>
+    💡 <b>Pro Tip:</b><br>
     Always open JobHunt++ using your bookmarked link.
-    """)
+    </p>
+    """
