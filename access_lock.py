@@ -75,8 +75,10 @@ def verify_access():
         if "welcome_shown" not in st.session_state:
             st.session_state.welcome_shown = True
         
-            with st.expander("⭐ Important — Please Read First", expanded=True):
-                show_getting_started_panel()
+            # Open help popup automatically
+            st.session_state["show_help_card"] = True
+
+
 
             #st.info("🚀 You now have lifetime access. Enjoy exploring global job opportunities!")
 
