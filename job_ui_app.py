@@ -3,22 +3,15 @@ from access_lock import verify_access
 verify_access()
 
 import streamlit as st
-
 import requests
 import pandas as pd
 import re
 from datetime import datetime, timedelta
-from info_panel import get_help_html
+from info_panel import show_getting_started_panel
 
 
 if "search_triggered" not in st.session_state:
     st.session_state["search_triggered"] = False
-
-
-if "show_help_card" not in st.session_state:
-    st.session_state["show_help_card"] = True   # ⭐ auto-open first time
-
-
 
 from io import BytesIO
 import openpyxl
@@ -100,9 +93,11 @@ st.set_page_config(page_title="Global Job Aggregator", layout="wide")
 
 # ---------- RESTORED FRONT-END VISUALS ----------
 
+st.sidebar.markdown("### ⭐ Help & Info")
 
+if st.sidebar.button("Getting Started / Refer"):
+    show_getting_started_panel()
 
-#------------------------------------------------------------------CSS Block starts here----------------------------------------
 
 st.markdown("""
 <style>
@@ -209,16 +204,12 @@ section[data-testid="stSidebar"] * {
 
 st.markdown("""
 <style>
+/* Floating Help Button */
 .floating-help-btn {
     position: fixed;
     bottom: 25px;
     right: 25px;
     z-index: 9999;
-}
-
-/* Fix Streamlit wrapper */
-.floating-help-btn div {
-    display: inline-block;
 }
 
 .floating-help-btn button {
@@ -234,58 +225,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ✅ ADD HERE (RIGHT BELOW)
-
-st.markdown("""
-<style>
-
-/* Slide animation keyframes */
-@keyframes slideInHelp {
-    from {
-        transform: translateX(120%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-/* Floating Help Card */
-.help-card {
-    position: fixed;
-    top: 90px;
-    right: 30px;
-    width: 420px;
-    max-height: 70vh;
-    overflow-y: auto;
-    background: white;
-    padding: 22px;
-    border-radius: 16px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-    z-index: 9999;
-
-    /* ✨ Animation */
-    animation: slideInHelp 0.4s ease-out;
-}
-
-/* Close button style */
-.help-close-btn button {
-    background: transparent;
-    color: #666;
-    font-size: 18px;
-    border: none;
-}
-
-.help-close-btn button:hover {
-    color: #111;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-#------------------------------------------------------------------CSS Block ends here----------------------------------------
-
 
 # ---------- HERO SECTION ----------
 st.markdown("""
@@ -295,32 +234,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-if st.session_state["show_help_card"]:
-
-    left, center, right = st.columns([1,3,1])
-
-    with center:
-        with st.container(border=True):
-
-            col1, col2 = st.columns([10,1])
-
-            with col2:
-                if st.button("✖", key="close_help"):
-                    st.session_state["show_help_card"] = False
-                    st.rerun()
-
-            st.markdown(get_help_html(), unsafe_allow_html=True)
-
-# ================================
-# TOP RIGHT HELP BUTTON
-# ================================
-
-top_left, top_right = st.columns([9,1])
-
-with top_right:
-    if st.button("❓ Help", key="help_button"):
-        st.session_state["show_help_card"] = True
-
+# ---------- INPUT AREA ----------
 # ---------- INPUT AREA ----------
 
 # SKILLS (MANDATORY)
@@ -395,41 +309,7 @@ if not is_remote and not countries:
     st.error("Country is mandatory unless location is Remote.")
     st.stop()
 
-# ================================
-# POSTED DAYS — SLIDER + INPUT
-# ================================
-
-st.markdown('<div class="form-label">📅 Posted Within Last (Days)</div>', unsafe_allow_html=True)
-
-col_slider, col_input = st.columns([4,1])
-
-with col_slider:
-    posted_days = st.slider(
-        "Posted within last days",
-        min_value=1,
-        max_value=60,
-        value=st.session_state.get("posted_days", 7),
-        key="posted_slider",
-        label_visibility="collapsed"
-    )
-
-with col_input:
-    posted_days_input = st.number_input(
-        "Days",
-        min_value=1,
-        max_value=60,
-        value=posted_days,
-        key="posted_input",
-        label_visibility="collapsed"
-    )
-
-# 🔄 Sync both controls
-if posted_days_input != posted_days:
-    posted_days = posted_days_input
-    st.session_state["posted_slider"] = posted_days_input
-
-st.session_state["posted_days"] = posted_days
-
+posted_days = st.slider("Posted within last X days", 1, 60, 7)
 
 # ---------- ACTION BAR ----------
 col_run, col_toggle, col_dl = st.columns([2, 3, 2])
@@ -566,21 +446,22 @@ if st.session_state.get("search_triggered", False):
 
             st.markdown('</div>', unsafe_allow_html=True)
         
-
 # ================================
-# HELP POPUP — FINAL WORKING VERSION
+# FLOATING HELP BUTTON (GLOBAL)
 # ================================
 
+# Floating button container
+st.markdown('<div class="floating-help-btn">', unsafe_allow_html=True)
 
+if st.button("❓ Help"):
+    st.session_state["show_help_panel"] = True
 
+st.markdown('</div>', unsafe_allow_html=True)
 
+# Show help panel
+if st.session_state.get("show_help_panel", False):
+    with st.expander("⭐ Getting Started & Refer", expanded=True):
+        show_getting_started_panel()
 
-
-
-
-
-
-
-
-
-
+    # auto reset after showing once
+    st.session_state["show_help_panel"] = False
