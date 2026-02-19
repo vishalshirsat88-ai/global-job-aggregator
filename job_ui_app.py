@@ -110,9 +110,6 @@ st.markdown("""
     font-family: 'Inter', sans-serif;
 }
 
-st.markdown("""
-<style>
-
 /* REMOVE STREAMLIT DEFAULT TOP GAP */
 .block-container {
     padding-top: 0.5rem !important;
@@ -123,8 +120,10 @@ section.main > div {
     padding-top: 0rem !important;
 }
 
-</style>
-""", unsafe_allow_html=True)
+[data-testid="stAppViewContainer"] {
+    padding-top: 0rem !important;
+}
+
 
 /* SIDEBAR STYLING */
 section[data-testid="stSidebar"] {
@@ -276,6 +275,13 @@ st.markdown("""
     margin-bottom: 6px;
 }
 
+/* Fix emoji blur */
+.form-label span {
+    filter: none !important;
+    opacity: 1 !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 #--------------------------new added for glass design--------------------
 st.markdown("""
@@ -344,14 +350,6 @@ button, .job-card, .apply-btn {
 </style>
 """, unsafe_allow_html=True)
 #----------------------------------New added for glass design---------------------------------
-
-/* Fix emoji blur */
-.form-label span {
-    filter: none !important;
-    opacity: 1 !important;
-}
-</style>
-""", unsafe_allow_html=True)
 
 
 # ---------- HERO SECTION ----------
