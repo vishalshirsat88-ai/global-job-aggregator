@@ -1,9 +1,6 @@
 def get_help_html():
-
     return """
 <style>
-
-/* Overlay */
 .help-overlay {
     position: fixed;
     top: 0;
@@ -14,7 +11,6 @@ def get_help_html():
     z-index: 9999;
 }
 
-/* Modal */
 .help-modal {
     position: fixed;
     top: 50%;
@@ -30,7 +26,6 @@ def get_help_html():
     box-shadow: 0 20px 60px rgba(0,0,0,0.4);
 }
 
-/* Mobile */
 @media (max-width: 768px) {
     .help-modal {
         width: 92%;
@@ -38,7 +33,6 @@ def get_help_html():
     }
 }
 
-/* Close button */
 .help-close {
     position: absolute;
     top: 12px;
@@ -46,16 +40,13 @@ def get_help_html():
     font-size: 22px;
     font-weight: bold;
 }
-
 </style>
 
 <div class="help-overlay"></div>
 
 <div class="help-modal">
 
-<div style="text-align:right">
-    <span class="help-close">✖</span>
-</div>
+<div style="text-align:right; font-size:22px;">✖</div>
 
 <h2>🎉 Welcome to JobHunt++ — You’re All Set!</h2>
 
@@ -63,4 +54,31 @@ def get_help_html():
 Your lifetime access is now active.
 </div>
 
-<h3>📩 Check Your Email (Important
+<h3>📩 Check Your Email (Important)</h3>
+<p>Your personal lifetime access link has been sent to your email.</p>
+
+<ul>
+<li>Bookmark the link immediately</li>
+<li>If token shows invalid → reopen email link</li>
+<li>Check Spam/Junk folder</li>
+</ul>
+
+<h3>🎁 Free Perks Included</h3>
+
+<ul>
+<li>Unlimited job searches</li>
+<li>Global job coverage</li>
+<li>Lifetime access</li>
+</ul>
+
+<h3>🔗 Share With Friends</h3>
+<p>Send them to: <b>https://avantara.co.in</b></p>
+
+<hr>
+
+<p><b>💡 Pro Tip:</b><br>
+Always open JobHunt++ using your bookmarked link.
+</p>
+
+</div>
+"""
