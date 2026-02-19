@@ -55,7 +55,9 @@ app.add_middleware(
 # DB INIT
 # ===============================
 from backend.payments.db import init_db, verify_and_register_session
-init_db()
+@app.on_event("startup")
+def startup_event():
+    init_db()
 
 # ===============================
 # PAYPAL ROUTER
