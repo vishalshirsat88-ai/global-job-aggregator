@@ -13,6 +13,12 @@ from info_panel import show_getting_started_panel
 if "search_triggered" not in st.session_state:
     st.session_state["search_triggered"] = False
 
+if "show_help_sidebar" not in st.session_state:
+    st.session_state["show_help_sidebar"] = False
+
+if "show_help_panel" not in st.session_state:
+    st.session_state["show_help_panel"] = False
+
 from io import BytesIO
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -99,17 +105,20 @@ st.sidebar.markdown("### ⭐ Help & Info")
 if st.sidebar.button("Getting Started / Refer"):
     st.session_state["show_help_sidebar"] = True
 
-# Floating button trigger
+# ================================
+# HANDLE SIDEBAR OPEN AFTER CLICK
+# ================================
+
 if st.session_state.get("show_help_panel", False):
     st.session_state["show_help_sidebar"] = True
     st.session_state["show_help_panel"] = False
 
-# Show panel inside sidebar
 if st.session_state.get("show_help_sidebar", False):
     with st.sidebar.expander("⭐ Getting Started & Refer", expanded=True):
         show_getting_started_panel()
 
-
+    # ✅ RESET AFTER SHOWING
+    st.session_state["show_help_sidebar"] = False
 
 st.markdown("""
 <style>
@@ -216,12 +225,16 @@ section[data-testid="stSidebar"] * {
 
 st.markdown("""
 <style>
-/* Floating Help Button */
 .floating-help-btn {
     position: fixed;
     bottom: 25px;
     right: 25px;
     z-index: 9999;
+}
+
+/* Fix Streamlit wrapper */
+.floating-help-btn div {
+    display: inline-block;
 }
 
 .floating-help-btn button {
@@ -236,6 +249,7 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 
 # ---------- HERO SECTION ----------
