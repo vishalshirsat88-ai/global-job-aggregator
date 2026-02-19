@@ -13,11 +13,6 @@ from info_panel import show_getting_started_panel
 if "search_triggered" not in st.session_state:
     st.session_state["search_triggered"] = False
 
-if "show_help_sidebar" not in st.session_state:
-    st.session_state["show_help_sidebar"] = False
-
-if "show_help_panel" not in st.session_state:
-    st.session_state["show_help_panel"] = False
 
 if "show_help_card" not in st.session_state:
     st.session_state["show_help_card"] = False
@@ -103,26 +98,7 @@ st.set_page_config(page_title="Global Job Aggregator", layout="wide")
 
 # ---------- RESTORED FRONT-END VISUALS ----------
 
-st.sidebar.markdown("### ⭐ Help & Info")
 
-# Manual sidebar button
-if st.sidebar.button("Getting Started / Refer"):
-    st.session_state["show_help_sidebar"] = True
-
-# ================================
-# HANDLE SIDEBAR OPEN AFTER CLICK
-# ================================
-
-if st.session_state.get("show_help_panel", False):
-    st.session_state["show_help_sidebar"] = True
-    st.session_state["show_help_panel"] = False
-
-if st.session_state.get("show_help_sidebar", False):
-    with st.sidebar.expander("⭐ Getting Started & Refer", expanded=True):
-        show_getting_started_panel()
-
-    # ✅ RESET AFTER SHOWING
-    st.session_state["show_help_sidebar"] = False
 
 #------------------------------------------------------------------CSS Block starts here----------------------------------------
 
@@ -572,17 +548,6 @@ if st.session_state.get("search_triggered", False):
 
             st.markdown('</div>', unsafe_allow_html=True)
         
-# ================================
-# FLOATING HELP BUTTON (GLOBAL)
-# ================================
-
-# Floating button container
-st.markdown('<div class="floating-help-btn">', unsafe_allow_html=True)
-
-if st.button("❓ Help"):
-    st.session_state["show_help_panel"] = True
-
-st.markdown('</div>', unsafe_allow_html=True)
 
 # ================================
 # FLOATING HELP CARD
@@ -593,16 +558,15 @@ if st.session_state["show_help_card"]:
     st.markdown('<div class="help-card">', unsafe_allow_html=True)
 
     # Close button row
-    close_col1, close_col2 = st.columns([9,1])
+    col1, col2 = st.columns([9,1])
 
-    with close_col2:
-        st.markdown('<div class="help-close-btn">', unsafe_allow_html=True)
+    with col2:
         if st.button("✖", key="close_help"):
             st.session_state["show_help_card"] = False
-        st.markdown('</div>', unsafe_allow_html=True)
+            st.rerun()
 
-
-    # Your help content
+    # Render help content INSIDE container
     show_getting_started_panel()
 
     st.markdown('</div>', unsafe_allow_html=True)
+
