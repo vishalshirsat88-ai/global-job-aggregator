@@ -7,7 +7,7 @@ import requests
 import pandas as pd
 import re
 from datetime import datetime, timedelta
-from info_panel import show_getting_started_panel
+from info_panel import get_help_html
 
 
 if "search_triggered" not in st.session_state:
@@ -550,51 +550,63 @@ if st.session_state.get("search_triggered", False):
         
 
 # ================================
-# FLOATING HELP CARD — FINAL FIX
+# HELP POPUP — FINAL STABLE VERSION
 # ================================
 
 if st.session_state["show_help_card"]:
 
-    # Apply CSS class to container directly
-    help_container = st.container()
+    help_html = get_help_html()
 
-    # Inject wrapper styling
-    st.markdown(
-        """
-        <style>
-        div[data-testid="stVerticalBlock"]:has(> div.help-wrapper) {
-            position: fixed;
-            top: 90px;
-            right: 30px;
-            width: 420px;
-            max-height: 70vh;
-            overflow-y: auto;
-            background: white;
-            padding: 22px;
-            border-radius: 16px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-            z-index: 9999;
-            animation: slideInHelp 0.4s ease-out;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.markdown(f"""
+    <style>
+    @keyframes slideInHelp {{
+        from {{ transform: translateX(120%); opacity:0; }}
+        to {{ transform: translateX(0); opacity:1; }}
+    }}
 
-    # Invisible wrapper marker
-    help_container.markdown('<div class="help-wrapper"></div>', unsafe_allow_html=True)
+    .help-overlay {{
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.45);
+        z-index: 9998;
+    }}
 
-    # Close button
-    col1, col2 = help_container.columns([9,1])
+    .help-modal {{
+        position: fixed;
+        top: 80px;
+        right: 40px;
+        width: 450px;
+        max-height: 75vh;
+        overflow-y: auto;
+        background: white;
+        padding: 28px;
+        border-radius: 18px;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+        z-index: 9999;
+        animation: slideInHelp 0.4s ease-out;
+    }}
 
-    with col2:
-        if st.button("✖", key="close_help"):
-            st.session_state["show_help_card"] = False
-            st.rerun()
+    .help-close {{
+        position:absolute;
+        top:10px;
+        right:14px;
+        font-size:20px;
+        cursor:pointer;
+        color:#888;
+    }}
+    </style>
 
-    # Render content
-    with help_container:
-        show_getting_started_panel()
+    <div class="help-overlay"></div>
+
+    <div class="help-modal">
+        <div class="help-close">✖</div>
+        {help_html}
+    </div>
+    """, unsafe_allow_html=True)
+
 
 
 
