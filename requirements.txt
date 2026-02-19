@@ -8,4 +8,4 @@ python-dotenv
 # railway-rebuild
 razorpay==1.4.2
 setuptools>=65.0.0
-
+psycopg2-binary
