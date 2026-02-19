@@ -110,6 +110,22 @@ st.markdown("""
     font-family: 'Inter', sans-serif;
 }
 
+st.markdown("""
+<style>
+
+/* REMOVE STREAMLIT DEFAULT TOP GAP */
+.block-container {
+    padding-top: 0.5rem !important;
+    padding-bottom: 2rem !important;
+}
+
+section.main > div {
+    padding-top: 0rem !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 /* SIDEBAR STYLING */
 section[data-testid="stSidebar"] {
     background: linear-gradient(180deg, #6A5AE0, #B983FF);
@@ -260,6 +276,75 @@ st.markdown("""
     margin-bottom: 6px;
 }
 
+
+#--------------------------new added for glass design--------------------
+st.markdown("""
+<style>
+
+/* ============================= */
+/* MODERN INPUT BOX STYLING */
+/* ============================= */
+
+input, textarea {
+    background: rgba(255,255,255,0.75) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255,255,255,0.4) !important;
+    padding: 14px 16px !important;
+    font-size: 15px !important;
+    transition: all 0.25s ease !important;
+    backdrop-filter: blur(8px);
+}
+
+/* Focus effect */
+input:focus {
+    border: 1px solid #7A6FF0 !important;
+    box-shadow: 0 0 0 3px rgba(122,111,240,0.15) !important;
+    background: white !important;
+}
+
+/* ============================= */
+/* GLASS SIDEBAR EFFECT */
+/* ============================= */
+
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #6A5AE0, #B983FF);
+    backdrop-filter: blur(14px);
+}
+
+/* Glass card inside sidebar */
+section[data-testid="stSidebar"] .stExpander {
+    background: rgba(255,255,255,0.15);
+    border-radius: 14px;
+    padding: 8px;
+    backdrop-filter: blur(10px);
+}
+
+/* ============================= */
+/* SMOOTH HOVER ANIMATIONS */
+/* ============================= */
+
+button, .job-card, .apply-btn {
+    transition: all 0.25s ease !important;
+}
+
+.job-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 45px rgba(0,0,0,0.12);
+}
+
+.stButton>button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(255, 94, 223, 0.5);
+}
+
+.apply-btn:hover {
+    transform: scale(1.05);
+}
+
+</style>
+""", unsafe_allow_html=True)
+#----------------------------------New added for glass design---------------------------------
+
 /* Fix emoji blur */
 .form-label span {
     filter: none !important;
@@ -269,11 +354,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-
-
 # ---------- HERO SECTION ----------
 st.markdown("""
-<div style="padding: 60px 0 40px 0; text-align:center;">
+<div style="padding: 10px 0 20px 0; text-align:center;">
     <div class="hero-title">Global Job Aggregator</div>
     <div class="hero-subtitle">Search smarter. Apply faster.</div>
 </div>
