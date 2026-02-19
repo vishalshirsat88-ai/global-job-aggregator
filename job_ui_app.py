@@ -3,6 +3,7 @@ from access_lock import verify_access
 verify_access()
 
 import streamlit as st
+import streamlit.components.v1 as components
 import requests
 import pandas as pd
 import re
@@ -554,9 +555,11 @@ if st.session_state.get("search_triggered", False):
 # HELP POPUP — WORKING VERSION
 # ================================
 
-if st.session_state["show_help_card"]:
+import streamlit.components.v1 as components
 
-    st.markdown(get_help_html(), unsafe_allow_html=True)
+if st.session_state["show_help_card"]:
+    components.html(get_help_html(), height=0, scrolling=False)
+
 
 
 
