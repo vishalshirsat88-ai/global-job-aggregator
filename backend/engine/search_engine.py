@@ -78,6 +78,28 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
                         posted_days
                     )
                 )
+
+        # =========================
+        # 🇪🇺 ARBEITNOW (EUROPE JOBS)
+        # =========================
+        EUROPE_COUNTRIES = {
+            "GERMANY", "FRANCE", "NETHERLANDS", "SPAIN",
+            "ITALY", "BELGIUM", "SWEDEN", "NORWAY",
+            "DENMARK", "FINLAND", "POLAND", "PORTUGAL",
+            "IRELAND", "AUSTRIA", "SWITZERLAND"
+        }
+
+        if any(c.upper() in EUROPE_COUNTRIES for c in countries):
+            for skill in skills:
+                print(f"\n🇪🇺 ARBEITNOW CALL")
+                print("Query:", skill)
+
+                futures.append(
+                    executor.submit(
+                        fetch_arbeitnow,
+                        [skill]
+                    )
+                )
         
         # =========================
         # ADZUNA + JOOBLE (ALWAYS RUN)
