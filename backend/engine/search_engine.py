@@ -254,9 +254,9 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     else:
         # Country-only search → keep previous behavior
         df = df[
-            df["Country"].isin(allowed_country_names) |
+            df["Country"].isna() |
             (df["Country"] == "REMOTE") |
-            (df["Country"].isna() & city_search)
+            df["Country"].isin(allowed_country_names)
         ]
 
     print("\n===== DEBUG STAGE 3 — AFTER COUNTRY FILTER =====")
