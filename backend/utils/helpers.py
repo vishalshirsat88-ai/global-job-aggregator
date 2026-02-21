@@ -51,13 +51,13 @@ def city_match(row_location, search_locations):
 
 def calculate_job_score(job, skills, levels, countries, locations):
     score = 0
-    print("\n==============================")
-    print("SCORING JOB")
-    print("API:", job.get("API"))
-    print("Title:", job.get("Title"))
-    print("Country:", job.get("Country"))
-    print("Date:", job.get("_date"))
-    print("==============================")
+    #print("\n==============================")
+    #print("SCORING JOB")
+    #print("API:", job.get("API"))
+    #print("Title:", job.get("Title"))
+    #print("Country:", job.get("Country"))
+    #print("Date:", job.get("_date"))
+    #print("==============================")
 
 
     
