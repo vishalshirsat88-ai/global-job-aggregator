@@ -17,7 +17,7 @@ from backend.utils.helpers import filter_and_rank_jobs
 # =========================================================
 # ENGINE (MULTI-SKILL + MULTI-CITY LOGIC)
 # =========================================================
-def run_engine(skills, levels, locations, countries, posted_days, include_country_safe=True):
+def run_engine(skills, levels, locations, countries, posted_days, deep_search=False, include_country_safe=True):
 
     raw_locations = locations.copy() if locations else [""]
     locations = [l.strip() for l in raw_locations if l and l.strip()]
@@ -42,7 +42,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
         futures = []
     
     
-    
+    if deep_search:
         # JSEARCH tasks
         for skill in skills:
             print(f"\n🚀 JSEARCH CALL")
@@ -248,7 +248,8 @@ def run_job_search(
     locations,
     countries,
     posted_days,
-    is_remote
+    is_remote,
+    deep_search=False
 ):
 
     if is_remote:
@@ -269,6 +270,7 @@ def run_job_search(
         locations=locations,
         countries=countries,
         posted_days=posted_days,
+        deep_search=deep_search,
         include_country_safe=True
     )
 
