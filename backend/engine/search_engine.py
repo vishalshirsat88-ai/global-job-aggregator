@@ -164,7 +164,20 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     
     if not all_rows:
         return pd.DataFrame(), True
+
+    if df.empty and locations and any(loc.strip() for loc in locations):
+        print("\n🔁 FILTER FALLBACK TRIGGERED → No city matches, retrying with country search\n")
     
+        return run_engine(
+            skills=skills,
+            levels=levels,
+            locations=[""],   # remove city constraint
+            countries=countries,
+            posted_days=posted_days,
+            include_country_safe=include_country_safe,
+            deep_search=deep_search
+        )
+
     print("\n==============================")
     print("🔎 ENGINE DEBUG — BEFORE SCORING")
     print("Total rows collected:", len(all_rows))
@@ -265,21 +278,6 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     print("================================================")
 
     if df.empty:
-        # Trigger fallback ONLY if this was a city search
-        if raw_locations and any(loc.strip() for loc in raw_locations):
-            print("\n🔁 FILTER FALLBACK TRIGGERED → No city matches, retrying with country search\n")
-    
-            return run_engine(
-                skills=skills,
-                levels=levels,
-                locations=[""],   # remove city constraint
-                countries=countries,
-                posted_days=posted_days,
-                include_country_safe=include_country_safe,
-                deep_search=deep_search
-            )
-    
-        # If already country search → truly no results
         return pd.DataFrame(), True
     
     
