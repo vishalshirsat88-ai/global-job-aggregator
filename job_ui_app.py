@@ -518,6 +518,7 @@ with col_run:
     run_btn = st.button("🚀 Run Job Search")
 with col_toggle:
     view_mode = st.toggle("Classic view", value=False) # Default to Card View for better visuals
+    deep_search = st.toggle("🔎 Deep Search (Include RapidAPI Jobs)", value=False)
 with col_dl:
     dl_placeholder = st.empty()
 
@@ -546,7 +547,8 @@ if st.session_state.get("search_triggered", False):
             "posted_days": posted_days,
             "is_remote": is_remote,
             "page": 1,
-            "page_size": 20
+            "page_size": 20,
+            "deep_search": deep_search
         }
         
         try:
