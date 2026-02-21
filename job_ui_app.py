@@ -570,6 +570,8 @@ if st.session_state.get("search_triggered", False):
        
         if "url" in df.columns:
             df = df.rename(columns={"url": "Apply"})
+        if "work_mode" in df.columns:
+            df = df.rename(columns={"work_mode": "Work Mode"})
         
         # REMOVE skill column ONLY from UI
         if "skill" in df.columns:
