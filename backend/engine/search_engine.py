@@ -21,7 +21,16 @@ from backend.utils.helpers import filter_and_rank_jobs
 def run_engine(skills, levels, locations, countries, posted_days, include_country_safe=True, deep_search=False):
 
     raw_locations = locations.copy() if locations else [""]
-    locations = [l.strip() for l in raw_locations if l and l.strip()]
+
+    # ⭐ FIX — Normalize multi-city input
+    normalized_locations = []
+    for loc in raw_locations:
+        if loc and "," in loc:
+            normalized_locations.extend([l.strip() for l in loc.split(",") if l.strip()])
+        elif loc:
+            normalized_locations.append(loc.strip())
+    
+    locations = normalized_locations
 
     all_rows = []
 
@@ -31,7 +40,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     print("ENGINE INPUT DEBUG")
     print("Skills:", skills)
     print("Levels:", levels)
-    print("Locations:", raw_locations)
+    print("Locations:", locations)
     print("Countries:", countries)
     print("Posted Days:", posted_days)
     print("==============================\n")
