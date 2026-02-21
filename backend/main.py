@@ -150,6 +150,7 @@ class SearchResponse(BaseModel):
     page: int
     page_size: int
     fallback: bool
+    fallback_message: Optional[str] = None
     rows: List[JobRow]
     debug: Optional[dict] = None
 
@@ -210,7 +211,7 @@ def search_jobs(req: SearchRequest):
     if not req.is_remote and not countries:
         raise HTTPException(status_code=400, detail="Country required")
 
-    df_or_rows, engine_fallback = run_job_search(
+    df_or_rows, engine_fallback, fallback_message = run_job_search(
         skills, levels, locations, countries,
         req.posted_days, req.is_remote,
         req.deep_search
@@ -246,5 +247,6 @@ def search_jobs(req: SearchRequest):
         "page": req.page,
         "page_size": req.page_size,
         "fallback": did_fallback or engine_fallback,
+        "fallback_message": fallback_message,
         "rows": rows
     }
