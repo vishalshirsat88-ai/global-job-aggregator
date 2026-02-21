@@ -161,24 +161,10 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     # =====================================================
     # ⭐ FETCH-STAGE COUNTRY FALLBACK (OLD LOGIC RESTORED)
     # =====================================================
-    if not all_rows and locations and any(loc.strip() for loc in locations):
-        print("\n🔁 FETCH FALLBACK TRIGGERED → No city results, running country search\n")
-    
-        # Re-run engine with country-only search
-        return run_engine(
-            skills=skills,
-            levels=levels,
-            locations=[""],   # ← critical
-            countries=countries,
-            posted_days=posted_days,
-            include_country_safe=include_country_safe,
-            deep_search=deep_search
-        )
     
     if not all_rows:
         return pd.DataFrame(), True
-
-
+    
     print("\n==============================")
     print("🔎 ENGINE DEBUG — BEFORE SCORING")
     print("Total rows collected:", len(all_rows))
@@ -251,7 +237,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
 
     
     # Detect if city search was used
-    city_search = bool(locations)
+    city_search = any(loc.strip() for loc in raw_locations)
     
     if city_search:
         # For city search → allow only rows that contain city in Location
@@ -267,9 +253,9 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     else:
         # Country-only search → keep previous behavior
         df = df[
-            df["Country"].isna() |
+            df["Country"].isin(allowed_country_names) |
             (df["Country"] == "REMOTE") |
-            df["Country"].isin(allowed_country_names)
+            (df["Country"].isna() & city_search)
         ]
 
     print("\n===== DEBUG STAGE 3 — AFTER COUNTRY FILTER =====")
@@ -279,6 +265,21 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     print("================================================")
 
     if df.empty:
+        # Trigger fallback ONLY if this was a city search
+        if raw_locations and any(loc.strip() for loc in raw_locations):
+            print("\n🔁 FILTER FALLBACK TRIGGERED → No city matches, retrying with country search\n")
+    
+            return run_engine(
+                skills=skills,
+                levels=levels,
+                locations=[""],   # remove city constraint
+                countries=countries,
+                posted_days=posted_days,
+                include_country_safe=include_country_safe,
+                deep_search=deep_search
+            )
+    
+        # If already country search → truly no results
         return pd.DataFrame(), True
     
     
