@@ -46,6 +46,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     
 
     all_rows = []
+    fallback_message = None
  
     print("\n==============================")
     print("ENGINE INPUT DEBUG")
@@ -163,7 +164,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     # =====================================================
     
     if not all_rows:
-        return pd.DataFrame(), True
+        return pd.DataFrame(), True, None
 
     
     print("\n==============================")
@@ -266,22 +267,24 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     print("================================================")
 
     if df.empty:
-        # Trigger fallback ONLY if this was a city search
         if raw_locations and any(loc.strip() for loc in raw_locations):
-            print("\n🔁 FILTER FALLBACK TRIGGERED → No city matches, retrying with country search\n")
     
-            return run_engine(
+            fallback_message = f"No Jobs found for {', '.join(raw_locations)}, showing country-level jobs instead"
+    
+            df, _ = run_engine(
                 skills=skills,
                 levels=levels,
-                locations=[""],   # remove city constraint
+                locations=[""],
                 countries=countries,
                 posted_days=posted_days,
                 include_country_safe=include_country_safe,
                 deep_search=deep_search
             )
     
+            return df, False, fallback_message
+    
         # If already country search → truly no results
-        return pd.DataFrame(), True
+        return pd.DataFrame(), True, None
     
     
     # =====================================================
@@ -317,7 +320,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     print("==============================")
     
     if not ranked_rows:
-        return pd.DataFrame(), True
+        return pd.DataFrame(), True, None
     
     # ✅ IMPORTANT — convert ranked output to df
     df = pd.DataFrame(ranked_rows)
@@ -329,7 +332,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     for i, r in enumerate(ranked_rows[:30], 1):
         print(i, r.get("Source"), "-", r.get("Title"))
 
-    return df, False
+    return df, False, fallback_message
 
 
 # =========================================================
