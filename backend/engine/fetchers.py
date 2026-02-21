@@ -223,14 +223,21 @@ def fetch_arbeitnow(skills):
 
     for j in data.get("data", []):
         for skill in skills:
-            if skill_match(j.get("title"), skill):
+            title = j.get("title", "")
+            tags = " ".join(j.get("tags", []))
+    
+            if skill_match(title + " " + tags, skill):
+    
+                country = j.get("location", "").split(",")[-1].strip()
+    
                 rows.append({
                     "Source": "Arbeitnow",
-                    "API": "Arbeitnow",
+                    "API": "Arbeitnow",          # ⭐ ADD THIS (very important)
                     "Skill": skill,
-                    "Title": j.get("title"),
+                    "Title": title,
                     "Company": j.get("company_name"),
                     "Location": j.get("location"),
+                    "Country": country,          # ⭐ ADD THIS LINE HERE
                     "Apply": j.get("url"),
                     "_excel": excel_link(j.get("url"))
                 })
@@ -296,66 +303,82 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
 
 
 def fetch_adzuna(skills, levels, countries, posted_days, location):
-    
+
     rows = []
+    MAX_RESULTS = 200
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
     for c in countries:
-        if c not in COUNTRIES: continue
+        if c not in COUNTRIES:
+            continue
 
         expanded = []
         for s in skills:
             expanded.extend(expand_skill(s))
-        
-        
+
         query = " OR ".join(set(expanded))
-
-
 
         print("\n===== ADZUNA DEBUG =====")
         print("Query:", query)
         print("Location:", location)
         print("Country:", c)
         print("========================\n")
-        
-        data = safe_json_request("GET",
-            f"https://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/1",
-            params={
-                "app_id": ADZUNA_APP_ID,
-                "app_key": ADZUNA_API_KEY,
-                "what": query,
-                "where": location if location else c,
-                "results_per_page": 20
-            }
-        )
 
+        for page in range(1, 6):   # up to 5 pages
 
-        for j in data.get("results",[]):
-            dt = normalize_date(j.get("created"))
-            if dt and dt < cutoff: continue
+            if len(rows) >= MAX_RESULTS:
+                break
 
-            rows.append({
-                "Source":"Adzuna","Skill":", ".join(skills),
-                "API": "Adzuna",
-                "Title":j.get("title"),"Company":j.get("company",{}).get("display_name"),
-                "Location":j.get("location",{}).get("display_name"),
-                "Country":c,"Apply":j.get("redirect_url"),
-                "_excel":excel_link(j.get("redirect_url")),"_date":dt
-            })
+            data = safe_json_request(
+                "GET",
+                f"https://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/{page}",
+                params={
+                    "app_id": ADZUNA_APP_ID,
+                    "app_key": ADZUNA_API_KEY,
+                    "what": query,
+                    "where": location if location else c,
+                    "results_per_page": 50
+                }
+            )
+
+            if not data.get("results"):
+                break
+
+            for j in data.get("results", []):
+                dt = normalize_date(j.get("created"))
+                if dt and dt < cutoff:
+                    continue
+
+                rows.append({
+                    "Source": "Adzuna",
+                    "Skill": ", ".join(skills),
+                    "API": "Adzuna",
+                    "Title": j.get("title"),
+                    "Company": j.get("company", {}).get("display_name"),
+                    "Location": j.get("location", {}).get("display_name"),
+                    "Country": c,
+                    "Apply": j.get("redirect_url"),
+                    "_excel": excel_link(j.get("redirect_url")),
+                    "_date": dt
+                })
+
+        if len(rows) >= MAX_RESULTS:
+            break
+
     return rows
 
 def fetch_jooble(skills, levels, countries, location):
 
     rows = []
+    MAX_RESULTS = 200
 
     for c in countries:
 
         expanded = []
         for s in skills:
             expanded.extend(expand_skill(s))
-        
-        keywords = " ".join(set(expanded))
 
+        keywords = " ".join(set(expanded))
         loc = f"{location}, {c}" if location else c
 
         print("\n===== JOOBLE DEBUG =====")
@@ -363,24 +386,39 @@ def fetch_jooble(skills, levels, countries, location):
         print("Location:", loc)
         print("========================\n")
 
-        data = safe_json_request(
-            "POST",
-            f"https://jooble.org/api/{JOOBLE_KEY}",
-            json={
-                "keywords": keywords,
-                "location": loc
-            }
-        )
+        for page in range(1, 6):
 
+            if len(rows) >= MAX_RESULTS:
+                break
 
-        for j in data.get("jobs",[]):
-            rows.append({
-                "Source":"Jooble","Skill":", ".join(skills),
-                "API": "Jooble",
-                "Title":j.get("title"),"Company":j.get("company"),
-                "Location":j.get("location"),"Apply":j.get("link"),
-                "_excel":excel_link(j.get("link"))
-            })
+            data = safe_json_request(
+                "POST",
+                f"https://jooble.org/api/{JOOBLE_KEY}",
+                json={
+                    "keywords": keywords,
+                    "location": loc,
+                    "page": page
+                }
+            )
+
+            if not data.get("jobs"):
+                break
+
+            for j in data.get("jobs", []):
+                rows.append({
+                    "Source": "Jooble",
+                    "Skill": ", ".join(skills),
+                    "API": "Jooble",
+                    "Title": j.get("title"),
+                    "Company": j.get("company"),
+                    "Location": j.get("location"),
+                    "Apply": j.get("link"),
+                    "_excel": excel_link(j.get("link"))
+                })
+
+        if len(rows) >= MAX_RESULTS:
+            break
+
     return rows
 
 def fetch_usajobs(skills, posted_days):
