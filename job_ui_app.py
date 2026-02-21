@@ -553,16 +553,21 @@ if st.session_state.get("search_triggered", False):
         
         try:
             result = call_backend_search(payload)
+
             rows = result.get("rows", [])
             df = pd.DataFrame(rows)
+            
             fallback = result.get("fallback", False)
+            fallback_msg = result.get("fallback_msg")
         except Exception as e:
             st.error(f"Backend Error: {e}")
             df = pd.DataFrame()
 
     if df.empty:
-        st.warning("No jobs found.")
+    if fallback_msg:
+        st.info(f"ℹ️ {fallback_msg}")
     else:
+        st.warning("No jobs found.")
         # Standardize Columns
        
         if "url" in df.columns:
@@ -585,6 +590,8 @@ if st.session_state.get("search_triggered", False):
         df.index.name = "Sr No"
 
         st.success(f"✅ Found {len(df)} jobs")
+        if fallback_msg:
+            st.info(f"ℹ️ {fallback_msg}")
 
         if view_mode:
             # ---------- CLASSIC TABLE VIEW ----------
