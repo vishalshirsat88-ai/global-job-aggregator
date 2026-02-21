@@ -238,7 +238,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
 
     
     # Detect if city search was used
-    city_search = bool(locations)
+    city_search = any(loc.strip() for loc in raw_locations)
     
     if city_search:
         # For city search → allow only rows that contain city in Location
@@ -254,9 +254,9 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     else:
         # Country-only search → keep previous behavior
         df = df[
-            df["Country"].isna() |
+            df["Country"].isin(allowed_country_names) |
             (df["Country"] == "REMOTE") |
-            df["Country"].isin(allowed_country_names)
+            (df["Country"].isna() & city_search)
         ]
 
     print("\n===== DEBUG STAGE 3 — AFTER COUNTRY FILTER =====")
@@ -267,7 +267,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
 
     if df.empty:
         # Trigger fallback ONLY if this was a city search
-        if locations and any(loc.strip() for loc in locations):
+        if raw_locations and any(loc.strip() for loc in raw_locations):
             print("\n🔁 FILTER FALLBACK TRIGGERED → No city matches, retrying with country search\n")
     
             return run_engine(
