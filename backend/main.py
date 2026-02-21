@@ -134,6 +134,7 @@ class SearchRequest(BaseModel):
     debug: bool = False
     page: int = Field(1, ge=1)
     page_size: int = Field(25, ge=1, le=100)
+    deep_search: bool = False
 
 class JobRow(BaseModel):
     title: str
@@ -211,7 +212,8 @@ def search_jobs(req: SearchRequest):
 
     df_or_rows, engine_fallback = run_job_search(
         skills, levels, locations, countries,
-        req.posted_days, req.is_remote
+        req.posted_days, req.is_remote,
+        req.deep_search
     )
 
     raw_jobs = df_or_rows if req.is_remote else df_or_rows.to_dict("records")
