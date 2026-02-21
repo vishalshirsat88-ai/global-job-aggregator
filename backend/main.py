@@ -178,6 +178,7 @@ def normalize_job_row(row: dict) -> dict:
         "url": row.get("Apply"),
         "source": row.get("Source"),
         "posted_date": posted_date,
+        "work_mode": row.get("Work Mode"),
         "_date": raw_date
     }
 
