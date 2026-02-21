@@ -55,21 +55,22 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
         # JSEARCH (ONLY IF DEEP SEARCH)
         # =========================
         if deep_search:
-            for skill in skills:
-                print(f"\n🚀 JSEARCH CALL")
-                print("Query:", skill)
-                print("Location:", search_location)
-    
-                futures.append(
-                    executor.submit(
-                        fetch_jsearch,
-                        [skill],
-                        levels,
-                        countries,
-                        posted_days,
-                        search_location
+            for loc in (locations if locations else [""]):
+                for skill in skills:
+                    print(f"\n🚀 JSEARCH CALL")
+                    print("Query:", skill)
+                    print("Location:", loc)
+        
+                    futures.append(
+                        executor.submit(
+                            fetch_jsearch,
+                            [skill],
+                            levels,
+                            countries,
+                            posted_days,
+                            loc
+                        )
                     )
-                )
 
 
         # =========================
