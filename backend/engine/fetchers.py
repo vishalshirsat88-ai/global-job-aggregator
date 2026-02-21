@@ -165,7 +165,7 @@ def fetch_remote_jobs(skills, level, posted_days):
                 "Title": j.get("job_title"),
                 "Company": j.get("employer_name"),
                 "Location": "Remote",
-                "Country": "Remote",
+                "Country": "REMOTE",
                 "Work Mode": "Remote",
                 "Apply": j.get("job_apply_link"),
                 "_excel": excel_link(j.get("job_apply_link")),
@@ -179,6 +179,7 @@ def fetch_remote_jobs(skills, level, posted_days):
             if skill_match(j.get("title"), skill):
                 rows.append({
                     "Source": "Remotive",
+                    "API": "Remotive",
                     "Skill": skill,
                     "Title": j.get("title"),
                     "Company": j.get("company_name"),
@@ -209,6 +210,7 @@ def fetch_weworkremotely(skills):
                 if skill.lower() in e.title.lower():
                     rows.append({
                         "Source":"WeWorkRemotely","Skill":skill,"Title":e.title,
+                        "API": "WeWorkRemotely",
                         "Location":"Remote","Country":"Remote","Apply":e.link,
                         "_excel":excel_link(e.link)
                     })
@@ -224,6 +226,7 @@ def fetch_arbeitnow(skills):
             if skill_match(j.get("title"), skill):
                 rows.append({
                     "Source": "Arbeitnow",
+                    "API": "Arbeitnow",
                     "Skill": skill,
                     "Title": j.get("title"),
                     "Company": j.get("company_name"),
@@ -396,6 +399,7 @@ def fetch_usajobs(skills, posted_days):
 
             rows.append({
                 "Source":"USAJobs","Skill":skill,"Title":d["PositionTitle"],
+                "API": "USAJobs",
                 "Company":d["OrganizationName"],
                 "Location":", ".join(l["LocationName"] for l in d["PositionLocation"]),
                 "Apply":d["PositionURI"],"_excel":excel_link(d["PositionURI"]),"_date":dt
