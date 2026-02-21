@@ -271,7 +271,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     
             fallback_message = f"No Jobs found for {', '.join(raw_locations)}, showing country-level jobs instead"
     
-            df, _ = run_engine(
+            df, _, _ = run_engine(
                 skills=skills,
                 levels=levels,
                 locations=[""],
