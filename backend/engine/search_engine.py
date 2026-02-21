@@ -212,10 +212,11 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
 
     
     ranked_rows = filter_and_rank_jobs(
-        df.to_dict("records"),   # ✅ FIXED
+        df.to_dict("records"),
         skills,
         levels,
         countries,
+        locations,
         top_n=50
     )
     
