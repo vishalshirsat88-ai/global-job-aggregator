@@ -564,10 +564,10 @@ if st.session_state.get("search_triggered", False):
             df = pd.DataFrame()
 
     if df.empty:
-    if fallback_msg:
-        st.info(f"ℹ️ {fallback_msg}")
-    else:
-        st.warning("No jobs found.")
+        if fallback_msg:
+            st.info(f"ℹ️ {fallback_msg}")
+        else:
+            st.warning("No jobs found.")
         # Standardize Columns
        
         if "url" in df.columns:
