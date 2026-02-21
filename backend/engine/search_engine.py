@@ -237,7 +237,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
 
     
     # Detect if city search was used
-    city_search = any(loc.strip() for loc in raw_locations)
+    city_search = bool(locations)
     
     if city_search:
         # For city search → allow only rows that contain city in Location
@@ -253,9 +253,9 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     else:
         # Country-only search → keep previous behavior
         df = df[
-            df["Country"].isin(allowed_country_names) |
+            df["Country"].isna() |
             (df["Country"] == "REMOTE") |
-            (df["Country"].isna() & city_search)
+            df["Country"].isin(allowed_country_names)
         ]
 
     print("\n===== DEBUG STAGE 3 — AFTER COUNTRY FILTER =====")
