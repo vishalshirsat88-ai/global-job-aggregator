@@ -551,14 +551,17 @@ if st.session_state.get("search_triggered", False):
             "deep_search": deep_search
         }
         
+        fallback = False
+        fallback_msg = None   # ⭐ IMPORTANT — initialize first
+        
         try:
             result = call_backend_search(payload)
-
             rows = result.get("rows", [])
             df = pd.DataFrame(rows)
-            
+        
             fallback = result.get("fallback", False)
             fallback_msg = result.get("fallback_msg")
+        
         except Exception as e:
             st.error(f"Backend Error: {e}")
             df = pd.DataFrame()
