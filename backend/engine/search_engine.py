@@ -1,3 +1,4 @@
+import re
 import pandas as pd
 from concurrent.futures import ThreadPoolExecutor
 
@@ -31,6 +32,18 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
             normalized_locations.append(loc.strip())
     
     locations = normalized_locations
+    # ⭐ FIX — Normalize skills (remove duplicates / bad joins)
+    normalized_skills = []
+    for s in skills:
+        if s:
+            parts = [p.strip() for p in str(s).split(",") if p.strip()]
+            normalized_skills.extend(parts)
+    
+    skills = list(dict.fromkeys(normalized_skills))  # remove duplicates
+
+    levels = [l.strip() for l in levels if l and l.strip()]
+    levels = list(dict.fromkeys(levels))
+    
 
     all_rows = []
  
@@ -53,22 +66,19 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
         # JSEARCH (ONLY IF DEEP SEARCH)
         # =========================
         if deep_search:
-            for loc in (locations if locations else [""]):
-                for skill in skills:
-                    print(f"\n🚀 JSEARCH CALL")
-                    print("Query:", skill)
-                    print("Location:", loc)
-        
-                    futures.append(
-                        executor.submit(
-                            fetch_jsearch,
-                            [skill],
-                            levels,
-                            countries,
-                            posted_days,
-                            loc
+            for country in (countries if countries else [""]):
+                for loc in (locations if locations else [""]):
+                    for skill in skills:
+                        futures.append(
+                            executor.submit(
+                                fetch_jsearch,
+                                [skill],
+                                levels,
+                                [country],   # ← FIX HERE
+                                posted_days,
+                                loc
+                            )
                         )
-                    )
 
 
         # =========================
@@ -114,38 +124,32 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
         # =========================
         loop_locations = locations if locations else [""]
     
-        for loc in loop_locations:
-            for skill in skills:
-    
-                print(f"\n🟡 ADZUNA CALL")
-                print("Query:", skill)
-                print("Location:", loc)
-    
-                futures.append(
-                    executor.submit(
-                        fetch_adzuna,
-                        [skill],
-                        levels,
-                        countries,
-                        posted_days,
-                        loc
+        for country in (countries if countries else [""]):
+            for loc in loop_locations:
+                for skill in skills:
+        
+                    futures.append(
+                        executor.submit(
+                            fetch_adzuna,
+                            [skill],
+                            levels,
+                            [country],   # ← pass single country
+                            posted_days,
+                            loc
+                        )
                     )
-                )
-    
-                print(f"\n🔵 JOOBLE CALL")
-                print("Query:", skill)
-                print("Location:", loc)
-    
-                futures.append(
-                    executor.submit(
-                        fetch_jooble,
-                        [skill],
-                        levels,
-                        countries,
-                        loc
+        
+                    futures.append(
+                        executor.submit(
+                            fetch_jooble,
+                            [skill],
+                            levels,
+                            [country],   # ← pass single country
+                            loc
+                        )
                     )
-                )
     
+                    
         # Collect results
         for f in futures:
             try:
@@ -154,6 +158,23 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
                 print("Fetcher error:", e)
 
 
+    # =====================================================
+    # ⭐ FETCH-STAGE COUNTRY FALLBACK (OLD LOGIC RESTORED)
+    # =====================================================
+    if not all_rows and locations and any(loc.strip() for loc in locations):
+        print("\n🔁 FETCH FALLBACK TRIGGERED → No city results, running country search\n")
+    
+        # Re-run engine with country-only search
+        return run_engine(
+            skills=skills,
+            levels=levels,
+            locations=[""],   # ← critical
+            countries=countries,
+            posted_days=posted_days,
+            include_country_safe=include_country_safe,
+            deep_search=deep_search
+        )
+    
     if not all_rows:
         return pd.DataFrame(), True
 
@@ -213,7 +234,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
         "PH": "PHILIPPINES"
     }
     
-    allowed_country_names = {c.upper() for c in countries}
+
     
     def normalize_country(val):
         if pd.isna(val):
@@ -234,10 +255,15 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     
     if city_search:
         # For city search → allow only rows that contain city in Location
+        pattern = "|".join(re.escape(loc.lower()) for loc in locations)
+
         df = df[
-            df["Location"].notna() &
-            df["Location"].str.lower().str.contains("|".join(loc.lower() for loc in locations))
+            df["Location"]
+            .fillna("")
+            .str.lower()
+            .str.contains(pattern)
         ]
+        
     else:
         # Country-only search → keep previous behavior
         df = df[
