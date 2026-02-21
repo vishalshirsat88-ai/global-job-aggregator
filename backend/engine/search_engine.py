@@ -61,7 +61,24 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
                         search_location
                     )
                 )
-    
+
+
+        # =========================
+        # 🇺🇸 USAJOBS (ONLY IF USA SELECTED)
+        # =========================
+        if any(c.upper() in ["USA", "UNITED STATES"] for c in countries):
+            for skill in skills:
+                print(f"\n🇺🇸 USAJOBS CALL")
+                print("Query:", skill)
+
+                futures.append(
+                    executor.submit(
+                        fetch_usajobs,
+                        skill,
+                        posted_days
+                    )
+                )
+        
         # =========================
         # ADZUNA + JOOBLE (ALWAYS RUN)
         # =========================
@@ -122,6 +139,8 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     print("JSearch rows:", jsearch_count)
     print("Adzuna rows:", adzuna_count)
     print("Jooble rows:", jooble_count)
+    usajobs_count = sum(1 for r in all_rows if r.get("API") == "USAJobs")
+    print("USAJobs rows:", usajobs_count)
     print("==============================")
 
 
@@ -264,7 +283,7 @@ def run_job_search(
         rows += fetch_weworkremotely(skills)
 
         # Apply scoring for remote also
-        ranked = filter_and_rank_jobs(rows, skills, levels, countries, top_n=50)
+        ranked = filter_and_rank_jobs(rows, skills, levels, countries, [], top_n=50)
 
         return ranked, False
 
