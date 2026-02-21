@@ -33,9 +33,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     locations = normalized_locations
 
     all_rows = []
-
-    search_location = " ".join(raw_locations).strip()
-
+ 
     print("\n==============================")
     print("ENGINE INPUT DEBUG")
     print("Skills:", skills)
