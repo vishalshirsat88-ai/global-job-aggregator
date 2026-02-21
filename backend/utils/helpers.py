@@ -49,7 +49,7 @@ def city_match(row_location, search_locations):
 # ⭐ NEW — JOB SCORING ENGINE
 # =========================================================
 
-def calculate_job_score(job, skills, levels, countries):
+def calculate_job_score(job, skills, levels, countries, locations):
     score = 0
     print("\n==============================")
     print("SCORING JOB")
@@ -95,10 +95,25 @@ def calculate_job_score(job, skills, levels, countries):
         if level.lower() in title:
             score += 15
 
-    # --- Country match
+    # --- Country relevance scoring
+
+    job_country = str(job.get("Country") or "").lower()
+    job_location = str(job.get("Location") or "").lower()
+    
+    # Detect country-only search
+    country_only_search = not locations
+    
     for c in countries:
-        if c.lower() in location:
-            score += 25
+        c = c.lower()
+    
+        if country_only_search:
+            # Check BOTH columns
+            if c in job_country or c in job_location:
+                score += 25
+        else:
+            # Location search → use only Country column
+            if c in job_country:
+                score += 25
 
     # --- Freshness boost
     if job.get("_date"):
@@ -157,7 +172,7 @@ def deduplicate_jobs(rows):
 # ⭐ NEW — FINAL FILTER + RANK ENGINE
 # =========================================================
 
-def filter_and_rank_jobs(rows, skills, levels, countries, top_n=50):
+def filter_and_rank_jobs(rows, skills, levels, countries, locations, top_n=50):
     """
     This is the FINAL step before returning jobs to UI.
     """
@@ -169,7 +184,7 @@ def filter_and_rank_jobs(rows, skills, levels, countries, top_n=50):
 
     # Step 2 — Score each job
     for job in rows:
-        score = calculate_job_score(job, skills, levels, countries)
+        score = calculate_job_score(job, skills, levels, countries, locations)
     
         api = str(job.get("API") or "").lower()
     
