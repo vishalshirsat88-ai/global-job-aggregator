@@ -360,7 +360,7 @@ def run_job_search(
         return ranked, False
 
     # Non-remote flow
-    df, fallback = run_engine(
+    df, fallback, fallback_message = run_engine(
         skills=skills,
         levels=levels,
         locations=locations,
@@ -370,4 +370,4 @@ def run_job_search(
         deep_search=deep_search
     )
 
-    return df, fallback
+    return df, fallback, fallback_message
