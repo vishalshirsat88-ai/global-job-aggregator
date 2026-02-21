@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 
 # =========================
@@ -62,7 +63,7 @@ def calculate_job_score(job, skills, levels, countries):
     
     title = str(job.get("Title") or "").lower()
     desc = str(job.get("Description") or "").lower()
-    country_val = job.get("Country")
+    country_val = job.get("Country") or job.get("Location")
 
     if not country_val:
         location = ""
@@ -74,13 +75,19 @@ def calculate_job_score(job, skills, levels, countries):
 
 
     # --- Skill match in title (MOST IMPORTANT)
+    expanded_skills = []
     for skill in skills:
-        if skill.lower() in title:
+        expanded_skills.extend(expand_skill(skill))
+    
+    for skill in expanded_skills:
+        pattern = rf"\b{re.escape(skill.lower())}\b"
+        if re.search(pattern, title):
             score += 50
-
+    
     # --- Skill match in description
-    for skill in skills:
-        if skill.lower() in desc:
+    for skill in expanded_skills:
+        pattern = rf"\b{re.escape(skill.lower())}\b"
+        if re.search(pattern, desc):
             score += 30
 
     # --- Level match
@@ -133,9 +140,9 @@ def deduplicate_jobs(rows):
 
     for job in rows:
         key = (
-            (job.get("Title") or "").lower(),
-            (job.get("Company") or "").lower(),
-            (job.get("API") or "").lower(),   # ⭐ CRITICAL FIX
+            (job.get("Title") or "").lower().strip(),
+            (job.get("Company") or "").lower().strip(),
+            (job.get("Location") or "unknown").lower().strip(),
         )
 
 
