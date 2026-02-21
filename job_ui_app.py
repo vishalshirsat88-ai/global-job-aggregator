@@ -389,17 +389,21 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
     cutoff = datetime.utcnow() - timedelta(days=posted_days)
 
     for c in countries:
+    for page in range(1, 4):   # fetch first 3 pages
         r = requests.get(
-            f"https://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/1",
+            f"https://api.adzuna.com/v1/api/jobs/{COUNTRIES[c]}/search/{page}",
             params={
                 "app_id": ADZUNA_APP_ID,
                 "app_key": ADZUNA_API_KEY,
                 "what": " OR ".join(skills + levels),
-              "where": location or "",   # let Adzuna search country-wide  # ✅ CITY USED
+                "where": location or "",
                 "results_per_page": 50
             },
             timeout=15
         ).json()
+
+        if not r.get("results"):
+            break  # stop if no more jobs
 
         for j in r.get("results", []):
             dt = normalize_date(j.get("created",""))
@@ -427,14 +431,19 @@ def fetch_jooble(skills, levels, countries, location):
     rows = []
 
     for c in countries:
+    for page in range(1, 4):  # fetch first 3 pages
         r = requests.post(
             f"https://jooble.org/api/{JOOBLE_KEY}",
             json={
                 "keywords": " ".join(skills + levels),
-                "location": location or c   # country-level search only
+                "location": location or c,
+                "page": page
             },
             timeout=15
         ).json()
+
+        if not r.get("jobs"):
+            break
 
         for j in r.get("jobs", []):
             rows.append({
