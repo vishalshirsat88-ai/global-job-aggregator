@@ -40,64 +40,64 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     # 🚀 PARALLEL API FETCHING (MAJOR SPEED BOOST)
     # =====================================================
     with ThreadPoolExecutor(max_workers=5) as executor:
-    futures = []
-
-    # =========================
-    # JSEARCH (ONLY IF DEEP SEARCH)
-    # =========================
-    if deep_search:
-        for skill in skills:
-            print(f"\n🚀 JSEARCH CALL")
-            print("Query:", skill)
-            print("Location:", search_location)
-
-            futures.append(
-                executor.submit(
-                    fetch_jsearch,
-                    [skill],
-                    levels,
-                    countries,
-                    posted_days,
-                    search_location
+        futures = []
+    
+        # =========================
+        # JSEARCH (ONLY IF DEEP SEARCH)
+        # =========================
+        if deep_search:
+            for skill in skills:
+                print(f"\n🚀 JSEARCH CALL")
+                print("Query:", skill)
+                print("Location:", search_location)
+    
+                futures.append(
+                    executor.submit(
+                        fetch_jsearch,
+                        [skill],
+                        levels,
+                        countries,
+                        posted_days,
+                        search_location
+                    )
                 )
-            )
-
-    # =========================
-    # ADZUNA + JOOBLE (ALWAYS RUN)
-    # =========================
-    loop_locations = locations if locations else [""]
-
-    for loc in loop_locations:
-        for skill in skills:
-
-            print(f"\n🟡 ADZUNA CALL")
-            print("Query:", skill)
-            print("Location:", loc)
-
-            futures.append(
-                executor.submit(
-                    fetch_adzuna,
-                    [skill],
-                    levels,
-                    countries,
-                    posted_days,
-                    loc
+    
+        # =========================
+        # ADZUNA + JOOBLE (ALWAYS RUN)
+        # =========================
+        loop_locations = locations if locations else [""]
+    
+        for loc in loop_locations:
+            for skill in skills:
+    
+                print(f"\n🟡 ADZUNA CALL")
+                print("Query:", skill)
+                print("Location:", loc)
+    
+                futures.append(
+                    executor.submit(
+                        fetch_adzuna,
+                        [skill],
+                        levels,
+                        countries,
+                        posted_days,
+                        loc
+                    )
                 )
-            )
-
-            print(f"\n🔵 JOOBLE CALL")
-            print("Query:", skill)
-            print("Location:", loc)
-
-            futures.append(
-                executor.submit(
-                    fetch_jooble,
-                    [skill],
-                    levels,
-                    countries,
-                    loc
+    
+                print(f"\n🔵 JOOBLE CALL")
+                print("Query:", skill)
+                print("Location:", loc)
+    
+                futures.append(
+                    executor.submit(
+                        fetch_jooble,
+                        [skill],
+                        levels,
+                        countries,
+                        loc
+                    )
                 )
-            )
     
         # Collect results
         for f in futures:
