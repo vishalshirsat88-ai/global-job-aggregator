@@ -357,7 +357,7 @@ def run_job_search(
         # Apply scoring for remote also
         ranked = filter_and_rank_jobs(rows, skills, levels, countries, [], top_n=50)
 
-        return ranked, False
+        return ranked, False, None
 
     # Non-remote flow
     df, fallback, fallback_message = run_engine(
