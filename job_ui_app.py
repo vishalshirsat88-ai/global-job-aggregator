@@ -277,7 +277,7 @@ def fetch_remote_jobs(skills, level, posted_days):
             },
             params={
                 "query": f"{skill} {level} remote job",
-                "num_pages": 1
+                "num_pages": 2
             },
             timeout=20
         )
@@ -396,7 +396,7 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
                 "app_key": ADZUNA_API_KEY,
                 "what": " OR ".join(skills + levels),
               "where": location or "",   # let Adzuna search country-wide  # ✅ CITY USED
-                "results_per_page": 20
+                "results_per_page": 50
             },
             timeout=15
         ).json()
