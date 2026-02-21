@@ -221,11 +221,22 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
     print("=======================================================")
 
     
-    df = df[
-        df["Country"].isna() |
-        (df["Country"] == "REMOTE") |
-        df["Country"].isin(allowed_country_names)
-    ]
+    # Detect if city search was used
+    city_search = bool(locations)
+    
+    if city_search:
+        # For city search → allow only rows that contain city in Location
+        df = df[
+            df["Location"].notna() &
+            df["Location"].str.lower().str.contains("|".join(loc.lower() for loc in locations))
+        ]
+    else:
+        # Country-only search → keep previous behavior
+        df = df[
+            df["Country"].isna() |
+            (df["Country"] == "REMOTE") |
+            df["Country"].isin(allowed_country_names)
+        ]
 
     print("\n===== DEBUG STAGE 3 — AFTER COUNTRY FILTER =====")
     print("Total rows:", len(df))
