@@ -308,7 +308,7 @@ def run_engine(skills, levels, locations, countries, posted_days, include_countr
         levels,
         countries,
         locations,
-        top_n=50
+        top_n=100
     )
     
     print("\n==============================")
@@ -355,7 +355,7 @@ def run_job_search(
         rows += fetch_weworkremotely(skills)
 
         # Apply scoring for remote also
-        ranked = filter_and_rank_jobs(rows, skills, levels, countries, [], top_n=50)
+        ranked = filter_and_rank_jobs(rows, skills, levels, countries, [], top_n=100)
 
         return ranked, False, None
 
