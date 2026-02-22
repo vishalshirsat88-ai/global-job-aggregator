@@ -630,6 +630,7 @@ else:
         st.dataframe(
             df[display_cols],
             use_container_width=True,
+            hide_index=True,
             column_config={
                 "Apply": st.column_config.LinkColumn(
                     "Apply Now",
