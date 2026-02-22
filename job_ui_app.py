@@ -440,8 +440,11 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------- OLD enabel this if animation doesnt work ----------
-
+# ---------- OLD enable this if animation doesnt work ----------
+def clear_results():
+    st.session_state["jobs_df"] = None
+    st.session_state["fallback_message"] = None
+    st.session_state["search_triggered"] = False
 # ---------- INPUT AREA ----------
 
 # SKILLS (MANDATORY)
@@ -452,7 +455,8 @@ skills_input = st.text_input(
     "Skills",
     "",
     key="skills_input",
-    label_visibility="collapsed"
+    label_visibility="collapsed",
+    on_change=clear_results
 )
 
 
@@ -468,7 +472,8 @@ levels_input = st.text_input(
     "Levels",
     "",
     key="levels_input",
-    label_visibility="collapsed"
+    label_visibility="collapsed",
+    on_change=clear_results
 )
 
 
@@ -485,7 +490,8 @@ location_input = st.text_input(
     "Location",
     "",
     key="location_input",
-    label_visibility="collapsed"
+    label_visibility="collapsed",
+    on_change=clear_results
 )
 
 
@@ -506,7 +512,8 @@ countries = st.multiselect(
     ],
     default=["India"],
     disabled=is_remote,
-    label_visibility="collapsed"
+    label_visibility="collapsed",
+    on_change=clear_results
 )
 
 if is_remote:
@@ -516,7 +523,13 @@ if not is_remote and not countries:
     st.error("Country is mandatory unless location is Remote.")
     st.stop()
 
-posted_days = st.slider("Posted within last X days", 1, 60, 7)
+posted_days = st.slider(
+    "Posted within last X days",
+    1,
+    60,
+    7,
+    on_change=clear_results
+)
 # If the user changes inputs, clear old results so they don't see "ghost" data
 if st.sidebar.button("Clear Results"):
     st.session_state["search_triggered"] = False
