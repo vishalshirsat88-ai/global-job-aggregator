@@ -233,8 +233,14 @@ def search_jobs(req: SearchRequest):
             na_position="last"
         )
     
+    # Convert Timestamp → string (VERY IMPORTANT FIX)
+    if "posted_date" in df.columns:
+        df["posted_date"] = df["posted_date"].apply(
+            lambda x: x.isoformat() if pd.notna(x) else None
+        )
+    
     normalized_jobs = df.to_dict(orient="records")
-
+    
     for job in normalized_jobs:
         job.pop("_date", None)
 
