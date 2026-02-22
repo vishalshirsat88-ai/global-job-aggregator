@@ -225,9 +225,10 @@ def search_jobs(req: SearchRequest):
     # SORT SAFELY (same behavior as old system)
     df = pd.DataFrame(normalized_jobs)
     
-    if not df.empty and "_date" in df.columns:
+    if not df.empty and "posted_date" in df.columns:
+        df["posted_date"] = pd.to_datetime(df["posted_date"], errors="coerce")
         df = df.sort_values(
-            by="_date",
+            by="posted_date",
             ascending=False,
             na_position="last"
         )
