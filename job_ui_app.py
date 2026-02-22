@@ -554,8 +554,11 @@ if st.session_state.get("search_triggered", False):
         try:
             result = call_backend_search(payload)
             rows = result.get("rows", [])
+            
             df = pd.DataFrame(rows)
-        
+
+            st.write("DEBUG COLUMNS:", df.columns)   # 👈 ADD THIS
+            
             fallback = result.get("fallback", False)
             fallback_message = result.get("fallback_message")   # ⭐ ADD THIS LINE
         except Exception as e:
