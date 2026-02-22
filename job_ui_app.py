@@ -12,6 +12,7 @@ from info_panel import show_getting_started_panel
 
 if "search_triggered" not in st.session_state:
     st.session_state["search_triggered"] = False
+
 if "jobs_df" not in st.session_state:
     st.session_state["jobs_df"] = None
 
@@ -516,6 +517,11 @@ if not is_remote and not countries:
     st.stop()
 
 posted_days = st.slider("Posted within last X days", 1, 60, 7)
+# If the user changes inputs, clear old results so they don't see "ghost" data
+if st.sidebar.button("Clear Results"):
+    st.session_state["search_triggered"] = False
+    st.session_state["jobs_df"] = None
+    st.rerun()
 
 # ---------- ACTION BAR ----------
 col_run, col_toggle, col_dl = st.columns([2, 3, 2])
@@ -547,7 +553,8 @@ if run_btn:
         st.session_state["search_triggered"] = True
 
 
-if st.session_state.get("search_triggered", False):
+# CALL API ONLY WHEN RUN BUTTON CLICKED
+if run_btn:
     with st.spinner("Fetching jobs..."):
 
         payload = {
@@ -567,110 +574,117 @@ if st.session_state.get("search_triggered", False):
             rows = result.get("rows", [])
             
             df = pd.DataFrame(rows)
+
+            fallback = result.get("fallback", False)
+            fallback_message = result.get("fallback_message")
+            
             st.session_state["jobs_df"] = df
             st.session_state["fallback_message"] = fallback_message
-                      
-            fallback = result.get("fallback", False)
-            fallback_message = result.get("fallback_message")   # ⭐ ADD THIS LINE
         except Exception as e:
             st.error(f"Backend Error: {e}")
             df = pd.DataFrame()
 
-    df = st.session_state.get("jobs_df")
+# DISPLAY RESULTS IF THEY EXIST
+df = st.session_state.get("jobs_df")
 
-    if df is None or df.empty:
-        st.warning("No jobs found.")
+# ALWAYS load from session state
+
+if df is None:
+    st.info("Enter details and click Run Job Search.")
+elif df.empty:
+    st.warning("No jobs found.")
+else:
+    fallback_message = st.session_state.get("fallback_message")
+
+    if "url" in df.columns:
+        df = df.rename(columns={"url": "Apply"})
+    # Standardize Work Mode column
+    for col in ["work_mode", "WorkMode", "workMode"]:
+        if col in df.columns:
+            df = df.rename(columns={col: "Work Mode"})
+    
+    # REMOVE skill column ONLY from UI
+    if "skill" in df.columns:
+        df = df.drop(columns=["skill"], errors="ignore")
+    if "Skill" in df.columns:
+        df = df.drop(columns=["Skill"], errors="ignore")
+    
+    # Sort by date if available
+    if "posted_date" in df.columns:
+        df["posted_date"] = pd.to_datetime(df["posted_date"], errors="coerce")
+        df = df.sort_values(by="posted_date", ascending=False)
+    
+    # Fix index numbering for display
+    df = df.reset_index(drop=True)
+    df.insert(0, "Sr No", range(1, len(df) + 1))
+    
+    st.success(f"✅ Found {len(df)} jobs")
+    
+    if view_mode:
+        # ---------- CLASSIC TABLE VIEW ----------
+        display_cols = [
+            col for col in df.columns
+            if col not in ["_excel", "_date"]
+        ]
+        
+        st.dataframe(
+            df[display_cols],
+            use_container_width=True,
+            column_config={
+                "Apply": st.column_config.LinkColumn(
+                    "Apply Now",
+                    display_text="Apply Now"
+                )
+            }
+        )
     else:
-        fallback_message = st.session_state.get("fallback_message")
-       
-        if "url" in df.columns:
-            df = df.rename(columns={"url": "Apply"})
-        # Standardize Work Mode column
-        for col in ["work_mode", "WorkMode", "workMode"]:
-            if col in df.columns:
-                df = df.rename(columns={col: "Work Mode"})
-        
-        # REMOVE skill column ONLY from UI
-        if "skill" in df.columns:
-            df = df.drop(columns=["skill"], errors="ignore")
-        if "Skill" in df.columns:
-            df = df.drop(columns=["Skill"], errors="ignore")
-        
-        # Sort by date if available
-        if "posted_date" in df.columns:
-            df["posted_date"] = pd.to_datetime(df["posted_date"], errors="coerce")
-            df = df.sort_values(by="posted_date", ascending=False)
-
-        # Fix index numbering for display
-        df = df.reset_index(drop=True)
-        df.insert(0, "Sr No", range(1, len(df) + 1))
-
-        st.success(f"✅ Found {len(df)} jobs")
-
-        if view_mode:
-            # ---------- CLASSIC TABLE VIEW ----------
-            display_cols = [
-                col for col in df.columns
-                if col not in ["_excel", "_date"]
-            ]
+        # ---------- CARD VIEW (FIXED & CLEANED) ----------
+        cols = st.columns(2)
+        for i, row in df.iterrows():
+            # Logic to handle missing values safely
+            title = row.get('title') or row.get('Title') or "Job Title"
+            company = row.get('company') or row.get('Company') or "Company"
+            loc = row.get('location') or row.get('Location') or "Not Specified"
+            link = row.get('Apply') or row.get('apply_link') or "#"
+            mode = str(row.get("Work Mode") or "On-site")
             
-            st.dataframe(
-                df[display_cols],
-                use_container_width=True,
-                column_config={
-                    "Apply": st.column_config.LinkColumn(
-                        "Apply Now",
-                        display_text="Apply Now"
-                    )
-                }
-            )
-        else:
-            # ---------- CARD VIEW (FIXED & CLEANED) ----------
-            cols = st.columns(2)
-            for i, row in df.iterrows():
-                # Logic to handle missing values safely
-                title = row.get('title') or row.get('Title') or "Job Title"
-                company = row.get('company') or row.get('Company') or "Company"
-                loc = row.get('location') or row.get('Location') or "Not Specified"
-                link = row.get('Apply') or row.get('apply_link') or "#"
-                mode = str(row.get("Work Mode") or "On-site")
-                
-                # Determine Badge Color
-                if "remote" in mode.lower():
-                    b_class = "badge-remote"
-                elif "hybrid" in mode.lower():
-                    b_class = "badge-hybrid"
-                else:
-                    b_class = "badge-onsite"
-
-                with cols[i % 2]:
-                    card_html = f"""
-                    <div class="job-card">
-                        <div class="job-title">{title}</div>
-                        <div class="job-company">{company}</div>
-                        <div class="job-location">📍 {loc}</div>
-                        <div style="margin-top: 8px;">
-                            <span class="badge {b_class}">{mode}</span>
-                        </div>
-                        <div class="job-actions" style="display: flex; justify-content: flex-end; margin-top: 10px;">
-                            <a class="apply-btn" href="{link}" target="_blank">Apply →</a>
-                        </div>
+            # Determine Badge Color
+            if "remote" in mode.lower():
+                b_class = "badge-remote"
+            elif "hybrid" in mode.lower():
+                b_class = "badge-hybrid"
+            else:
+                b_class = "badge-onsite"
+    
+            with cols[i % 2]:
+                card_html = f"""
+                <div class="job-card">
+                    <div class="job-title">{title}</div>
+                    <div class="job-company">{company}</div>
+                    <div class="job-location">📍 {loc}</div>
+                    <div style="margin-top: 8px;">
+                        <span class="badge {b_class}">{mode}</span>
                     </div>
-                    """
-                    st.markdown(card_html, unsafe_allow_html=True)
-
-        # DOWNLOAD BUTTON
-        with col_dl:
-            st.markdown('<div class="download-btn">', unsafe_allow_html=True)
-            excel_data = export_to_excel(df)
-
-            dl_placeholder.download_button(
-                "⬇️ Download Excel",
-                excel_data,
-                "job_results.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-
-            
-            st.markdown('</div>', unsafe_allow_html=True)
+                    <div class="job-actions" style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                        <a class="apply-btn" href="{link}" target="_blank">Apply →</a>
+                    </div>
+                </div>
+                """
+                st.markdown(card_html, unsafe_allow_html=True)
+    
+    # DOWNLOAD BUTTON
+    with col_dl:
+        st.markdown('<div class="download-btn">', unsafe_allow_html=True)
+        excel_data = export_to_excel(df)
+    
+        dl_placeholder.download_button(
+            "⬇️ Download Excel",
+            excel_data,
+            "job_results.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+    
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+    
         
