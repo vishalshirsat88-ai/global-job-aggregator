@@ -596,8 +596,7 @@ if st.session_state.get("search_triggered", False):
 
         # Fix index numbering for display
         df = df.reset_index(drop=True)
-        df.index = df.index + 1
-        df.index.name = "Sr No"
+        df.insert(0, "Sr No", range(1, len(df) + 1))
 
         st.success(f"✅ Found {len(df)} jobs")
 
