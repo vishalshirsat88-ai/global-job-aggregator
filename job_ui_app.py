@@ -18,7 +18,14 @@ if "jobs_df" not in st.session_state:
 
 if "fallback_message" not in st.session_state:
     st.session_state["fallback_message"] = None
-    
+
+def rerun_search():
+    if st.session_state.get("search_triggered"):
+        st.session_state["rerun_needed"] = True
+
+if "rerun_needed" not in st.session_state:
+    st.session_state["rerun_needed"] = False
+
 from io import BytesIO
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -547,7 +554,11 @@ with col_toggle:
         view_mode = st.toggle("Classic view", value=False)
 
     with sub2:
-        deep_search = st.toggle("🔎 Deep Search", value=False)
+        deep_search = st.toggle(
+            "🔎 Deep Search",
+            value=False,
+            on_change=rerun_search
+        )
         st.caption("May take more time")
 with col_dl:
     dl_placeholder = st.empty()
@@ -570,8 +581,8 @@ if run_btn:
         st.session_state["search_triggered"] = True
 
 
-# CALL API ONLY WHEN RUN BUTTON CLICKED
-if run_btn:
+# CALL API WHEN RUN CLICKED OR DEEP SEARCH TOGGLED
+if run_btn or st.session_state.get("rerun_needed"):
     with st.spinner("Fetching jobs..."):
 
         payload = {
@@ -597,10 +608,11 @@ if run_btn:
             
             st.session_state["jobs_df"] = df
             st.session_state["fallback_message"] = fallback_message
+            st.session_state["rerun_needed"] = False
         except Exception as e:
             st.error(f"Backend Error: {e}")
             df = pd.DataFrame()
-
+            st.session_state["rerun_needed"] = False
 # DISPLAY RESULTS IF THEY EXIST
 df = st.session_state.get("jobs_df")
 
