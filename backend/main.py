@@ -143,6 +143,7 @@ class JobRow(BaseModel):
     url: str
     source: str
     posted_date: Optional[str]
+    work_mode: Optional[str] = None   # ⭐ ADD THIS LINE
 
 class SearchResponse(BaseModel):
     total: int
