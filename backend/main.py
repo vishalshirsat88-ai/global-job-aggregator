@@ -192,8 +192,8 @@ def search_jobs(req: SearchRequest):
     if req.page < 1:
         raise HTTPException(status_code=400, detail="page must be >= 1")
 
-    if req.page_size > 50:
-        raise HTTPException(status_code=400, detail="page_size must be <= 50")
+    if req.page_size > 100:
+        raise HTTPException(status_code=400, detail="page_size must be <= 100")
 
     if not req.skills:
         raise HTTPException(status_code=400, detail="skills must not be empty")
