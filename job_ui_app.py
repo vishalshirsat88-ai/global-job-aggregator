@@ -12,7 +12,12 @@ from info_panel import show_getting_started_panel
 
 if "search_triggered" not in st.session_state:
     st.session_state["search_triggered"] = False
+if "jobs_df" not in st.session_state:
+    st.session_state["jobs_df"] = None
 
+if "fallback_message" not in st.session_state:
+    st.session_state["fallback_message"] = None
+    
 from io import BytesIO
 import openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -562,7 +567,8 @@ if st.session_state.get("search_triggered", False):
             rows = result.get("rows", [])
             
             df = pd.DataFrame(rows)
-
+            st.session_state["jobs_df"] = df
+            st.session_state["fallback_message"] = fallback_message
                       
             fallback = result.get("fallback", False)
             fallback_message = result.get("fallback_message")   # ⭐ ADD THIS LINE
@@ -570,11 +576,12 @@ if st.session_state.get("search_triggered", False):
             st.error(f"Backend Error: {e}")
             df = pd.DataFrame()
 
-    if df.empty:
+    df = st.session_state.get("jobs_df")
+
+    if df is None or df.empty:
         st.warning("No jobs found.")
     else:
-        if fallback_message:   # ⭐ ADD THIS BLOCK
-            st.warning(fallback_message)
+        fallback_message = st.session_state.get("fallback_message")
        
         if "url" in df.columns:
             df = df.rename(columns={"url": "Apply"})
@@ -664,7 +671,6 @@ if st.session_state.get("search_triggered", False):
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
-            st.session_state["search_triggered"] = False
-
+            
             st.markdown('</div>', unsafe_allow_html=True)
         
