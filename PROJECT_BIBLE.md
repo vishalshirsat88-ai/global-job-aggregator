@@ -177,7 +177,7 @@ Overall: SOFT LAUNCH READY
 ## Code Repository
 
 Primary GitHub Repository:
-(Add your repo URL here)
+(https://github.com/vishalshirsat88-ai/global-job-aggregator/tree/fastapi-backend)
 
 Example format:
 https://github.com/your-repo-link
