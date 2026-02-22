@@ -558,6 +558,10 @@ def call_backend_search(payload):
     resp.raise_for_status()
     return resp.json()
 
+@st.cache_data(ttl=1800, show_spinner=False)
+def cached_backend_search(payload):
+    return call_backend_search(payload)
+    
 # ⭐ PREVENT MULTIPLE API CALLS
 if run_btn:
     if not skills:
@@ -583,7 +587,7 @@ if run_btn:
         }
         
         try:
-            result = call_backend_search(payload)
+            result = cached_backend_search(payload)
             rows = result.get("rows", [])
             
             df = pd.DataFrame(rows)
