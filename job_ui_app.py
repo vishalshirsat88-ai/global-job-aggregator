@@ -517,8 +517,14 @@ col_run, col_toggle, col_dl = st.columns([2, 3, 2])
 with col_run:
     run_btn = st.button("🚀 Run Job Search")
 with col_toggle:
-    view_mode = st.toggle("Classic view", value=False) # Default to Card View for better visuals
-    deep_search = st.toggle("🔎 Deep Search (Include RapidAPI Jobs)", value=False)
+    sub1, sub2 = st.columns(2)
+
+    with sub1:
+        view_mode = st.toggle("Classic view", value=False)
+
+    with sub2:
+        deep_search = st.toggle("🔎 Deep Search", value=False)
+        st.caption("May take more time")
 with col_dl:
     dl_placeholder = st.empty()
 
