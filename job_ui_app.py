@@ -558,6 +558,7 @@ if st.session_state.get("search_triggered", False):
             df = pd.DataFrame(rows)
 
             st.write("DEBUG COLUMNS:", df.columns)   # 👈 ADD THIS
+            st.write("DEBUG SAMPLE ROW:", rows[:1])
             
             fallback = result.get("fallback", False)
             fallback_message = result.get("fallback_message")   # ⭐ ADD THIS LINE
