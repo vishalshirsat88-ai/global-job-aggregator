@@ -570,8 +570,11 @@ if st.session_state.get("search_triggered", False):
        
         if "url" in df.columns:
             df = df.rename(columns={"url": "Apply"})
+        # Standardize Work Mode column
         if "work_mode" in df.columns:
             df = df.rename(columns={"work_mode": "Work Mode"})
+        elif "WorkMode" in df.columns:
+            df = df.rename(columns={"WorkMode": "Work Mode"})
         
         # REMOVE skill column ONLY from UI
         if "skill" in df.columns:
@@ -593,8 +596,13 @@ if st.session_state.get("search_triggered", False):
 
         if view_mode:
             # ---------- CLASSIC TABLE VIEW ----------
+            display_cols = [
+                col for col in df.columns
+                if col not in ["_excel", "_date"]
+            ]
+            
             st.dataframe(
-                df,
+                df[display_cols],
                 use_container_width=True,
                 column_config={
                     "Apply": st.column_config.LinkColumn(
@@ -612,7 +620,7 @@ if st.session_state.get("search_triggered", False):
                 company = row.get('company') or row.get('Company') or "Company"
                 loc = row.get('location') or row.get('Location') or "Not Specified"
                 link = row.get('Apply') or row.get('apply_link') or "#"
-                mode = str(row.get("work_mode") or "On-site")
+                mode = str(row.get("Work Mode") or "On-site")
                 
                 # Determine Badge Color
                 if "remote" in mode.lower():
