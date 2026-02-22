@@ -1123,8 +1123,8 @@ async function handlePaymentClick() {
     setButtonLoading(true);
 
     /* NON INDIA → PAYPAL FIRST */
-    if (true) {
-    #if (userCountry !== "IN") {
+    
+    if (userCountry !== "IN") {
         handlePaypalPayment();
         return;
     }
