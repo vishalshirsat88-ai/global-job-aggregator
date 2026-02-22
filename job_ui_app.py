@@ -547,7 +547,7 @@ if st.session_state.get("search_triggered", False):
             "posted_days": posted_days,
             "is_remote": is_remote,
             "page": 1,
-            "page_size": 20,
+            "page_size": 50,
             "deep_search": deep_search
         }
         
