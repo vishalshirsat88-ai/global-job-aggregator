@@ -238,7 +238,7 @@ def fetch_arbeitnow(skills):
                     "Company": j.get("company_name"),
                     "Location": j.get("location"),
                     "Country": country,          # ⭐ ADD THIS LINE HERE
-                    "Work Mode": work_mode(None, j.get("location")),
+                    "Work Mode": "Remote" if j.get("remote") else "On-site",
                     "Apply": j.get("url"),
                     "_excel": excel_link(j.get("url"))
                 })
@@ -295,7 +295,12 @@ def fetch_jsearch(skills, levels, countries, posted_days, location):
                     "Company": j.get("employer_name"),
                     "Location": j.get("job_city") or "",
                     "Country": (j.get("job_country") or "").upper(),
-                    "Work Mode": work_mode(j.get("job_is_remote"), j.get("job_city")),
+                    "Work Mode": (
+                            "Remote" if j.get("job_is_remote")
+                            else work_mode(
+                                f"{j.get('job_title','')} {j.get('job_description','')}"
+                            )
+                        ),
                     "Apply": j.get("job_apply_link"),
                     "_excel": excel_link(j.get("job_apply_link")),
                     "_date": dt
@@ -359,7 +364,7 @@ def fetch_adzuna(skills, levels, countries, posted_days, location):
                     "Company": j.get("company", {}).get("display_name"),
                     "Location": j.get("location", {}).get("display_name"),
                     "Country": c,
-                    "Work Mode": work_mode(None, j.get("location", {}).get("display_name")),
+                    "Work Mode": work_mode(j.get("title","")),
                     "Apply": j.get("redirect_url"),
                     "_excel": excel_link(j.get("redirect_url")),
                     "_date": dt
@@ -415,7 +420,7 @@ def fetch_jooble(skills, levels, countries, location):
                     "Title": j.get("title"),
                     "Company": j.get("company"),
                     "Location": j.get("location"),
-                    "Work Mode": work_mode(None, j.get("location")),
+                    "Work Mode": work_mode(j.get("title","")),
                     "Apply": j.get("link"),
                     "_excel": excel_link(j.get("link"))
                 })
