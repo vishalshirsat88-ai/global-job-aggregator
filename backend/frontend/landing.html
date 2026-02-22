@@ -1008,6 +1008,7 @@ lucide.createIcons();
 GLOBAL STATE
 =============================== */
 let userCountry = "IN";
+let FORCE_PAYPAL_TEST = true; // TEMPORARY — set false after testing
 
 /* ===============================
 COUNTRY DETECTION
@@ -1124,7 +1125,7 @@ async function handlePaymentClick() {
 
     /* NON INDIA → PAYPAL FIRST */
     
-    if (userCountry !== "IN") {
+    if (FORCE_PAYPAL_TEST || userCountry !== "IN") {
         handlePaypalPayment();
         return;
     }
