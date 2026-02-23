@@ -138,9 +138,7 @@ button[kind="header"] {
 }
 
 /* Remove extra top padding */
-.block-container {
-    padding-top: 0rem !important;
-}
+
 
 .stApp {
     background: linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 50%, #fff7ed 100%);
@@ -167,66 +165,25 @@ button[kind="header"] {
 /* ============================= */
 
 .hero-title {
-    position: relative;
-    display: inline-block;
-    overflow: hidden;
-    width: 100%;
-    text-align: center;
- 
+    font-family: 'Inter', sans-serif;
     font-size: 52px;
     font-weight: 800;
+    line-height: 1.1;
     letter-spacing: -1px;
     text-align: center;
 
     background: linear-gradient(
         90deg,
-        #4F6CF7,
-        #7A6FF0,
-        #FF8A00,
-        #4F6CF7
+        #4F6CF7 0%,
+        #7A6FF0 50%,
+        #E8A06A 100%
     );
-
-    background-size: 300% 300%;
 
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-
-    animation: gradientFlow 12s ease infinite;
 }
 
-/* Gradient animation */
-@keyframes gradientFlow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
 
-/* ============================= */
-/* SHIMMER EFFECT */
-/* ============================= */
-
-.hero-title::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -120%;
-    width: 120%;
-    height: 100%;
-
-    background: linear-gradient(
-        120deg,
-        transparent,
-        rgba(255,255,255,0.7),
-        transparent
-    );
-
-    animation: shimmer 6s infinite;
-}
-
-@keyframes shimmer {
-    0% { left: -120%; }
-    100% { left: 120%; }
-}
 
 /* ============================= */
 /* RESPONSIVE MOBILE SCALING */
@@ -256,17 +213,7 @@ button[kind="header"] {
     padding-bottom: 2rem !important;
 }
 
-section.main > div {
-    padding-top: 0rem !important;
-}
 
-[data-testid="stAppViewContainer"] {
-    padding-top: 0rem !important;
-}
-
-[data-testid="stAppViewContainer"] > .main {
-    padding-top: 0rem !important;
-}
 
 
 /* SIDEBAR STYLING */
@@ -419,7 +366,7 @@ st.markdown("""
 
 
 st.markdown("""
-<div style="padding: 10px 0 20px 0; text-align:center;">
+<div style="padding: 40px 0 30px 0; text-align:center;">
     <div class="hero-title">Global Job Aggregator</div>
     <div class="hero-subtitle">Search smarter. Apply faster.</div>
 </div>
