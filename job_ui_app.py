@@ -127,7 +127,10 @@ st.markdown("""
 header[data-testid="stHeader"] {
     background: transparent !important;
     border-bottom: none !important;
-    height: auto !important;
+}
+
+header[data-testid="stHeader"] {
+    display: none;
 }
 
 /* Ensure sidebar toggle is visible */
@@ -150,15 +153,11 @@ button[kind="header"] {
 
 /* Remove extra top padding created by it */
 [data-testid="stAppViewContainer"] {
-    padding-top: 0rem !important;
+    padding-top: 0.3rem !important;
 }
 
 
 #-------------------------------------------Animations Effects starts----------------------------------------------
-/* ============================= */
-/* PREMIUM STICKY HEADER */
-/* ============================= */
-
 
 /* ============================= */
 /* ANIMATED GRADIENT TITLE */
@@ -183,7 +182,10 @@ button[kind="header"] {
     -webkit-text-fill-color: transparent;
 }
 
-
+.hero-wrapper {
+    padding: 10px 0 20px 0;
+    text-align: center;
+}
 
 /* ============================= */
 /* RESPONSIVE MOBILE SCALING */
@@ -209,7 +211,7 @@ button[kind="header"] {
 
 /* REMOVE STREAMLIT DEFAULT TOP GAP */
 .block-container {
-    padding-top: 0rem !important;
+    padding-top: 0.5rem !important;
     padding-bottom: 2rem !important;
 }
 
@@ -366,7 +368,7 @@ st.markdown("""
 
 
 st.markdown("""
-<div style="padding: 40px 0 30px 0; text-align:center;">
+<div class="hero-wrapper">
     <div class="hero-title">Global Job Aggregator</div>
     <div class="hero-subtitle">Search smarter. Apply faster.</div>
 </div>
