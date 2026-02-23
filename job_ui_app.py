@@ -172,24 +172,26 @@ button[kind="header"] {
     overflow: hidden;
     width: 100%;
     text-align: center;
-
-    font-size: 64px;   /* 🔥 increased */
+ 
+    font-size: 52px;
     font-weight: 800;
     letter-spacing: -1px;
+    text-align: center;
 
     background: linear-gradient(
         90deg,
-        #4F6CF7 0%,
-        #7A6FF0 50%,
-        #E8A06A 100%
+        #4F6CF7,
+        #7A6FF0,
+        #FF8A00,
+        #4F6CF7
     );
 
-    background-size: 200% 200%;  /* 🔥 key fix */
+    background-size: 300% 300%;
 
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 
-    animation: gradientFlow 8s ease infinite;  /* smoother */
+    animation: gradientFlow 12s ease infinite;
 }
 
 /* Gradient animation */
@@ -417,7 +419,7 @@ st.markdown("""
 
 
 st.markdown("""
-<div style="padding: 90px 0 70px 0; text-align:center;">
+<div style="padding: 10px 0 20px 0; text-align:center;">
     <div class="hero-title">Global Job Aggregator</div>
     <div class="hero-subtitle">Search smarter. Apply faster.</div>
 </div>
