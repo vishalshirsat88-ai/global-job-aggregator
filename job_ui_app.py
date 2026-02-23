@@ -8,7 +8,11 @@ import pandas as pd
 import re
 from datetime import datetime, timedelta
 from info_panel import show_getting_started_panel
-st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(
+    page_title="Global Job Aggregator",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 if "search_triggered" not in st.session_state:
     st.session_state["search_triggered"] = False
@@ -102,7 +106,6 @@ def export_to_excel(df):
 # Keep your specific backend URL
 BACKEND_URL ="https://global-job-aggregator-production.up.railway.app"
 
-st.set_page_config(page_title="Global Job Aggregator", layout="wide")
 
 # ---------- RESTORED FRONT-END VISUALS ----------
 
@@ -120,26 +123,23 @@ st.markdown("""
 
 /* ===== REMOVE ALL STREAMLIT TOP SPACERS ===== */
 
-
-/* Keep toolbar but remove spacing */
+/* SAFE HEADER FIX — keeps sidebar toggle alive */
 header[data-testid="stHeader"] {
     background: transparent !important;
-    height: 0px !important;
+    border-bottom: none !important;
+    height: auto !important;
 }
 
-/* Keep sidebar toggle visible */
+/* Ensure sidebar toggle is visible */
 button[kind="header"] {
     display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
-/* Top decoration spacer */
-div[data-testid="stDecoration"] {
-    display: none !important;
-}
-
-/* Remove leftover padding */
-div[data-testid="stAppViewContainer"] {
-    padding-top: 0 !important;
+/* Remove extra top padding */
+.block-container {
+    padding-top: 0rem !important;
 }
 
 .stApp {
@@ -148,9 +148,7 @@ div[data-testid="stAppViewContainer"] {
 }
 
 /* 🔥 REMOVE STREAMLIT TOP HEADER SPACE */
-header[data-testid="stHeader"] {
-    display: none !important;
-}
+
 
 /* Remove extra top padding created by it */
 [data-testid="stAppViewContainer"] {
@@ -162,13 +160,6 @@ header[data-testid="stHeader"] {
 /* ============================= */
 /* PREMIUM STICKY HEADER */
 /* ============================= */
-
-.sticky-header {
-    backdrop-filter: blur(12px);
-    background: rgba(255,255,255,0.55);
-    padding: 10px 0 6px 0;
-    margin-top: -10px;
-}
 
 
 /* ============================= */
@@ -427,21 +418,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-
-# ---------- HERO SECTION ----------
-# ---------- New animation if doesnt work delete this and enable the old below ----------
-#st.markdown("""
-#<div class="sticky-header">
-    #<div class="hero-title">Global Job Aggregator</div>
-    #<div class="hero-subtitle">Search smarter. Apply faster.</div>
-#</div>
-#""", unsafe_allow_html=True)
-
-
-# ---------- New animation if doesnt work delete this and enable the old below ----------
-
-# ---------- OLD enabel this if animation doesnt work ----------
-
 st.markdown("""
 <div style="padding: 10px 0 20px 0; text-align:center;">
     <div class="hero-title">Global Job Aggregator</div>
@@ -449,7 +425,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------- OLD enable this if animation doesnt work ----------
 def clear_results():
     st.session_state["jobs_df"] = None
     st.session_state["fallback_message"] = None
