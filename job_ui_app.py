@@ -121,41 +121,35 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap');
 
-/* 1. TOP SPACE REDUCTION (Keeping your fix) */
+/* 1. TOP SPACE FIX */
 .block-container {
     padding-top: 0rem !important;
     padding-bottom: 2rem !important;
 }
 header[data-testid="stHeader"] {
     background: transparent !important;
-    height: 0px !important;
-}
-[data-testid="stAppViewContainer"] {
-    padding-top: 0rem !important;
 }
 
-/* 2. RESTORING START-OF-DAY FONT & COLORS */
+/* 2. THE CORRECT "START OF DAY" TITLE */
 .hero-title {
     font-family: 'Inter', sans-serif !important;
-    font-size: 52px !important;    /* Exact original size */
+    font-size: 52px !important;
     font-weight: 800 !important;
     line-height: 1.1;
     letter-spacing: -1px;
     text-align: center;
     margin: 0 auto;
 
-    /* Exact Original Gradient Colors */
+    /* Restored the exact original 3-color gradient */
     background: linear-gradient(
-        90deg,
-        #4F6CF7 0%,
-        #7A6FF0 50%,
-        #E8A06A 100%
-    );
+        90deg, 
+        #4F6CF7 0%, 
+        #7A6FF0 50%, 
+        #FF8A00 100%
+    ) !important;
 
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    
-    /* Removed the shimmer and flow that was washing out the color */
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
 }
 
 .hero-subtitle {
@@ -166,7 +160,7 @@ header[data-testid="stHeader"] {
     text-align: center;
 }
 
-/* 3. SIDEBAR & APP STYLING */
+/* 3. APP BACKGROUND & SIDEBAR */
 .stApp {
     background: linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 50%, #fff7ed 100%);
 }
@@ -183,41 +177,20 @@ section[data-testid="stSidebar"] * {
     color: white !important;
     border-radius: 14px;
     font-weight: 600;
-    border: none;
-    box-shadow: 0 8px 20px rgba(255, 94, 223, 0.35);
 }
 .job-card {
     background: rgba(255,255,255,0.92);
     border-radius: 18px;
     padding: 18px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.08);
-    margin-bottom: 22px;
 }
 
-/* 5. UI COMPONENTS (Expander, Download, Labels) */
-[data-testid="stExpander"] details > summary {
-    background: linear-gradient(135deg, #FF5EDF, #FF8A00) !important;
-    color: white !important;
-    border-radius: 10px;
-    font-weight: 600;
-}
-.download-btn button {
-    background: linear-gradient(135deg, #00C9A7, #92FE9D) !important;
-    color: #064E3B !important;
-}
-.form-label {
-    font-size: 16px;
-    font-weight: 700;
-    color: #4F46E5;
-}
-
-/* MOBILE SCALING */
 @media (max-width: 768px) {
     .hero-title { font-size: 32px !important; }
 }
 </style>
 
-<div style="padding: 40px 0 20px 0; text-align:center;">
+<div style="padding: 30px 0 20px 0; text-align:center;">
     <div class="hero-title">Global Job Aggregator</div>
     <div class="hero-subtitle">Search smarter. Apply faster.</div>
 </div>
@@ -308,13 +281,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
-st.markdown("""
-<div style="padding: 40px 0 30px 0; text-align:center;">
-    <div class="hero-title">Global Job Aggregator</div>
-    <div class="hero-subtitle">Search smarter. Apply faster.</div>
-</div>
-""", unsafe_allow_html=True)
+#marked this as remark
+#st.markdown("""
+#<div style="padding: 40px 0 30px 0; text-align:center;">
+    #<div class="hero-title">Global Job Aggregator</div>
+    #<div class="hero-subtitle">Search smarter. Apply faster.</div>
+#</div>
+#""", unsafe_allow_html=True)
 
 def clear_results():
     st.session_state["jobs_df"] = None
