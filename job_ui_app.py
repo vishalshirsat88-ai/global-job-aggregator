@@ -127,10 +127,7 @@ st.markdown("""
 header[data-testid="stHeader"] {
     background: transparent !important;
     border-bottom: none !important;
-}
-
-header[data-testid="stHeader"] {
-    display: none;
+    height: auto !important;
 }
 
 /* Ensure sidebar toggle is visible */
@@ -141,7 +138,9 @@ button[kind="header"] {
 }
 
 /* Remove extra top padding */
-
+.block-container {
+    padding-top: 0rem !important;
+}
 
 .stApp {
     background: linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 50%, #fff7ed 100%);
@@ -153,38 +152,79 @@ button[kind="header"] {
 
 /* Remove extra top padding created by it */
 [data-testid="stAppViewContainer"] {
-    padding-top: 0.3rem !important;
+    padding-top: 0rem !important;
 }
 
 
 #-------------------------------------------Animations Effects starts----------------------------------------------
+/* ============================= */
+/* PREMIUM STICKY HEADER */
+/* ============================= */
+
 
 /* ============================= */
 /* ANIMATED GRADIENT TITLE */
 /* ============================= */
 
 .hero-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 52px;
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -1px;
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    width: 100%;
     text-align: center;
+
+    font-size: 60px;   /* 🔥 increased */
+    font-weight: 800;
+    letter-spacing: -1px;
 
     background: linear-gradient(
         90deg,
         #4F6CF7 0%,
-        #7A6FF0 50%,
-        #E8A06A 100%
+        #7A6FF0 40%,
+        #FF5EDF 70%,
+        #FF8A00 100%
     );
+
+    background-size: 200% 200%;  /* 🔥 key fix */
 
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+
+    animation: gradientFlow 8s ease infinite;  /* smoother */
 }
 
-.hero-wrapper {
-    padding: 10px 0 20px 0;
-    text-align: center;
+/* Gradient animation */
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ============================= */
+/* SHIMMER EFFECT */
+/* ============================= */
+
+.hero-title::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 120%;
+    height: 100%;
+
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.7),
+        transparent
+    );
+
+    animation: shimmer 6s infinite;
+}
+
+@keyframes shimmer {
+    0% { left: -120%; }
+    100% { left: 120%; }
 }
 
 /* ============================= */
@@ -211,11 +251,21 @@ button[kind="header"] {
 
 /* REMOVE STREAMLIT DEFAULT TOP GAP */
 .block-container {
-    padding-top: 0.5rem !important;
+    padding-top: 0rem !important;
     padding-bottom: 2rem !important;
 }
 
+section.main > div {
+    padding-top: 0rem !important;
+}
 
+[data-testid="stAppViewContainer"] {
+    padding-top: 0rem !important;
+}
+
+[data-testid="stAppViewContainer"] > .main {
+    padding-top: 0rem !important;
+}
 
 
 /* SIDEBAR STYLING */
@@ -368,7 +418,7 @@ st.markdown("""
 
 
 st.markdown("""
-<div class="hero-wrapper">
+<div style="padding: 40px 0 30px 0; text-align:center;">
     <div class="hero-title">Global Job Aggregator</div>
     <div class="hero-subtitle">Search smarter. Apply faster.</div>
 </div>
