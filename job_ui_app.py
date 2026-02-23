@@ -173,16 +173,15 @@ button[kind="header"] {
     width: 100%;
     text-align: center;
 
-    font-size: 60px;   /* 🔥 increased */
+    font-size: 64px;   /* 🔥 increased */
     font-weight: 800;
     letter-spacing: -1px;
 
     background: linear-gradient(
         90deg,
         #4F6CF7 0%,
-        #7A6FF0 40%,
-        #FF5EDF 70%,
-        #FF8A00 100%
+        #7A6FF0 50%,
+        #E8A06A 100%
     );
 
     background-size: 200% 200%;  /* 🔥 key fix */
@@ -418,7 +417,7 @@ st.markdown("""
 
 
 st.markdown("""
-<div style="padding: 40px 0 30px 0; text-align:center;">
+<div style="padding: 90px 0 70px 0; text-align:center;">
     <div class="hero-title">Global Job Aggregator</div>
     <div class="hero-subtitle">Search smarter. Apply faster.</div>
 </div>
