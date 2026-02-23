@@ -8,7 +8,7 @@ import pandas as pd
 import re
 from datetime import datetime, timedelta
 from info_panel import show_getting_started_panel
-
+st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
 
 if "search_triggered" not in st.session_state:
     st.session_state["search_triggered"] = False
@@ -120,14 +120,16 @@ st.markdown("""
 
 /* ===== REMOVE ALL STREAMLIT TOP SPACERS ===== */
 
-/* Top toolbar strip */
-div[data-testid="stToolbar"] {
-    display: none !important;
+
+/* Keep toolbar but remove spacing */
+header[data-testid="stHeader"] {
+    background: transparent !important;
+    height: 0px !important;
 }
 
-/* Header container */
-header[data-testid="stHeader"] {
-    display: none !important;
+/* Keep sidebar toggle visible */
+button[kind="header"] {
+    display: block !important;
 }
 
 /* Top decoration spacer */
