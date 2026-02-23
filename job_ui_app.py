@@ -121,182 +121,71 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap');
 
-/* ===== REMOVE ALL STREAMLIT TOP SPACERS ===== */
-
-/* SAFE HEADER FIX — keeps sidebar toggle alive */
-header[data-testid="stHeader"] {
-    background: transparent !important;
-    border-bottom: none !important;
-    height: auto !important;
-}
-
-/* Ensure sidebar toggle is visible */
-button[kind="header"] {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-
-/* Remove extra top padding */
-.block-container {
-    padding-top: 0rem !important;
-}
-
-.stApp {
-    background: linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 50%, #fff7ed 100%);
-    font-family: 'Inter', sans-serif;
-}
-
-/* 🔥 REMOVE STREAMLIT TOP HEADER SPACE */
-
-
-/* Remove extra top padding created by it */
-[data-testid="stAppViewContainer"] {
-    padding-top: 0rem !important;
-}
-
-
-#-------------------------------------------Animations Effects starts----------------------------------------------
-/* ============================= */
-/* PREMIUM STICKY HEADER */
-/* ============================= */
-
-
-/* ============================= */
-/* ANIMATED GRADIENT TITLE */
-/* ============================= */
-
-.hero-title {
-    position: relative;
-    display: inline-block;
-    overflow: hidden;
-    width: 100%;
-    text-align: center;
-
-    font-size: 60px;   /* 🔥 increased */
-    font-weight: 800;
-    letter-spacing: -1px;
-
-    background: linear-gradient(
-        90deg,
-        #4F6CF7 0%,
-        #7A6FF0 40%,
-        #FF5EDF 70%,
-        #FF8A00 100%
-    );
-
-    background-size: 200% 200%;  /* 🔥 key fix */
-
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-
-    animation: gradientFlow 8s ease infinite;  /* smoother */
-}
-
-/* Gradient animation */
-@keyframes gradientFlow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-/* ============================= */
-/* SHIMMER EFFECT */
-/* ============================= */
-
-.hero-title::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -120%;
-    width: 120%;
-    height: 100%;
-
-    background: linear-gradient(
-        120deg,
-        transparent,
-        rgba(255,255,255,0.7),
-        transparent
-    );
-
-    animation: shimmer 6s infinite;
-}
-
-@keyframes shimmer {
-    0% { left: -120%; }
-    100% { left: 120%; }
-}
-
-/* ============================= */
-/* RESPONSIVE MOBILE SCALING */
-/* ============================= */
-
-@media (max-width: 768px) {
-    .hero-title {
-        font-size: 32px;
-    }
-    .hero-subtitle {
-        font-size: 14px;
-    }
-}
-
-/* ============================= */
-/* SIDEBAR-AWARE CENTERING */
-/* ============================= */
-
-[data-testid="stSidebar"][aria-expanded="true"] ~ div .hero-title {
-    margin-left: 0;
-}
-#-----------------------------Animation effects ends------------------------------------------------
-
-/* REMOVE STREAMLIT DEFAULT TOP GAP */
+/* 1. TOP SPACE REDUCTION (Keeping your fix) */
 .block-container {
     padding-top: 0rem !important;
     padding-bottom: 2rem !important;
 }
-
-section.main > div {
-    padding-top: 0rem !important;
+header[data-testid="stHeader"] {
+    background: transparent !important;
+    height: 0px !important;
 }
-
 [data-testid="stAppViewContainer"] {
     padding-top: 0rem !important;
 }
 
-[data-testid="stAppViewContainer"] > .main {
-    padding-top: 0rem !important;
-}
+/* 2. RESTORING START-OF-DAY FONT & COLORS */
+.hero-title {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 52px !important;    /* Exact original size */
+    font-weight: 800 !important;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    text-align: center;
+    margin: 0 auto;
 
+    /* Exact Original Gradient Colors */
+    background: linear-gradient(
+        90deg,
+        #4F6CF7 0%,
+        #7A6FF0 50%,
+        #E8A06A 100%
+    );
 
-/* SIDEBAR STYLING */
-section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #6A5AE0, #B983FF);
-    color: white;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    /* Removed the shimmer and flow that was washing out the color */
 }
-section[data-testid="stSidebar"] * {
-    color: white !important;
-}
-
 
 .hero-subtitle {
     font-family: 'Inter', sans-serif;
     font-size: 18px;
     color: #475569;
-    margin-top: 14px;
+    margin-top: 10px;
+    text-align: center;
 }
 
-/* BUTTONS */
-.stButton>button {
-    background: linear-gradient(135deg, #FF5EDF, #FF8A00);
-    color: white;
+/* 3. SIDEBAR & APP STYLING */
+.stApp {
+    background: linear-gradient(135deg, #f5f3ff 0%, #fdf2f8 50%, #fff7ed 100%);
+}
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #6A5AE0, #B983FF) !important;
+}
+section[data-testid="stSidebar"] * {
+    color: white !important;
+}
+
+/* 4. BUTTONS & CARDS */
+.stButton>button, .apply-btn {
+    background: linear-gradient(135deg, #FF5EDF, #FF8A00) !important;
+    color: white !important;
     border-radius: 14px;
-    padding: 10px 20px;
     font-weight: 600;
     border: none;
     box-shadow: 0 8px 20px rgba(255, 94, 223, 0.35);
 }
-
-/* JOB CARDS */
 .job-card {
     background: rgba(255,255,255,0.92);
     border-radius: 18px;
@@ -304,31 +193,34 @@ section[data-testid="stSidebar"] * {
     box-shadow: 0 15px 35px rgba(0,0,0,0.08);
     margin-bottom: 22px;
 }
-.job-title { font-size: 18px; font-weight: 700; color: #1F2937; margin-bottom: 4px; }
-.job-company { font-size: 14px; color: #6B7280; margin-bottom: 6px; }
-.job-location { font-size: 13px; color: #374151; margin-bottom: 10px; }
 
-.badge {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 600;
-}
-.badge-remote { background: linear-gradient(135deg, #6A5AE0, #B983FF); color: white; }
-.badge-hybrid { background: linear-gradient(135deg, #00C9A7, #92FE9D); color: #064E3B; }
-.badge-onsite { background: #E5E7EB; color: #374151; }
-
-.apply-btn {
-    background: linear-gradient(135deg, #FF5EDF, #FF8A00);
+/* 5. UI COMPONENTS (Expander, Download, Labels) */
+[data-testid="stExpander"] details > summary {
+    background: linear-gradient(135deg, #FF5EDF, #FF8A00) !important;
     color: white !important;
-    padding: 8px 16px;
-    border-radius: 12px;
+    border-radius: 10px;
     font-weight: 600;
-    text-decoration: none;
+}
+.download-btn button {
+    background: linear-gradient(135deg, #00C9A7, #92FE9D) !important;
+    color: #064E3B !important;
+}
+.form-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #4F46E5;
 }
 
+/* MOBILE SCALING */
+@media (max-width: 768px) {
+    .hero-title { font-size: 32px !important; }
+}
 </style>
+
+<div style="padding: 40px 0 20px 0; text-align:center;">
+    <div class="hero-title">Global Job Aggregator</div>
+    <div class="hero-subtitle">Search smarter. Apply faster.</div>
+</div>
 """, unsafe_allow_html=True)
 
 
