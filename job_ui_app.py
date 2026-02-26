@@ -558,13 +558,20 @@ else:
         
         st.markdown('</div>', unsafe_allow_html=True)
     
-        
-        st.markdown(
-            """
-            ---
-            [Terms](https://avantara.co.in/terms) |
-            [Privacy](https://avantara.co.in/privacy) |
-            [Refund](https://avantara.co.in/refund)
-            """,
-            unsafe_allow_html=True
-        )
+
+# ================= GLOBAL FOOTER =================
+
+st.markdown(
+    """
+    <hr style="margin-top:50px;margin-bottom:20px;">
+    <div style="text-align:center;font-size:14px;color:#6b7280;">
+        <b>Legal:</b>
+        <a href="https://avantara.co.in/terms" target="_blank">Terms</a> |
+        <a href="https://avantara.co.in/privacy" target="_blank">Privacy</a> |
+        <a href="https://avantara.co.in/refund" target="_blank">Refund</a>
+        <br><br>
+        © 2026 Avantara
+    </div>
+    """,
+    unsafe_allow_html=True
+)
