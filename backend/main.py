@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from backend.engine.fetchers import initialize_active_key
-from backend.routes.legal_pages import router as legal_router
+from routes.legal_pages import router as legal_router
 
 app.include_router(legal_router)
 
