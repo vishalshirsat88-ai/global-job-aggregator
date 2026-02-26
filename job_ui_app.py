@@ -559,3 +559,12 @@ else:
         st.markdown('</div>', unsafe_allow_html=True)
     
         
+        st.markdown(
+            """
+            ---
+            [Terms](https://avantara.co.in/terms) |
+            [Privacy](https://avantara.co.in/privacy) |
+            [Refund](https://avantara.co.in/refund)
+            """,
+            unsafe_allow_html=True
+        )
