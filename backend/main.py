@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.engine.fetchers import initialize_active_key
 from backend.routes.legal_pages import router as legal_router
 
-app.include_router(legal_router)
+
 
 import os
 import uuid
@@ -32,6 +32,8 @@ app = FastAPI(
     title="Global Job Aggregator API",
     version="1.0.0"
 )
+
+app.include_router(legal_router)
 
 # ===============================
 # STATIC + LANDING PAGE
