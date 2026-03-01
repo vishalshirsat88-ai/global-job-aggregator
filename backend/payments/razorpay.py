@@ -38,14 +38,16 @@ def get_client():
     return razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
 
+
 # ===============================
 # CREATE ORDER
 # ===============================
 @router.post("/create-order")
-def create_order(amount: int, email: str):
+def create_order(email: str):
 
     client = get_client()
-
+    amount = 5   # ₹5 = 500 paise
+    
     try:
         order_data = {
             "amount": amount,
