@@ -184,7 +184,7 @@ def filter_and_rank_jobs(rows, skills, levels, countries, locations, top_n=50):
         api = str(job.get("API") or "").lower()
     
         # Jooble stricter threshold
-        threshold = 40 if api == "jooble" else 30
+        threshold = 70 if api == "jooble" else 30
 
         if score >= threshold:   # Quality threshold
             print("✅ KEPT:", job.get("Title"), "Score:", score)
