@@ -73,7 +73,7 @@ def create_order(email: str):
         "intent": "CAPTURE",
         "purchase_units": [
             {
-                "amount": {"currency_code": "USD", "value": "0.60"},
+                "amount": {"currency_code": "USD", "value": "0.10"},
                 "custom_id": email
             }
         ],
