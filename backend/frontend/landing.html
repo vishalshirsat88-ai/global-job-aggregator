@@ -207,6 +207,7 @@
         }
 
         .video-card {
+            cursor: pointer;
             border-radius: 20px;
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -227,14 +228,10 @@
             position: relative;
         }
 
-        .video-placeholder video {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
+        
         .demo-video {
             width: 100%;
+            cursor: pointer;
             height: auto;
             display: block;
         }
@@ -246,6 +243,9 @@
             background: linear-gradient(transparent, rgba(0,0,0,0.8));
         }
         .play-btn {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            animation: playPulse 2s infinite;
             width: 50px;
             height: 50px;
             background: white;
@@ -256,6 +256,25 @@
             color: black;
             z-index: 10;
             box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+
+        @keyframes playPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+            100% { transform: scale(1); }
+        }
+        
+        .video-card:hover .play-btn {
+            opacity: 1;
+        }
+
+        .video-placeholder video {
+            transition: transform 0.4s ease;
+        }
+        
+        .video-card:hover video {
+            transform: scale(1.03);
+            transition: transform 0.4s ease;
         }
 
         @keyframes shake {
@@ -529,7 +548,43 @@
             color: #ddd;
         }
 
+        /* VIDEO POPUP MODAL */
 
+        .video-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100000;
+        }
+        
+        .video-modal.hidden {
+            display: none;
+        }
+        
+        .video-modal-content {
+            position: relative;
+            width: min(1100px, 90vw);
+        }
+        
+        .video-modal video {
+            width: 100%;
+            border-radius: 14px;
+        }
+        
+        .video-close {
+            position: absolute;
+            top: -32px;
+            right: 0;
+            background: none;
+            border: none;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
 
     </style>
 </head>
@@ -714,6 +769,7 @@
                     <div class="video-placeholder">
                         <video
                         class="demo-video"
+                        data-video="videos/dashboard.webm"
                         muted
                         loop
                         playsinline
@@ -723,6 +779,9 @@
                         poster="images/dashboard-preview.jpg">
                             <source src="videos/dashboard.webm" type="video/webm">
                         </video>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="play-btn">▶</div>
+                        </div>
                     </div>
                     <div class="p-6">
                         <h4 class="font-bold text-lg mb-2">Smart Dashboard</h4>
@@ -733,6 +792,7 @@
                     <div class="video-placeholder">
                         <video
                         class="demo-video"
+                        data-video="videos/filters.webm"
                         muted
                         loop
                         playsinline
@@ -742,6 +802,9 @@
                         poster="images/filters-preview.jpg">
                             <source src="videos/filters.webm" type="video/webm">
                         </video>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="play-btn">▶</div>
+                        </div>
                     </div>
                     <div class="p-6">
                         <h4 class="font-bold text-lg mb-2">Power Filters</h4>
@@ -752,6 +815,7 @@
                     <div class="video-placeholder">
                         <video
                         class="demo-video"
+                        data-video="videos/instant-apply.webm"
                         muted
                         loop
                         playsinline
@@ -761,6 +825,9 @@
                         poster="images/apply-preview.jpg">
                             <source src="videos/instant-apply.webm" type="video/webm">
                         </video>
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="play-btn">▶</div>
+                        </div>
                     </div>
                     <div class="p-6">
                         <h4 class="font-bold text-lg mb-2">Instant Apply</h4>
@@ -1044,7 +1111,6 @@
                     |
                     <a href="/refund" target="_blank" style="margin:0 10px;">Refund</a>
                 </div>
-            
             </div>
     </footer>
 
@@ -1082,7 +1148,26 @@
         </div>
     </div>
 
+<!-- VIDEO POPUP MODAL -->
+<div id="video-modal" class="video-modal hidden">
 
+    <div class="video-modal-content">
+
+        <button id="video-close" class="video-close">✕</button>
+
+        <video
+            id="modal-video"
+            controls
+            playsinline
+            preload="metadata"
+        >
+            <source id="modal-source" src="" type="video/webm">
+        </video>
+
+    </div>
+
+</div>
+    
 <script>
 lucide.createIcons();
 
@@ -1097,10 +1182,22 @@ let FORCE_PAYPAL_TEST = false; // TEMPORARY — set false after testing
 COUNTRY DETECTION
 =============================== */
 async function detectUserCountry() {
+
+    const cached = localStorage.getItem("user_country");
+
+    if (cached) {
+        userCountry = cached;
+        return;
+    }
+
     try {
         const res = await fetch("https://ipapi.co/json/");
         const data = await res.json();
-        if (data.country_code) userCountry = data.country_code;
+
+        if (data.country_code) {
+            userCountry = data.country_code;
+            localStorage.setItem("user_country", userCountry);
+        }
     } catch {}
 }
 detectUserCountry();
@@ -1395,9 +1492,76 @@ videos.forEach(video => {
     videoObserver.observe(video);
 });
 
+/* ===============================
+VIDEO POPUP MODAL
+=============================== */
+
+const modal = document.getElementById("video-modal");
+const modalVideo = document.getElementById("modal-video");
+const modalSource = document.getElementById("modal-source");
+const closeBtn = document.getElementById("video-close");
+
+/* click video card */
+
+document.querySelectorAll(".video-card").forEach(card => {
+
+    const video = card.querySelector(".demo-video");
+
+    card.addEventListener("click", () => {
+
+        const src = video.dataset.video;
+
+        videos.forEach(v => v.pause()); // pause all previews
+
+        modalSource.src = src;
+        modalVideo.load();
+
+        modal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+        document.body.style.touchAction = "none";
+
+        setTimeout(() => {
+            modalVideo.play().catch(()=>{});
+        }, 150);
+
+    });
+
+});
+
+/* ESC close */
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !modal.classList.contains("hidden")) {
+        closeModal();
+    }
+});
+
+function closeModal() {
+    modal.classList.add("hidden");
+    modalVideo.pause();
+
+    modalSource.src = "";
+    modalVideo.load();
+
+    document.body.style.overflow = "";
+    document.body.style.touchAction = "";
+
+    videos.forEach(v => videoObserver.observe(v));
+}
+
+
+closeBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeModal();
+});
+
+/* click outside */
+
+modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+});
 
 </script>
-
 
 </body>
 
