@@ -65,6 +65,35 @@
             background: #333;
         }
 
+        /* ===============================
+        CTA ATTENTION PULSE
+        =============================== */
+        
+        @keyframes ctaPulse {
+            0% {
+                box-shadow: 0 0 0 rgba(124,58,237,0);
+                transform: translateY(0);
+            }
+        
+            50% {
+                box-shadow: 0 0 30px rgba(124,58,237,0.55);
+                transform: translateY(-2px);
+            }
+        
+            100% {
+                box-shadow: 0 0 0 rgba(124,58,237,0);
+                transform: translateY(0);
+            }
+        }
+        
+        .cta-attention {
+            animation: ctaPulse 3.8s ease-in-out infinite;
+        }
+        
+        .cta-attention:hover {
+            animation: none;
+        }
+        
         .active-pill {
             background: rgba(16, 185, 129, 0.05);
             border: 1px solid rgba(16, 185, 129, 0.2);
@@ -197,6 +226,14 @@
             align-items: center;
             justify-content: center;
         }
+
+        .video-placeholder video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
         .video-glow {
             position: absolute;
             width: 100%;
@@ -539,7 +576,7 @@
             <p class="mt-4 font-medium text-indigo-400">Smart. Clean. Daily-updated. Yours for just ₹49.</p>
         </div>
 
-        <button id="hero-cta" onclick="handlePaymentClick()" class="premium-button px-10 py-5 rounded-2xl text-xl font-extrabold flex items-center gap-3 mx-auto">
+        <button id="hero-cta" onclick="handlePaymentClick()" class="premium-button cta-attention px-10 py-5 rounded-2xl text-xl font-extrabold flex items-center gap-3 mx-auto">
             Unlock Access Now →
         </button>
     </header>
@@ -670,8 +707,17 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="video-card reveal">
                     <div class="video-placeholder">
-                        <div class="video-glow"></div>
-                        <div class="play-btn"><i data-lucide="play" fill="currentColor"></i></div>
+                        <video
+                        class="demo-video"
+                        muted
+                        loop
+                        playsinline
+                        preload="none"
+                        controlsList="nodownload noplaybackrate"
+                        disablePictureInPicture
+                        poster="images/dashboard-preview.jpg">
+                            <source src="videos/dashboard.webm" type="video/webm">
+                        </video>
                     </div>
                     <div class="p-6">
                         <h4 class="font-bold text-lg mb-2">Smart Dashboard</h4>
@@ -680,8 +726,17 @@
                 </div>
                 <div class="video-card reveal" style="transition-delay: 100ms;">
                     <div class="video-placeholder">
-                        <div class="video-glow"></div>
-                        <div class="play-btn"><i data-lucide="play" fill="currentColor"></i></div>
+                        <video
+                        class="demo-video"
+                        muted
+                        loop
+                        playsinline
+                        preload="none"
+                        controlsList="nodownload noplaybackrate"
+                        disablePictureInPicture
+                        poster="images/dashboard-preview.jpg">
+                            <source src="videos/filters.webm" type="video/webm">
+                        </video>
                     </div>
                     <div class="p-6">
                         <h4 class="font-bold text-lg mb-2">Power Filters</h4>
@@ -690,8 +745,17 @@
                 </div>
                 <div class="video-card reveal" style="transition-delay: 200ms;">
                     <div class="video-placeholder">
-                        <div class="video-glow"></div>
-                        <div class="play-btn"><i data-lucide="play" fill="currentColor"></i></div>
+                        <video
+                        class="demo-video"
+                        muted
+                        loop
+                        playsinline
+                        preload="none"
+                        controlsList="nodownload noplaybackrate"
+                        disablePictureInPicture
+                        poster="images/dashboard-preview.jpg">
+                            <source src="videos/instant-apply.webm" type="video/webm">
+                        </video>
                     </div>
                     <div class="p-6">
                         <h4 class="font-bold text-lg mb-2">Instant Apply</h4>
@@ -912,9 +976,9 @@
             </div>
 
             <button 
-                id="cta-pay-button"
-                onclick="handlePaymentClick()"
-                class="premium-button px-16 py-8 rounded-[2rem] text-2xl md:text-3xl font-black transition-transform active:scale-95 flex items-center justify-center gap-4 mx-auto w-full max-w-lg mb-6"
+            id="cta-pay-button"
+            onclick="handlePaymentClick()"
+            class="premium-button cta-attention px-16 py-8 rounded-[2rem] text-2xl md:text-3xl font-black transition-transform active:scale-95 flex items-center justify-center gap-4 mx-auto w-full max-w-lg mb-6"
             >
                 Unlock Lifetime Access Now
             </button>
@@ -1064,17 +1128,20 @@ function scrollToEmailSection() {
 
 
 function setButtonLoading(state) {
-    const btn = document.getElementById("cta-pay-button");
-    if (!btn) return;
+    const buttons = document.querySelectorAll(
+        "#cta-pay-button, #hero-cta, .sticky-button, .nav-cta-animated"
+    );
 
-    if (state) {
-        btn.disabled = true;
-        btn.dataset.txt = btn.innerHTML;
-        btn.innerHTML = "Processing...";
-    } else {
-        btn.disabled = false;
-        btn.innerHTML = btn.dataset.txt;
-    }
+    buttons.forEach(btn => {
+        if (state) {
+            btn.disabled = true;
+            btn.dataset.txt = btn.innerHTML;
+            btn.innerHTML = "Processing...";
+        } else {
+            btn.disabled = false;
+            if (btn.dataset.txt) btn.innerHTML = btn.dataset.txt;
+        }
+    });
 }
 
 function validateEmail() {
@@ -1140,7 +1207,7 @@ async function handlePaymentClick() {
     /* NON INDIA → PAYPAL FIRST */
     
     if (FORCE_PAYPAL_TEST || userCountry !== "IN") {
-        handlePaypalPayment();
+        await handlePaypalPayment();
         return;
     }
 
@@ -1301,6 +1368,27 @@ if (track) {
     }, 3500);
 }
 
+/* ===============================
+VIDEO AUTOPLAY ON VIEW
+=============================== */
+
+const videos = document.querySelectorAll(".demo-video");
+
+const videoObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        const video = entry.target;
+
+        if (entry.isIntersecting) {
+            video.play().catch(()=>{});
+        } else {
+            video.pause();
+        }
+    });
+}, { threshold: 0.4 });
+
+videos.forEach(video => {
+    videoObserver.observe(video);
+});
 
 
 </script>
