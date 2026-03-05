@@ -40,6 +40,10 @@ app.include_router(legal_router)
 # ===============================
 app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
+# ADD THESE TWO LINES
+app.mount("/videos", StaticFiles(directory=os.path.join(FRONTEND_DIR, "videos")), name="videos")
+app.mount("/images", StaticFiles(directory=os.path.join(FRONTEND_DIR, "images")), name="images")
+
 @app.get("/", response_class=HTMLResponse)
 def serve_landing():
     with open(os.path.join(FRONTEND_DIR, "landing.html"), "r", encoding="utf-8") as f:
