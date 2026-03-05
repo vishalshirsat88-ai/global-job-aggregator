@@ -702,71 +702,62 @@
         </div>
 
         <div class="pt-10">
-            <div class="text-center mb-16">
-                <h2 class="heading-font text-3xl md:text-5xl font-bold mb-4">See It In Action</h2>
-                <p class="text-gray-400">Zero fluff. Just pure speed and efficiency.</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="video-card reveal">
-                    <div class="video-placeholder">
-                        <video
-                        class="demo-video"
-                        muted
-                        loop
-                        playsinline
-                        preload="metadata"
-                        controlsList="nodownload noplaybackrate"
-                        disablePictureInPicture
-                        poster="images/dashboard-preview.jpg">
-                            <source src="videos/dashboard.webm" type="video/webm">
-                        </video>
-                    </div>
-                    <div class="p-6">
-                        <h4 class="font-bold text-lg mb-2">Smart Dashboard</h4>
-                        <p class="text-sm text-gray-400">One interface to rule all job portals.</p>
-                    </div>
-                </div>
-                <div class="video-card reveal" style="transition-delay: 100ms;">
-                    <div class="video-placeholder">
-                        <video
-                        class="demo-video"
-                        muted
-                        loop
-                        playsinline
-                        preload="metadata"
-                        controlsList="nodownload noplaybackrate"
-                        disablePictureInPicture
-                        poster="images/filters-preview.jpg">
-                            <source src="videos/filters.webm" type="video/webm">
-                        </video>
-                    </div>
-                    <div class="p-6">
-                        <h4 class="font-bold text-lg mb-2">Power Filters</h4>
-                        <p class="text-sm text-gray-400">Find jobs by skill, not just keywords.</p>
-                    </div>
-                </div>
-                <div class="video-card reveal" style="transition-delay: 200ms;">
-                    <div class="video-placeholder">
-                        <video
-                        class="demo-video"
-                        muted
-                        loop
-                        playsinline
-                        preload="metadata"
-                        controlsList="nodownload noplaybackrate"
-                        disablePictureInPicture
-                        poster="images/apply-preview.jpg">
-                            <source src="videos/instant-apply.webm" type="video/webm">
-                        </video>
-                    </div>
-                    <div class="p-6">
-                        <h4 class="font-bold text-lg mb-2">Instant Apply</h4>
-                        <p class="text-sm text-gray-400">Save 2 hours every single day.</p>
-                    </div>
-                </div>
-            </div>
+        <div class="text-center mb-16">
+            <h2 class="heading-font text-3xl md:text-5xl font-bold mb-4">See It In Action</h2>
+            <p class="text-gray-400">Zero fluff. Just pure speed and efficiency.</p>
         </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+            
+            <div class="glass-card rounded-2xl border border-white/10 overflow-hidden flex flex-col h-full reveal">
+                <div class="relative aspect-video w-full bg-black">
+                    <video 
+                        class="w-full h-full object-cover" 
+                        poster="images/dashboard-preview.jpg" 
+                        preload="metadata" 
+                        muted loop playsinline>
+                        <source src="videos/dashboard.webm" type="video/webm">
+                    </video>
+                </div>
+                <div class="p-6 bg-[#0f0f0f] flex-grow">
+                    <h4 class="text-xl font-bold text-white mb-2">Smart Dashboard</h4>
+                    <p class="text-sm text-gray-400">One interface to rule all job portals.</p>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl border border-white/10 overflow-hidden flex flex-col h-full reveal" style="transition-delay: 100ms;">
+                <div class="relative aspect-video w-full bg-black">
+                    <video 
+                        class="w-full h-full object-cover" 
+                        poster="images/filters-preview.jpg" 
+                        preload="metadata" 
+                        muted loop playsinline>
+                        <source src="videos/filters.webm" type="video/webm">
+                    </video>
+                </div>
+                <div class="p-6 bg-[#0f0f0f] flex-grow">
+                    <h4 class="text-xl font-bold text-white mb-2">Power Filters</h4>
+                    <p class="text-sm text-gray-400">Find jobs by skill, not just keywords.</p>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl border border-white/10 overflow-hidden flex flex-col h-full reveal" style="transition-delay: 200ms;">
+                <div class="relative aspect-video w-full bg-black">
+                    <video 
+                        class="w-full h-full object-cover" 
+                        poster="images/apply-preview.jpg" 
+                        preload="metadata" 
+                        muted loop playsinline>
+                        <source src="videos/instant-apply.webm" type="video/webm">
+                    </video>
+                </div>
+                <div class="p-6 bg-[#0f0f0f] flex-grow">
+                    <h4 class="text-xl font-bold text-white mb-2">Instant Apply</h4>
+                    <p class="text-sm text-gray-400">Save 2 hours every single day.</p>
+                </div>
+            </div>
+
+        </div> </div>
     </section>
 
     <!-- TESTIMONIALS -->
