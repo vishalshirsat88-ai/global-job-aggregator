@@ -769,6 +769,7 @@
                     <div class="video-placeholder">
                         <video
                         class="demo-video"
+                        loading="lazy"
                         data-video="videos/dashboard.webm"
                         muted
                         loop
@@ -792,6 +793,7 @@
                     <div class="video-placeholder">
                         <video
                         class="demo-video"
+                        loading="lazy"
                         data-video="videos/filters.webm"
                         muted
                         loop
@@ -815,6 +817,7 @@
                     <div class="video-placeholder">
                         <video
                         class="demo-video"
+                        loading="lazy"
                         data-video="videos/instant-apply.webm"
                         muted
                         loop
@@ -942,7 +945,9 @@
                 <div class="glass-card p-10 rounded-3xl border-indigo-500/50 relative overflow-hidden">
                     <div class="absolute top-0 right-0 bg-indigo-500 px-4 py-1 text-xs font-bold">SMART CHOICE</div>
                     <h4 class="text-2xl font-bold mb-6 text-white">JobHunt++</h4>
-                    <div class="text-5xl font-black text-white mb-2">₹49.</div>
+                    <div class="text-5xl font-black text-white mb-2">
+                    ₹49 <span class="text-lg text-gray-500 line-through ml-2">₹199</span>
+                    </div>
                     <p class="text-indigo-300 font-bold mb-8 italic">That’s it.</p>
                     <p class="text-sm font-bold text-white mb-4 uppercase">And you get…</p>
                     <ul class="space-y-2 text-gray-300 text-sm">
@@ -1177,7 +1182,7 @@ GLOBAL STATE
 let userCountry = "IN";
 //let userCountry = "US";
 let FORCE_PAYPAL_TEST = false; // TEMPORARY — set false after testing
-
+let paymentStarted = false;
 /* ===============================
 COUNTRY DETECTION
 =============================== */
@@ -1305,7 +1310,8 @@ async function handlePaymentClick() {
     if (!email) return;
 
     setButtonLoading(true);
-
+    paymentStarted = true;
+    
     /* NON INDIA → PAYPAL FIRST */
     
     if (FORCE_PAYPAL_TEST || userCountry !== "IN") {
@@ -1345,7 +1351,12 @@ async function handlePaymentClick() {
                 }
             },
 
-            modal: { ondismiss: () => setButtonLoading(false) }
+            modal: { 
+                ondismiss: () => {
+                    setButtonLoading(false);
+                    paymentStarted = false;
+                }
+            }
         };
 
         new Razorpay(options).open();
@@ -1422,7 +1433,7 @@ const exitPopup = document.getElementById("exit-popup");
 
 /* DESKTOP EXIT DETECTION */
 document.addEventListener("mouseout", (e) => {
-    if (exitShown) return;
+    if (exitShown || paymentStarted) return;
 
     if (e.clientY <= 0) {
         showExitPopup();
@@ -1435,7 +1446,7 @@ let lastScroll = window.scrollY;
 window.addEventListener("scroll", () => {
     const current = window.scrollY;
 
-    if (!exitShown && current < lastScroll - 50 && current < 200) {
+    if (!exitShown && !paymentStarted && current < lastScroll - 50 && current < 200) {
         showExitPopup();
     }
 
@@ -1546,7 +1557,11 @@ function closeModal() {
     document.body.style.overflow = "";
     document.body.style.touchAction = "";
 
-    videos.forEach(v => videoObserver.observe(v));
+    videos.forEach(v => {
+        if (v.getBoundingClientRect().top < window.innerHeight) {
+            v.play().catch(()=>{});
+        }
+    });
 }
 
 
