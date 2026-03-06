@@ -1015,13 +1015,16 @@
 
 
     <footer id="unlock-section" class="py-40 px-6 text-center relative border-t border-white/5 bg-[#080808]">
-        <div class="max-w-4xl mx-auto">
+        <div class="max-w-6xl mx-auto">
+
+        <div class="grid md:grid-cols-2 gap-12 items-start text-left">    
+        <div>
             <h2 class="heading-font text-3xl md:text-5xl font-bold mb-10 text-white leading-tight">You Spend ₹49 On Snacks/Junk. <br> <span class="neon-green">But This, Could Change Your Career.</span></h2>
             
             <p class="text-xl text-gray-400 mb-10">We don’t sell dreams. We help you find the ones already hiring.</p>
             <p class="text-xl font-bold mb-12 text-gray-200">
                 Act now — this ₹49 launch price is LIVE only for 24 hrs. <br> 
-                <span class="flex flex-wrap justify-center gap-x-4">
+                <span class="flex flex-wrap gap-x-4">
                     <span class="text-red-600">Tomorrow? ₹99.</span>
                     <span class="text-red-700">Week later? ₹199.</span>
                 </span>
@@ -1036,7 +1039,7 @@
                         type="email" 
                         id="user-email" 
                         placeholder="e.g. yourname@gmail.com"
-                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-lg focus:border-indigo-500 focus:bg-white/10 outline-none transition-all text-center"
+                        class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-white text-lg focus:border-indigo-500 focus:bg-white/10 outline-none transition-all text-left"
                     >
 
                     <p id="email-error" class="text-red-500 text-sm mt-2 hidden">
@@ -1047,13 +1050,15 @@
                 <div class="text-left bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl flex items-start gap-3">
                     <i data-lucide="info" class="w-4 h-4 text-indigo-400 mt-1 flex-shrink-0"></i>
                     <p class="text-xs text-indigo-200">
-                        <span class="font-bold uppercase tracking-tighter text-indigo-300">Note:</span> Use a real email ID. Post-payment access to the tool and bonuses will be granted to this exact address.
+                        <span class="font-bold uppercase tracking-tighter text-indigo-300">Note:</span> Your access link and bonuses will be sent to this exact email address.
                     </p>
                 </div>
             </div>
 
-            <div class="mb-10 text-left max-w-xl mx-auto bg-white/[0.03] border border-white/10 rounded-2xl p-6">
+            </div> <!-- LEFT COLUMN END -->
 
+            <div class="bg-white/[0.03] border border-white/10 rounded-2xl p-8">
+            
             <p class="font-bold text-white mb-4 text-center text-lg">
             What You Get Today
             </p>
@@ -1075,15 +1080,21 @@
             <li>✔ HR Interview Q&A Guide</li>
             </ul>
             
-            </div>
+            </div> <!-- RIGHT COLUMN -->
+          
+
+            </div>  <!-- grid -->
+            <div class="mt-10"></div>
+            <div class="md:col-span-2 order-2 md:order-none">
             
             <button 
             id="cta-pay-button"
             onclick="handlePaymentClick()"
             class="premium-button cta-attention px-16 py-8 rounded-[2rem] text-2xl md:text-3xl font-black transition-transform active:scale-95 flex items-center justify-center gap-4 mx-auto w-full max-w-lg mb-6"
             >
-                Unlock Lifetime Access Now
+            Unlock Lifetime Access Now
             </button>
+            </div>
 
             <!-- PayPal Button Container -->
             <p class="text-sm text-gray-400 mt-4">
