@@ -421,7 +421,7 @@ skills = [s.strip() for s in skills_input.split(",") if s.strip()]
 
 # LEVELS (OPTIONAL)
 st.markdown('<div class="form-label">🎯 Levels (Optional)</div>', unsafe_allow_html=True)
-st.caption("Multi levels - comma separated. Eg: Associate, Senior Developer, Manager")
+st.caption("Multi levels - comma separated. Eg: Associate, Developer, Manager")
 levels_input = st.text_input(
     "Levels",
     "",
