@@ -33,11 +33,11 @@ Just:
 
 ---
 
-### 🎁 Your Free Perks
-- Lifetime access (one-time payment)  
-- Global job aggregation  
-- Smart skill expansion  
-- Excel export with links  
+### 🎁 Your Bonus Career Kit (Included)
+
+✔ 25 Resume Templates  
+✔ 20 Cover Letter Templates  
+✔ HR Interview Q&A Guide 
 
 ---
 
