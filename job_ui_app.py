@@ -2,10 +2,14 @@ from access_lock import verify_access
 
 verify_access()
 
+if "token" not in st.session_state:
+    st.session_state["token"] = st.query_params.get("token")
+    
 import streamlit as st
 import requests
 import pandas as pd
 import re
+from urllib.parse import quote
 from datetime import datetime, timedelta
 from info_panel import show_getting_started_panel
 st.set_page_config(
@@ -379,10 +383,18 @@ posted_days = st.slider(
     on_change=clear_results
 )
 # If the user changes inputs, clear old results so they don't see "ghost" data
-if st.sidebar.button("Clear Results"):
-    st.session_state["search_triggered"] = False
-    st.session_state["jobs_df"] = None
-    st.rerun()
+# 🎁 BONUS CAREER KIT DOWNLOAD
+token = st.session_state.get("token")
+
+if token:
+    download_link = f"{BACKEND_URL}/download/bonus-kit?token={quote(token)}"
+
+    st.sidebar.markdown("### 🎁 Bonus Career Kit")
+
+    st.sidebar.link_button(
+        "Download Resume + Cover Letter Kit",
+        download_link
+    )
 
 # ---------- ACTION BAR ----------
 col_run, col_toggle, col_dl = st.columns([2, 3, 2])
