@@ -41,16 +41,16 @@ Just:
 ✔ HR Interview Q&A Guide
 """)
 
-token = st.session_state.get("token") or st.session_state.get("access_token")
-
-if token:
-    download_link = f"https://global-job-aggregator-production.up.railway.app/download/bonus-kit?token={quote(token)}"
+    token = st.session_state.get("token") or st.session_state.get("access_token")
     
-    st.link_button(
-        "⬇ Download Bonus Career Kit",
-        download_link,
-        use_container_width=True
-    )
+    if token:
+        download_link = f"https://global-job-aggregator-production.up.railway.app/download/bonus-kit?token={quote(token)}"
+        
+        st.link_button(
+            "⬇ Download Bonus Career Kit",
+            download_link,
+            use_container_width=True
+        )
 
     st.markdown("""
 ---
