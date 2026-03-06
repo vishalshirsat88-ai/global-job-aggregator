@@ -182,11 +182,32 @@ section[data-testid="stSidebar"] * {
 }
 
 /* 4. BUTTONS & CARDS */
-.stButton>button {
+/* RUN SEARCH BUTTON */
+
+.stButton > button {
     background: linear-gradient(135deg, #FF5EDF, #FF8A00) !important;
     color: white !important;
-    border-radius: 14px;
-    font-weight: 600;
+    border-radius: 14px !important;
+    padding: 10px 22px !important;
+    font-weight: 600 !important;
+    border: none !important;
+
+    box-shadow: 0 8px 22px rgba(255, 94, 223, 0.35);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover lift */
+
+.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 32px rgba(255, 94, 223, 0.45);
+}
+
+/* Click press effect */
+
+.stButton > button:active {
+    transform: translateY(0px);
+    box-shadow: 0 6px 14px rgba(255, 94, 223, 0.35);
 }
 .job-card {
     background: rgba(255,255,255,0.92);
