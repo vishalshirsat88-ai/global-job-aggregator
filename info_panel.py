@@ -1,5 +1,5 @@
 import streamlit as st
-
+from urllib.parse import quote
 
 def show_getting_started_panel():
     st.markdown("## 🎉 Welcome to JobHunt++ — You’re All Set!")
@@ -33,7 +33,7 @@ Just:
 
 ---
 
-st.markdown("""
+
 ### 🎁 Your Bonus Career Kit (Included)
 
 ✔ 25 Resume Templates  
@@ -44,16 +44,16 @@ st.markdown("""
 token = st.session_state.get("token") or st.session_state.get("access_token")
 
 if token:
-    download_link = f"https://global-job-aggregator-production.up.railway.app/download/bonus-kit?token={token}"
-
+    download_link = f"https://global-job-aggregator-production.up.railway.app/download/bonus-kit?token={quote(token)}"
+    
     st.link_button(
         "⬇ Download Bonus Career Kit",
         download_link,
         use_container_width=True
     )
 
+    st.markdown("""
 ---
-
 ### 🔗 Refer Friends
 Share our website:
 
