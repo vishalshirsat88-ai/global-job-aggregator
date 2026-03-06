@@ -403,7 +403,7 @@ def clear_results():
 
 # SKILLS (MANDATORY)
 st.markdown('<div class="form-label">🛠 Skills *</div>', unsafe_allow_html=True)
-st.caption("Update skills (comma separated). Eg: Software, Python, Java, Testing, WFM")
+st.caption("Multi skills - comma separated. Eg: Software, Python, WFM")
 
 skills_input = st.text_input(
     "Skills",
@@ -421,7 +421,7 @@ skills = [s.strip() for s in skills_input.split(",") if s.strip()]
 
 # LEVELS (OPTIONAL)
 st.markdown('<div class="form-label">🎯 Levels (Optional)</div>', unsafe_allow_html=True)
-st.caption("Mention levels (comma separated). Eg: Associate, Senior Developer, Manager")
+st.caption("Multi levels - comma separated. Eg: Associate, Senior Developer, Manager")
 levels_input = st.text_input(
     "Levels",
     "",
@@ -439,7 +439,7 @@ levels = [l.strip() for l in levels_input.split(",") if l.strip()]
 
 # LOCATION
 st.markdown('<div class="form-label">📍 Location (City or Remote)</div>', unsafe_allow_html=True)
-st.caption("Multiple cities supported. If cities are from different countries, select those countries below. Type 'Remote' to search remote jobs.")
+st.caption("Multiple cities supported. Type 'Remote'for remote jobs.")
 location_input = st.text_input(
     "Location",
     "",
