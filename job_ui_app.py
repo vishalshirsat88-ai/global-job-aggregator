@@ -9,6 +9,12 @@ from info_panel import show_getting_started_panel
 
 verify_access()
 
+if "welcome_shown" not in st.session_state:
+    st.session_state["welcome_shown"] = True
+
+    with st.expander("⭐ Important — Please Read First", expanded=True):
+        show_getting_started_panel()
+
 if "token" not in st.session_state:
     st.session_state["token"] = st.query_params.get("token")
 
