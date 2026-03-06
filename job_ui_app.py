@@ -182,7 +182,7 @@ section[data-testid="stSidebar"] * {
 }
 
 /* 4. BUTTONS & CARDS */
-.stButton>button, .apply-btn {
+.stButton>button {
     background: linear-gradient(135deg, #FF5EDF, #FF8A00) !important;
     color: white !important;
     border-radius: 14px;
@@ -193,8 +193,33 @@ section[data-testid="stSidebar"] * {
     border-radius: 18px;
     padding: 18px;
     box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    position: relative;
+    min-height: 140px;
 }
 
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-remote {
+    background: linear-gradient(135deg, #6A5AE0, #B983FF);
+    color: white;
+}
+
+.badge-hybrid {
+    background: linear-gradient(135deg, #00C9A7, #92FE9D);
+    color: #064E3B;
+}
+
+.badge-onsite {
+    background: #E5E7EB;
+    color: #374151;
+}
 @media (max-width: 768px) {
     .hero-title { font-size: 32px !important; }
 }
@@ -206,7 +231,57 @@ section[data-testid="stSidebar"] * {
 </div>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
 
+/* JOB CARD TEXT STRUCTURE */
+
+.job-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 4px;
+}
+
+.job-company {
+    font-size: 14px;
+    color: #6B7280;
+    margin-bottom: 8px;
+}
+
+.job-location {
+    font-size: 13px;
+    color: #374151;
+    margin-bottom: 10px;
+}
+
+/* ACTION AREA */
+
+.job-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+}
+
+/* APPLY BUTTON FIX */
+
+.apply-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #FF5EDF, #FF8A00);
+    color: white !important;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(255, 94, 223, 0.35);
+}
+
+.apply-btn:hover {
+    opacity: 0.9;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 st.markdown("""
 <style>
@@ -544,7 +619,7 @@ else:
                     <div style="margin-top: 8px;">
                         <span class="badge {b_class}">{mode}</span>
                     </div>
-                    <div class="job-actions" style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                    <div class="job-actions">
                         <a class="apply-btn" href="{link}" target="_blank">Apply →</a>
                     </div>
                 </div>
