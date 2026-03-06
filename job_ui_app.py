@@ -1,17 +1,17 @@
+import streamlit as st
+import requests
+import pandas as pd
+import re
 from access_lock import verify_access
+from urllib.parse import quote
+from datetime import datetime, timedelta
+from info_panel import show_getting_started_panel
 
 verify_access()
 
 if "token" not in st.session_state:
     st.session_state["token"] = st.query_params.get("token")
-    
-import streamlit as st
-import requests
-import pandas as pd
-import re
-from urllib.parse import quote
-from datetime import datetime, timedelta
-from info_panel import show_getting_started_panel
+
 st.set_page_config(
     page_title="Global Job Aggregator",
     layout="wide",
