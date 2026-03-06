@@ -33,11 +33,24 @@ Just:
 
 ---
 
+st.markdown("""
 ### 🎁 Your Bonus Career Kit (Included)
 
 ✔ 25 Resume Templates  
 ✔ 20 Cover Letter Templates  
-✔ HR Interview Q&A Guide 
+✔ HR Interview Q&A Guide
+""")
+
+token = st.session_state.get("token") or st.session_state.get("access_token")
+
+if token:
+    download_link = f"https://global-job-aggregator-production.up.railway.app/download/bonus-kit?token={token}"
+
+    st.link_button(
+        "⬇ Download Bonus Career Kit",
+        download_link,
+        use_container_width=True
+    )
 
 ---
 
