@@ -147,33 +147,11 @@ def download_bonus_kit(token: str):
     return FileResponse(
         BONUS_FILE_PATH,
         filename="JobHunt++_Career_Kit.zip",
-        media_type="application/zip"
+        media_type="application/zip",
+        headers={"Content-Disposition": "attachment"}
     )
 
-    # Validate token
-    valid, message = verify_and_register_session(token, str(uuid.uuid4()))
-
-    if not valid:
-        raise HTTPException(status_code=403, detail="Invalid or expired token")
-
-    if not os.path.exists(BONUS_FILE_PATH):
-        raise HTTPException(status_code=404, detail="Bonus kit not found")
-
-    return FileResponse(
-        BONUS_FILE_PATH,
-        filename="JobHunt++_Career_Kit.zip",
-        media_type="application/zip"
-    )
-
-    if not os.path.exists(BONUS_FILE_PATH):
-        raise HTTPException(status_code=404, detail="Bonus kit not found")
-
-    return FileResponse(
-        BONUS_FILE_PATH,
-        filename="JobHunt++_Career_Kit.zip",
-        media_type="application/zip"
-    )
-
+      
 # ===============================
 # SEARCH ENGINE IMPORTS
 # ===============================
