@@ -584,4 +584,3 @@ st.markdown(
     unsafe_allow_html=True
     
 )
-st.sidebar.write("VERSION TEST 123")
