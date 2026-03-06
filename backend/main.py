@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 import pandas as pd
 from typing import List, Optional
@@ -24,6 +25,8 @@ load_dotenv()
 # ===============================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+
+BONUS_FILE_PATH = os.path.join(BASE_DIR, "bonus_files", "jobhunt_bonus_kit.zip")
 
 # ===============================
 # APP INIT
@@ -121,7 +124,20 @@ def health():
 def view_payments():
     return get_all_payments()
 
+# ===============================
+# BONUS KIT DOWNLOAD
+# ===============================
+@app.get("/download/bonus-kit")
+def download_bonus_kit():
 
+    if not os.path.exists(BONUS_FILE_PATH):
+        raise HTTPException(status_code=404, detail="Bonus kit not found")
+
+    return FileResponse(
+        BONUS_FILE_PATH,
+        filename="JobHunt++_Career_Kit.zip",
+        media_type="application/zip"
+    )
 # ===============================
 # SEARCH ENGINE IMPORTS
 # ===============================
