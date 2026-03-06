@@ -384,7 +384,7 @@ posted_days = st.slider(
 )
 # If the user changes inputs, clear old results so they don't see "ghost" data
 # 🎁 BONUS CAREER KIT DOWNLOAD
-token = st.session_state.get("token")
+token = st.session_state.get("token") or st.session_state.get("access_token")
 
 if token:
     download_link = f"{BACKEND_URL}/download/bonus-kit?token={quote(token)}"
