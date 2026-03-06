@@ -35,7 +35,7 @@ def show_getting_started_panel():
                 margin-top:8px;
                 margin-bottom:20px;
             ">
-            ⬇ Download Bonus Career Kit
+            Download Kit
             </button>
         </a>
         """, unsafe_allow_html=True)
