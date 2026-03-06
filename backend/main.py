@@ -120,6 +120,7 @@ async def verify_access(request: Request):
 def health():
     return {"status": "ok"}
 
+
 @app.get("/admin/payments")
 def view_payments():
     return get_all_payments()
@@ -138,6 +139,7 @@ def download_bonus_kit():
         filename="JobHunt++_Career_Kit.zip",
         media_type="application/zip"
     )
+
 # ===============================
 # SEARCH ENGINE IMPORTS
 # ===============================
