@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 # DB imports
 from backend.payments.db import save_payment
-from backend.payments.db import get_db_connection
+from backend.payments.db import get_db()
 
 # 🆕 Email service import
 from backend.services.email_service import send_access_email, send_admin_alert
