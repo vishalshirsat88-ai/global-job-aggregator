@@ -48,6 +48,13 @@ from openpyxl.utils import get_column_letter
 def export_to_excel(df):
     df_export = df.copy()
 
+    # ----- Job Application Tracking Columns -----
+    df_export["Application Status"] = "Not Applied"
+    df_export["Date Applied"] = ""
+    df_export["Follow-up Date"] = ""
+    df_export["Contact Person"] = ""
+    df_export["Notes"] = ""
+    
     # Remove Source column
     df_export = df_export.drop(columns=["Source", "source"], errors="ignore")
 
