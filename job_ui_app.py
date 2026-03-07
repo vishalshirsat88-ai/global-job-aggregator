@@ -54,6 +54,14 @@ def export_to_excel(df):
     df_export["Follow-up Date"] = ""
     df_export["Contact Person"] = ""
     df_export["Notes"] = ""
+
+    tracking_columns = [
+        "Application Status",
+        "Date Applied",
+        "Follow-up Date",
+        "Contact Person",
+        "Notes"
+    ]
     
     # Remove Source column
     df_export = df_export.drop(columns=["Source", "source"], errors="ignore")
@@ -75,18 +83,31 @@ def export_to_excel(df):
     with pd.ExcelWriter(output, engine="openpyxl") as writer:
         df_export.to_excel(writer, index=False, sheet_name="Jobs")
         ws = writer.sheets["Jobs"]
+        ws.insert_rows(1)
+
+        ws["A1"] = "Note: Orange columns are provided for tracking your job applications."
+        ws["A1"].font = Font(bold=True, color="FF8A00")
 
         # Header styling
         header_fill = PatternFill(start_color="4F6CF7", end_color="4F6CF7", fill_type="solid")
+        tracking_fill = PatternFill(start_color="FF8A00", end_color="FF8A00", fill_type="solid")
+        
         header_font = Font(color="FFFFFF", bold=True)
-
-        for cell in ws[1]:
-            cell.fill = header_fill
+        
+        for col_idx, cell in enumerate(ws[1], 1):
+        
+            column_name = df_export.columns[col_idx - 1]
+        
+            if column_name in tracking_columns:
+                cell.fill = tracking_fill
+            else:
+                cell.fill = header_fill
+        
             cell.font = header_font
             cell.alignment = Alignment(horizontal="center")
 
         # Freeze header row
-        ws.freeze_panes = "A2"
+        ws.freeze_panes = "A3"
 
         # Apply filter safely
         ws.auto_filter.ref = f"A1:{ws.cell(row=ws.max_row, column=ws.max_column).coordinate}"
