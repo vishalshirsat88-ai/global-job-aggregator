@@ -86,7 +86,7 @@ def export_to_excel(df):
         ws.insert_rows(1)
 
         ws["B1"] = "Note: Orange columns are provided for tracking your job applications."
-        ws["11"].font = Font(bold=True, color="FF8A00")
+        ws["B1"].font = Font(bold=True, color="FF8A00")
 
         # Header styling
         header_fill = PatternFill(start_color="4F6CF7", end_color="4F6CF7", fill_type="solid")
