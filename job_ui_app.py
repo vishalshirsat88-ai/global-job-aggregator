@@ -94,7 +94,7 @@ def export_to_excel(df):
         
         header_font = Font(color="FFFFFF", bold=True)
         
-        for col_idx, cell in enumerate(ws[1], 1):
+        for col_idx, cell in enumerate(ws[2], 1):
         
             column_name = df_export.columns[col_idx - 1]
         
