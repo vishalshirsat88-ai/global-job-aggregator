@@ -141,7 +141,7 @@ async def razorpay_webhook(request: Request):
             cur = conn.cursor()
     
             cur.execute(
-                "SELECT access_token FROM payments WHERE razorpay_order_id=%s",
+                "SELECT access_token FROM payments WHERE order_id=%s",
                 (order_id,)
             )
     
