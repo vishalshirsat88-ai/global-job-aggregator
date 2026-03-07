@@ -110,11 +110,11 @@ def export_to_excel(df):
         ws.freeze_panes = "A3"
 
         # Apply filter safely
-        ws.auto_filter.ref = f"A1:{ws.cell(row=ws.max_row, column=ws.max_column).coordinate}"
+        ws.auto_filter.ref = f"A2:{ws.cell(row=ws.max_row, column=ws.max_column).coordinate}"
 
         # Alternate row shading
         alt_fill = PatternFill(start_color="F4F6FF", end_color="F4F6FF", fill_type="solid")
-        for row in range(2, ws.max_row + 1):
+        for row in range(3, ws.max_row + 1):
             if row % 2 == 0:
                 for col in range(1, ws.max_column + 1):
                     ws.cell(row=row, column=col).fill = alt_fill
