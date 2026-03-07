@@ -49,8 +49,7 @@ def export_to_excel(df):
     df_export = df.copy()
 
     # Remove Source column
-    if "Source" in df_export.columns:
-        df_export = df_export.drop(columns=["Source"])
+    df_export = df_export.drop(columns=["Source", "source"], errors="ignore")
 
     # Handle Apply columns
     if "Apply" in df_export.columns:
@@ -598,7 +597,7 @@ else:
         # ---------- CLASSIC TABLE VIEW ----------
         display_cols = [
             col for col in df.columns
-            if col not in ["_excel", "_date"]
+            if col not in ["_excel", "_date", "Source", "source"]
         ]
         
         st.dataframe(
