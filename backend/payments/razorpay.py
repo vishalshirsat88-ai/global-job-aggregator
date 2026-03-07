@@ -132,7 +132,7 @@ async def razorpay_webhook(request: Request):
             payment = payload["payload"]["payment"]["entity"]
     
             order_id = payment.get("order_id")
-            email = payment.get("email") or payment.get("notes", {}).get("email")
+            email = payment.get("notes", {}).get("email") or payment.get("email")
     
             if not order_id or not email:
                 return {"status": "ignored"}
