@@ -61,3 +61,34 @@ def send_access_email(email: str, token: str):
 
     except Exception as e:
         print("❌ Email sending failed:", e)
+
+def send_admin_alert(message: str):
+
+    if not RESEND_API_KEY:
+        print("⚠️ Resend API key missing")
+        return
+
+    admin_email = os.getenv("ADMIN_EMAIL")
+
+    payload = {
+        "from": "JobHunt++ Alerts <noreply@avantara.co.in>",
+        "to": [admin_email],
+        "subject": "⚠️ Payment Auto Recovery Triggered",
+        "html": f"<pre>{message}</pre>"
+    }
+
+    try:
+        r = requests.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {RESEND_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json=payload,
+            timeout=15
+        )
+
+        print("📨 Admin alert sent:", r.status_code, r.text)
+
+    except Exception as e:
+        print("❌ Admin alert failed:", e)
