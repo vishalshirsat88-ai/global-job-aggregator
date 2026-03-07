@@ -46,7 +46,7 @@ def get_client():
 def create_order(email: str):
 
     client = get_client()
-    amount = 19900   # ₹1 = 100 paise
+    amount = 500   # ₹1 = 100 paise
     
     try:
         order_data = {
