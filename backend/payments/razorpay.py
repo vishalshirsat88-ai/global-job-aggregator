@@ -139,14 +139,15 @@ async def razorpay_webhook(request: Request):
     
             conn = get_db()
             cur = conn.cursor()
-    
-            cur.execute(
-                "SELECT access_token FROM payments WHERE order_id=%s",
-                (order_id,)
-            )
-    
-            exists = cur.fetchone()
-            conn.close()
+
+            try:
+                cur.execute(
+                    "SELECT access_token FROM payments WHERE order_id=%s",
+                    (order_id,)
+                )
+                exists = cur.fetchone()
+            finally:
+                conn.close()
             
             if not exists:
     
