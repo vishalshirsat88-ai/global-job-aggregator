@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 # DB imports
 from backend.payments.db import save_payment
-from backend.payments.db import get_db()
+from backend.payments.db import get_db
 
 # 🆕 Email service import
 from backend.services.email_service import send_access_email, send_admin_alert
@@ -137,7 +137,7 @@ async def razorpay_webhook(request: Request):
             if not order_id or not email:
                 return {"status": "ignored"}
     
-            conn = get_db_connection()
+            conn = get_db()
             cur = conn.cursor()
     
             cur.execute(
