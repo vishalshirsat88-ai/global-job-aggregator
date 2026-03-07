@@ -23,7 +23,6 @@ def init_db():
     conn = get_db()
     cursor = conn.cursor()
 
-
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS payments (
             id SERIAL PRIMARY KEY,
@@ -32,6 +31,26 @@ def init_db():
             access_token TEXT UNIQUE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
+    """)
+
+    # ✅ Add IST column safely
+    cursor.execute("""
+        ALTER TABLE payments
+        ADD COLUMN IF NOT EXISTS created_at_ist TIMESTAMP
+    """)
+
+    # ✅ Populate IST for existing rows
+    cursor.execute("""
+        UPDATE payments
+        SET created_at_ist = created_at + INTERVAL '5 hours 30 minutes'
+        WHERE created_at_ist IS NULL
+    """)
+
+    # ✅ Default for future inserts
+    cursor.execute("""
+        ALTER TABLE payments
+        ALTER COLUMN created_at_ist
+        SET DEFAULT (now() + INTERVAL '5 hours 30 minutes')
     """)
 
     cursor.execute("""
@@ -59,7 +78,7 @@ def save_payment(email, order_id):
 
 
     cursor.execute(
-        "INSERT INTO payments (email, order_id, access_token) VALUES (%s, %s, %s)",
+        "INSERT INTO payments (email, order_id, access_token, created_at_ist) VALUES (%s, %s, %s)",
         (email, order_id, token)
     )
 
