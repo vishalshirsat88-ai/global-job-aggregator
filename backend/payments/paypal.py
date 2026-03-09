@@ -153,7 +153,9 @@ def paypal_success(token: str = None):
 
         # ✅ Correct PayPal path for email
         try:
-            email = data["purchase_units"][0]["payments"]["captures"][0]["custom_id"]
+            email = data["purchase_units"][0].get("custom_id")
+            if not email:
+                email = data["purchase_units"][0]["payments"]["captures"][0].get("custom_id")
         except Exception:
             email = "unknown"
 
@@ -208,3 +210,54 @@ def verify_access(
 @router.get("/payment-cancelled")
 def cancelled():
     return RedirectResponse("/?status=cancelled")
+
+# ===============================
+# 5️⃣ PAYPAL WEBHOOK (RECOVERY FOR CLOSED WINDOWS)
+# ===============================
+@router.post("/webhook")
+async def paypal_webhook(payload: dict):
+
+    event_type = payload.get("event_type")
+
+    print("📩 PayPal Webhook Received:", event_type)
+
+    # Only process successful captures
+    if event_type != "PAYMENT.CAPTURE.COMPLETED":
+        return {"status": "ignored"}
+
+    try:
+        resource = payload.get("resource", {})
+
+        # PayPal order id
+        order_id = resource.get("supplementary_data", {}) \
+                           .get("related_ids", {}) \
+                           .get("order_id")
+
+        # Email stored in custom_id
+        email = resource.get("custom_id")
+
+        if not email:
+            email = resource.get("invoice_id")
+        
+        if not email:
+            email = "unknown"
+
+        print("💰 PayPal Payment Captured")
+        print("Order:", order_id)
+        print("Email:", email)
+
+        # Save payment + generate token
+        access_token_value = save_payment(email, order_id)
+
+        try:
+            send_access_email(email, access_token_value)
+        except Exception as e:
+            print("⚠️ Email send failed:", e)
+
+        print("🔑 Token generated:", access_token_value)
+
+        return {"status": "processed"}
+
+    except Exception as e:
+        print("❌ Webhook processing error:", e)
+        return {"status": "error"}
