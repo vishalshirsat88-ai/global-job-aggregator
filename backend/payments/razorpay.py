@@ -151,7 +151,9 @@ async def razorpay_webhook(request: Request):
                 )
                 exists = cur.fetchone()
             finally:
+                cur.close()
                 conn.close()
+                
             
             if not exists:
     
