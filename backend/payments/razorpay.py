@@ -49,7 +49,7 @@ def get_client():
 def create_order(email: str):
 
     client = get_client()
-    amount = 19900   # ₹1 = 100 paise
+    amount = 500   # ₹1 = 100 paise
     
     try:
         order_data = {
@@ -99,8 +99,9 @@ def verify_payment(data: RazorpayVerifyRequest):
     try:
         access_token = save_payment(
             data.email,
-            data.razorpay_payment_id,
-            "razorpay"
+            data.razorpay_order_id,
+            "razorpay",
+            data.razorpay_payment_id
         )
 
         # 🆕 SEND EMAIL (non-blocking safe call)
@@ -161,8 +162,9 @@ async def razorpay_webhook(request: Request):
     
                 access_token = save_payment(
                     email,
-                    payment["id"],
-                    "razorpay"
+                    order_id,
+                    "razorpay",
+                    payment["id"]
                 )
     
                 # Send user access email
