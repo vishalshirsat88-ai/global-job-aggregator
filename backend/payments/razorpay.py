@@ -97,12 +97,7 @@ def verify_payment(data: RazorpayVerifyRequest):
 
     # 💾 Save payment + generate token
     try:
-        access_token = save_payment(
-            data.email,
-            data.razorpay_order_id,
-            "razorpay",
-            data.razorpay_payment_id
-        )
+        access_token = save_payment(data.email, data.razorpay_order_id)
 
         # 🆕 SEND EMAIL (non-blocking safe call)
         try:
@@ -147,25 +142,18 @@ async def razorpay_webhook(request: Request):
 
             try:
                 cur.execute(
-                    "SELECT access_token FROM payments WHERE payment_id=%s",
-                    (payment["id"],)
+                    "SELECT access_token FROM payments WHERE order_id=%s",
+                    (order_id,)
                 )
                 exists = cur.fetchone()
             finally:
-                cur.close()
                 conn.close()
-                
             
             if not exists:
     
                 print("⚠️ Recovering missed payment:", order_id)
     
-                access_token = save_payment(
-                    email,
-                    order_id,
-                    "razorpay",
-                    payment["id"]
-                )
+                access_token = save_payment(email, order_id)
     
                 # Send user access email
                 try:
