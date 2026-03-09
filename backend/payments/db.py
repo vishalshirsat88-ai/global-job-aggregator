@@ -1,3 +1,5 @@
+db.py 9th march
+
 import psycopg2
 import os
 import uuid
@@ -51,7 +53,7 @@ def init_db():
 # ===============================
 # SAVE PAYMENT + GENERATE TOKEN
 # ===============================
-def save_payment(email, order_id, provider, payment_id=None):
+def save_payment(email, order_id):
     token = str(uuid.uuid4()).strip()
 
     conn = get_db()
@@ -59,11 +61,8 @@ def save_payment(email, order_id, provider, payment_id=None):
 
 
     cursor.execute(
-    """
-    INSERT INTO payments (email, order_id, payment_provider, payment_id, access_token)
-    VALUES (%s,%s,%s,%s,%s)
-    """,
-    (email, order_id, provider, payment_id, token)
+        "INSERT INTO payments (email, order_id, access_token) VALUES (%s, %s, %s)",
+        (email, order_id, token)
     )
 
     conn.commit()
