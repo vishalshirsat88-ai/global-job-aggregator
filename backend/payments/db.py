@@ -52,11 +52,23 @@ def init_db():
 # SAVE PAYMENT + GENERATE TOKEN
 # ===============================
 def save_payment(email, order_id):
-    token = str(uuid.uuid4()).strip()
-
     conn = get_db()
     cursor = conn.cursor()
 
+    # ✅ Check if this order already exists
+    cursor.execute(
+        "SELECT access_token FROM payments WHERE order_id=%s",
+        (order_id,)
+    )
+    existing = cursor.fetchone()
+
+    if existing:
+        cursor.close()
+        conn.close()
+        return existing[0]
+
+    # ✅ Generate new token
+    token = str(uuid.uuid4()).strip()
 
     cursor.execute(
         "INSERT INTO payments (email, order_id, access_token) VALUES (%s, %s, %s)",
@@ -66,7 +78,6 @@ def save_payment(email, order_id):
     conn.commit()
     cursor.close()
     conn.close()
-
 
     return token
 
