@@ -1,5 +1,3 @@
-db.py 9th march
-
 import psycopg2
 import os
 import uuid
