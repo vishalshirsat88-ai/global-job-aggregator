@@ -51,7 +51,7 @@ def init_db():
 # ===============================
 # SAVE PAYMENT + GENERATE TOKEN
 # ===============================
-def save_payment(email, payment_id, provider):
+def save_payment(email, order_id, provider, payment_id=None):
     token = str(uuid.uuid4()).strip()
 
     conn = get_db()
@@ -60,10 +60,10 @@ def save_payment(email, payment_id, provider):
 
     cursor.execute(
     """
-    INSERT INTO payments (email, payment_id, payment_provider, access_token)
-    VALUES (%s,%s,%s,%s)
+    INSERT INTO payments (email, order_id, payment_provider, payment_id, access_token)
+    VALUES (%s,%s,%s,%s,%s)
     """,
-    (email, payment_id, provider, token)
+    (email, order_id, provider, payment_id, token)
     )
 
     conn.commit()
