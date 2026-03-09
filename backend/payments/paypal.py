@@ -160,7 +160,11 @@ def paypal_success(token: str = None):
         order_id = data["id"]
 
         # ✅ Generate & Save Access Token
-        access_token_value = save_payment(email, order_id)
+        access_token_value = save_payment(
+            email,
+            order_id,
+            "paypal"
+        )
         
         try:
             send_access_email(email, access_token_value)
