@@ -37,7 +37,7 @@ class RazorpayVerifyRequest(BaseModel):
 # ===============================
 def get_client():
     if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
-        raise HTTPException(status_code=500, detail="Razorpay not configured")
+        raise HTTPException(status_code=19900, detail="Razorpay not configured")
     return razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
 
