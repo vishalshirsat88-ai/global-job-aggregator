@@ -619,7 +619,7 @@
         
         <div class="inline-flex active-pill px-8 py-3 rounded-full text-sm md:text-base font-extrabold uppercase tracking-[0.25em] mb-12 items-center gap-3">
             <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
-            10000+ HAPPY USERS ONBOARDED
+            Early Access Launch
         </div>
 
         <h1 class="heading-font text-5xl md:text-8xl font-extrabold mb-8 leading-[1.1] tracking-tight">
@@ -634,7 +634,9 @@
         <div class="max-w-2xl mx-auto mb-12 text-gray-300 text-lg">
             <p class="mb-4 font-extrabold pink-gradient-animate text-4xl leading-tight">Meet your new shortcut.</p>
             <p>A single tool to access all top job listings, filter by your skills, level, and country, and apply in one click.</p>
-            <p class="mt-4 font-medium text-indigo-400">Smart. Clean. Daily-updated. Yours for just ₹199.</p>
+            <p class="mt-4 font-medium text-indigo-400">
+            Smart. Clean. Daily-updated. Yours for just <span class="dynamic-price">₹199</span>.
+            </p>
         </div>
 
         <button id="hero-cta" onclick="handlePaymentClick()" class="premium-button cta-attention px-10 py-5 rounded-2xl text-xl font-extrabold flex items-center gap-3 mx-auto">
@@ -927,7 +929,7 @@
         <div class="max-w-5xl mx-auto text-center">
 
             <h2 class="heading-font text-4xl md:text-6xl font-bold mb-16">
-                Trusted by 10,000+ Job Seekers
+                Early users joining daily
             </h2>
 
             <div class="testimonial-wrapper">
@@ -1027,7 +1029,10 @@
                     <div class="absolute top-0 right-0 bg-indigo-500 px-4 py-1 text-xs font-bold">SMART CHOICE</div>
                     <h4 class="text-2xl font-bold mb-6 text-white">JobHunt++</h4>
                     <div class="text-5xl font-black text-white mb-2">
-                    ₹199 <span class="text-lg text-gray-500 line-through ml-2">₹999</span>
+                    <span class="dynamic-price">₹199</span>
+                    <span class="text-lg text-gray-500 line-through ml-2">
+                    <span class="dynamic-original">₹999</span>
+                    </span>
                     </div>
                     <p class="text-indigo-300 font-bold mb-8 italic">That’s it.</p>
                     <p class="text-sm font-bold text-white mb-4 uppercase">And you get…</p>
@@ -1251,7 +1256,7 @@
         <div class="exit-box">
             <h3>WAIT! Don’t Miss This Launch Offer 🚀</h3>
             <p>
-                Get <b>Lifetime Access for ₹199</b> today only.<br>
+                Get <b>Lifetime Access for <span class="dynamic-price">₹199</span></b> today only.
                 Price goes up to <b>₹499 tomorrow</b>.
             </p>
 
@@ -1271,7 +1276,7 @@
     <div id="sticky-cta" class="sticky-cta">
         <div class="sticky-cta-inner">
             <div class="sticky-text">
-                <span class="price">₹199</span>
+                <span class="price dynamic-price">₹199</span>
                 <span class="label">Lifetime Access</span>
             </div>
             <button onclick="handlePaymentClick()" class="sticky-button">
@@ -1332,8 +1337,28 @@ async function detectUserCountry() {
         }
     } catch {}
 }
-detectUserCountry();
+(async () => {
+    await detectUserCountry();
+    updateDisplayedPrice();
+})();
 
+function updateDisplayedPrice() {
+
+    const priceEls = document.querySelectorAll(".dynamic-price");
+    const originalEls = document.querySelectorAll(".dynamic-original");
+
+    if (userCountry === "IN") {
+
+        priceEls.forEach(el => el.innerText = "₹199");
+        originalEls.forEach(el => el.innerText = "₹999");
+
+    } else {
+
+        priceEls.forEach(el => el.innerText = "$4.99");
+        originalEls.forEach(el => el.innerText = "$19");
+
+    }
+}
 /* ===============================
 HELPERS
 =============================== */
@@ -1449,7 +1474,7 @@ async function handlePaymentClick() {
     /* INDIA → RAZORPAY FIRST */
     try {
         const res = await fetch(
-            `/payments/razorpay/create-order?amount=4900&email=${encodeURIComponent(email)}`,
+            `/payments/razorpay/create-order?amount=19900&email=${encodeURIComponent(email)}`,
             { method: "POST" }
         );
 
