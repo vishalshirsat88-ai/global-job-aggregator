@@ -19,7 +19,7 @@ if "token" not in st.session_state:
     st.session_state["token"] = st.query_params.get("token")
 
 st.set_page_config(
-    page_title="Global Job Aggregator",
+    page_title="JobHunt++",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -274,7 +274,7 @@ section[data-testid="stSidebar"] * {
 </style>
 
 <div style="padding: 30px 0 20px 0; text-align:center;">
-    <div class="hero-title">Global Job Aggregator</div>
+    <div class="hero-title">JobHunt++ — A product of Avantara</div>
     <div class="hero-subtitle">Search smarter. Apply faster.</div>
 </div>
 """, unsafe_allow_html=True)
@@ -417,7 +417,7 @@ st.markdown("""
 #marked this as remark
 #st.markdown("""
 #<div style="padding: 40px 0 30px 0; text-align:center;">
-    #<div class="hero-title">Global Job Aggregator</div>
+    #<div class="hero-title">JobHunt++ — A product of Avantara</div>
     #<div class="hero-subtitle">Search smarter. Apply faster.</div>
 #</div>
 #""", unsafe_allow_html=True)
