@@ -274,7 +274,7 @@ section[data-testid="stSidebar"] * {
 </style>
 
 <div style="padding: 30px 0 20px 0; text-align:center;">
-    <div class="hero-title">JobHunt++ — A product of Avantara</div>
+    <div class="hero-title">JobHunt++ - A product of Avantara</div>
     <div class="hero-subtitle">Search smarter. Apply faster.</div>
 </div>
 """, unsafe_allow_html=True)
