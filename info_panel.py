@@ -9,9 +9,9 @@ def show_getting_started_panel():
     st.markdown("""
 ### 🎁 Your Bonus Career Kit (Included)
 
-✔ AI Negotiation Simulator  
-✔ 25 Resume Templates  
-✔ 20 Cover Letter Templates  
+✔ 🎁 AI Powered prompts and live interview simulation Kit  
+✔ 🎁 Professional Resume Vault    
+✔ 🎁 Smart Cover Letters  
 
 """)
 
