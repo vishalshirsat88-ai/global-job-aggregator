@@ -9,9 +9,10 @@ def show_getting_started_panel():
     st.markdown("""
 ### 🎁 Your Bonus Career Kit (Included)
 
+✔ AI Negotiation Simulator
 ✔ 25 Resume Templates  
 ✔ 20 Cover Letter Templates  
-✔ HR Interview Q&A Guide
+
 """)
 
     token = st.session_state.get("token") or st.session_state.get("access_token")
