@@ -3,16 +3,11 @@ import requests
 import pandas as pd
 import re
 from access_lock import verify_access
-
-def safe_verify_access():
-    try:
-        return verify_access()
-    except Exception:
-        return False
 from urllib.parse import quote
 from datetime import datetime, timedelta
 from info_panel import show_getting_started_panel
 
+verify_access()
 
 if "welcome_shown" not in st.session_state:
     st.session_state["welcome_shown"] = True
