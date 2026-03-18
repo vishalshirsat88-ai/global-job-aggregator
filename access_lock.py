@@ -29,7 +29,21 @@ def verify_access():
         token = st.session_state.get("access_token")
 
     if not token:
-        st.error("❌ Missing access token. Please purchase access first.")
+        st.error("""
+    ❌ Access token missing or expired.
+    
+    🔐 Don’t worry, we’ve got you covered!  
+    This is a security feature to prevent misuse.
+    
+    👉 To access the tool again, simply click the link/button sent to your 📩 email.  
+    Your personal lifetime access link has already been sent.
+    
+    📬 Please check:
+    • Inbox  
+    • Spam / Junk folder  
+    
+    ⚡ Still facing issues? Reach out to support.
+    """)
         st.stop()
 
     # Save token to session permanently
