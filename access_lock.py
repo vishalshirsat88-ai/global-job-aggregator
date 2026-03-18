@@ -35,10 +35,10 @@ def verify_access():
     ⚡⚡ This is NOT an error — just a security check to prevent misuse.
     
     🔐 Don’t worry, we’ve got you covered!  
-    👉 To access the tool again, simply click the button that was sent to your 📩 email
-    from Jobhunt++ Team "noreply@avantara.co.in" at the time of purchase.
+    👉 To access the tool, open the purchase email 📩 from JobHunt++ Team (noreply@avantara.co.in)
+    and click the button inside. 
     
-    📬 Please check:
+    📬 Please check:  
     • Inbox  
     • Spam / Junk folder  
     """)
