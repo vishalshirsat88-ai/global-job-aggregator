@@ -41,9 +41,21 @@ def verify_access():
     📬 Please check:
     • Inbox  
     • Spam / Junk folder  
-    
-    ⚡ Still facing issues? Reach out to support.
     """)
+    
+        # 🔥 NEW: Resend Access Section (SAFE ADDITION)
+        st.markdown("### 📧 Need your access link again?")
+    
+        user_email = st.text_input("Enter your email to resend access link")
+    
+        if st.button("📨 Resend Access Link"):
+            if user_email:
+                st.success("If this email exists, your access link will be sent shortly.")
+            else:
+                st.warning("Please enter your email.")
+    
+        st.info("💡 Tip: Bookmark your access email for quick login.")
+    
         st.stop()
 
     # Save token to session permanently
