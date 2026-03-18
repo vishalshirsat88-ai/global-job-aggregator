@@ -31,18 +31,16 @@ def verify_access():
     if not token:
         st.error("""
     ❌ Access token missing or expired.
+
+    ⚡⚡ This is NOT an error — just a security check to prevent misuse.
     
     🔐 Don’t worry, we’ve got you covered!  
-    This is a security feature to prevent misuse.
-    
-    👉 To access the tool again, simply click the link/button sent to your 📩 email.  
-    Your personal lifetime access link has already been sent.
+    👉 To access the tool again, simply click the button that was sent to your 📩 email
+    from Jobhunt++ Team "noreply@avantara.co.in" at the time of purchase.
     
     📬 Please check:
     • Inbox  
     • Spam / Junk folder  
-    
-    ⚡ Still facing issues? Reach out to support.
     """)
         st.stop()
 
