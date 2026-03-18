@@ -32,7 +32,8 @@ def verify_access():
         st.error("""
     ❌ Access token missing or expired.
     
-    🔐 Don’t worry, we’ve got you covered!  
+    🔐 Don’t worry, we’ve got you covered!
+    ⚠️ This is NOT an error — just a security check.
     This is a security feature to prevent misuse.
     
     👉 To access the tool again, simply click the link/button sent to your 📩 email.  
@@ -46,13 +47,13 @@ def verify_access():
         # 🔥 NEW: Resend Access Section (SAFE ADDITION)
         st.markdown("### 📧 Need your access link again?")
     
-        user_email = st.text_input("Enter your email to resend access link")
+        user_email = st.text_input("Enter your registered email to resend access link")
     
         if st.button("📨 Resend Access Link"):
             if user_email:
                 st.success("If this email exists, your access link will be sent shortly.")
             else:
-                st.warning("Please enter your email.")
+                st.warning("Please enter your registered email.")
     
         st.info("💡 Tip: Bookmark your access email for quick login.")
     
