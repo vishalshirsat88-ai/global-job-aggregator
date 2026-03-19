@@ -66,7 +66,8 @@ app.add_middleware(
 # ===============================
 # DB INIT
 # ===============================
-from backend.payments.db import init_db, verify_and_register_session, get_all_payments
+from backend.payments.db import init_db, verify_and_register_session, get_all_payments, get_db
+from backend.services.email_service import send_access_email
 @app.on_event("startup")
 def startup_event():
     init_db()
@@ -126,6 +127,54 @@ def view_payments():
     return get_all_payments()
 
 # ===============================
+# RESEND ACCESS EMAIL
+# ===============================
+@app.post("/resend-access")
+def resend_access(req: ResendAccessRequest):
+
+    conn = get_db()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            SELECT access_token
+            FROM payments
+            WHERE email=%s
+            ORDER BY created_at DESC
+            LIMIT 1
+        """, (req.email,))
+
+        row = cursor.fetchone()
+
+        if not row:
+            raise HTTPException(
+                status_code=404,
+                detail="No purchase found with this email"
+            )
+
+        token = row[0]
+
+        print(f"🔁 Resend requested for: {req.email}")
+
+        send_access_email(req.email, token)
+
+        return {
+            "success": True,
+            "message": "Access email resent successfully"
+        }
+
+    except Exception as e:
+        print("❌ Resend error:", e)
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to resend access email"
+        )
+
+    finally:
+        cursor.close()
+        conn.close()
+
+# ===============================
 # BONUS KIT DOWNLOAD
 # ===============================
 @app.get("/download/bonus-kit")
@@ -163,6 +212,10 @@ initialize_active_key()
 # ===============================
 # REQUEST SCHEMAS
 # ===============================
+
+class ResendAccessRequest(BaseModel):
+    email: str
+
 class SearchRequest(BaseModel):
     skills: List[str]
     levels: List[str]
