@@ -166,11 +166,14 @@ def resend_access(req: ResendAccessRequest):
             "message": "Access email resent successfully"
         }
 
+    except HTTPException:
+        raise  # 👈 let FastAPI handle it properly
+
     except Exception as e:
         print("❌ Resend error:", e)
         raise HTTPException(
             status_code=500,
-            detail="Failed to resend access email"
+            detail="⚠️ Something went wrong. Please try again."
         )
 
     finally:
