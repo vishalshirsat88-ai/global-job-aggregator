@@ -126,6 +126,9 @@ def health():
 def view_payments():
     return get_all_payments()
 
+class ResendAccessRequest(BaseModel):
+    email: str
+
 # ===============================
 # RESEND ACCESS EMAIL
 # ===============================
@@ -213,8 +216,7 @@ initialize_active_key()
 # REQUEST SCHEMAS
 # ===============================
 
-class ResendAccessRequest(BaseModel):
-    email: str
+
 
 class SearchRequest(BaseModel):
     skills: List[str]
