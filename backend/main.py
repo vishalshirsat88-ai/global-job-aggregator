@@ -9,7 +9,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from backend.engine.fetchers import initialize_active_key
 from backend.routes.legal_pages import router as legal_router
-
+import re
+from datetime import datetime, timedelta
 
 
 import os
@@ -126,6 +127,17 @@ def health():
 def view_payments():
     return get_all_payments()
 
+
+resend_tracker = {}  # email → last request time
+
+def is_valid_email(email: str) -> bool:
+    return re.match(r"[^@]+@[^@]+\.[^@]+", email)
+
+def mask_email(email: str) -> str:
+    name, domain = email.split("@")
+    return name[0] + "****@" + domain
+
+
 class ResendAccessRequest(BaseModel):
     email: str
 
@@ -134,6 +146,24 @@ class ResendAccessRequest(BaseModel):
 # ===============================
 @app.post("/resend-access")
 def resend_access(req: ResendAccessRequest):
+
+    # ✅ Email validation
+    if not is_valid_email(req.email):
+        raise HTTPException(
+            status_code=400,
+            detail="❌ Please enter a valid email address."
+        )
+
+    # ✅ Rate limiting (60 sec)
+    now = datetime.utcnow()
+    if req.email in resend_tracker:
+        last_time = resend_tracker[req.email]
+        if now - last_time < timedelta(seconds=60):
+            raise HTTPException(
+                status_code=429,
+                detail="⏳ Please wait a minute before requesting again."
+            )
+    resend_tracker[req.email] = now
 
     conn = get_db()
     cursor = conn.cursor()
@@ -152,7 +182,7 @@ def resend_access(req: ResendAccessRequest):
         if not row:
             raise HTTPException(
                 status_code=404,
-                detail="No purchase found with this email"
+                detail="❌ Email not found. Please use the same email used during purchase."
             )
 
         token = row[0]
@@ -163,11 +193,11 @@ def resend_access(req: ResendAccessRequest):
 
         return {
             "success": True,
-            "message": "Access email resent successfully"
+            "message": f"✅ Access link sent to {mask_email(req.email)}"
         }
 
     except HTTPException:
-        raise  # 👈 let FastAPI handle it properly
+        raise  # ✅ don’t override real errors
 
     except Exception as e:
         print("❌ Resend error:", e)
