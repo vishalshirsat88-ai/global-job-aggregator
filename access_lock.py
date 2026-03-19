@@ -31,7 +31,7 @@ def verify_access():
     if not token:
         st.error("""
     ❌ Access token missing or expired.
-
+    
     ⚡⚡ This is NOT an error — just a security check to prevent misuse.
     
     🔐 Don’t worry, we’ve got you covered!  
@@ -42,6 +42,35 @@ def verify_access():
     • Inbox  
     • Spam / Junk folder  
     """)
+    
+        # ===============================
+        # 🆕 RESEND ACCESS LINK FEATURE
+        # ===============================
+        st.markdown("### 🔁 Didn't receive your access email?")
+    
+        email_input = st.text_input("Enter your purchase email")
+    
+        if st.button("📩 Resend Access Link"):
+            if not email_input:
+                st.warning("⚠️ Please enter your order email first")
+            else:
+                try:
+                    response = requests.post(
+                        f"{BACKEND_URL}/resend-access",
+                        json={"email": email_input},
+                        timeout=10
+                    )
+    
+                    data = response.json()
+    
+                    if response.status_code == 200:
+                        st.success("✅ Access email sent! Please check your inbox.")
+                    else:
+                        st.error(data.get("detail", "❌ Failed to resend email"))
+    
+                except Exception:
+                    st.error("⚠️ Unable to connect. Please try again later.")
+    
         st.stop()
 
     # Save token to session permanently
